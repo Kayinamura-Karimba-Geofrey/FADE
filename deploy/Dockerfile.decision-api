@@ -1,0 +1,31 @@
+# FADE decision-api image.
+# Build context is the repository root (see deploy/docker-compose.yml).
+FROM golang:1.23.4-alpine3.20 AS builder
+
+ENV CGO_ENABLED=0 \
+    GOOS=linux \
+    GOTOOLCHAIN=local \
+    GOPROXY=https://proxy.golang.org,direct
+
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+
+ARG VERSION=0.1.0
+RUN go build -trimpath \
+    -ldflags "-s -w -X main.version=${VERSION}" \
+    -o /out/decision-api ./cmd/decision-api
+
+# --------------------------------------------------------------- runtime
+FROM alpine:3.20.6
+
+RUN apk add --no-cache ca-certificates \
+    && adduser -D -u 10001 fade
+
+COPY --from=builder /out/decision-api /usr/local/bin/decision-api
+
+USER fade
+EXPOSE 8080
+
+ENTRYPOINT ["/usr/local/bin/decision-api"]

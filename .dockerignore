@@ -1,0 +1,38 @@
+# VCS / IDE
+.git
+.github
+.idea
+.vscode
+
+# Local env & data
+.env
+.env.*
+data
+*.log
+
+# Python
+.venv
+venv
+__pycache__
+*.pyc
+.mypy_cache
+.ruff_cache
+.pytest_cache
+*.parquet
+*.zst
+
+# Node / Next.js
+node_modules
+dashboard/node_modules
+dashboard/.next
+dashboard/out
+*.tsbuildinfo
+
+# Go build artifacts
+bin
+dist
+coverage.out
+
+# Docs & misc not needed in runtime images
+docs
+bench

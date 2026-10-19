@@ -1,0 +1,19 @@
+# FADE Prometheus configuration.
+# Scrapes the FADE services every 5 seconds (see exit check 7).
+
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: decision-api
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - decision-api:8080
+
+  - job_name: ml-scorer
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - ml-scorer:8000

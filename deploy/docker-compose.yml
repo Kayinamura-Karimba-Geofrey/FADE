@@ -91,8 +91,8 @@ services:
       - noeviction
     volumes:
       - redisdata:/data
-    ports:
-      - "6379:6379"
+    # No host port published: `make redis-cli` shells in via `exec`, and the
+    # host's 6379 may be occupied by other local projects.
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s

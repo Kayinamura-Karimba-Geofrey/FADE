@@ -113,7 +113,7 @@ Optional (compose-level): `GRAFANA_ADMIN_PASSWORD` (default `admin`).
 | 3001 | grafana | host | Grafana UI (dashboards) |
 | 9090 | prometheus | host | Prometheus UI / API |
 | 5432 | postgres | host | PostgreSQL 16 |
-| 6379 | redis | host | Redis 7 |
+| 6379 | redis | container network | Redis 7 (`redis:6379`), use `make redis-cli` |
 | 9092 | redpanda | container network | Kafka API (`redpanda:9092`) |
 | 9644 | redpanda | container network | Redpanda admin API |
 

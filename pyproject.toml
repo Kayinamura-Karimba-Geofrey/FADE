@@ -1,0 +1,64 @@
+[project]
+name = "fade"
+version = "0.1.0"
+description = "FADE - Fraud and Anomaly Detection Engine for mobile money"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+# Dependency groups (uv-managed). Install with e.g.:
+#   uv sync --group generator --group ml --group dev
+[dependency-groups]
+generator = [
+    "numpy==2.2.6",
+    "pandas==2.2.3",
+    "pyarrow==18.1.0",
+    "zstandard==0.25.0",
+    "python-ulid==4.0.1",
+    "pydantic==2.10.6",
+    "typer==0.15.1",
+]
+ml = [
+    "scikit-learn==1.6.1",
+    "lightgbm==4.6.0",
+    "shap==0.47.2",
+    "fastapi==0.115.6",
+    "uvicorn==0.34.0",
+    "pydantic==2.10.6",
+    "pandas==2.2.3",
+    "pyarrow==18.1.0",
+    "optuna==4.2.0",
+]
+dev = [
+    "pytest==8.3.4",
+    "ruff==0.8.6",
+    "mypy==1.14.1",
+    "httpx==0.28.1",
+]
+
+[tool.uv]
+# Sync every group by default so `uv sync` is all that CI and contributors need.
+default-groups = ["generator", "ml", "dev"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [".venv", "dashboard", "node_modules"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.12"
+files = ["generator", "ml", "tests"]
+ignore_missing_imports = true
+check_untyped_defs = true

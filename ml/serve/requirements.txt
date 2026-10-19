@@ -1,0 +1,5 @@
+# Runtime dependencies for the ml-scorer image (Phase 0 skeleton).
+# Kept in sync with the [dependency-groups].ml pins in the root pyproject.toml.
+fastapi==0.115.6
+uvicorn==0.34.0
+pydantic==2.10.6

@@ -1,0 +1,58 @@
+# --- Go ---
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/bin/
+/dist/
+coverage.out
+coverage.html
+vendor/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+uv.lock.bak
+
+# --- Node / Next.js ---
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+.eslintcache
+
+# --- Environment / secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Data artifacts ---
+data/
+*.parquet
+*.zst
+*.log
+
+# --- ML model artifacts (keep directory markers) ---
+ml/models/**
+!ml/models/**/
+!ml/models/**/.gitkeep
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+*.swp
+*~

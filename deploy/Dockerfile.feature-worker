@@ -1,0 +1,31 @@
+# FADE feature-worker image (Phase 2 ingestion and feature store).
+FROM golang:1.23.4-alpine3.20 AS builder
+
+ENV CGO_ENABLED=0 \
+    GOOS=linux \
+    GOTOOLCHAIN=local \
+    GOPROXY=https://proxy.golang.org,direct
+
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+
+ARG VERSION=0.3.0
+RUN go build -trimpath \
+    -ldflags "-s -w -X main.version=${VERSION}" \
+    -o /out/feature-worker ./cmd/feature-worker
+
+# --------------------------------------------------------------- runtime
+FROM alpine:3.20.6
+
+RUN apk add --no-cache ca-certificates wget \
+    && adduser -D -u 10001 fade
+
+COPY --from=builder /out/feature-worker /usr/local/bin/feature-worker
+COPY --from=builder /src/config/features.yaml /etc/fade/features.yaml
+
+USER fade
+EXPOSE 8083
+
+ENTRYPOINT ["/usr/local/bin/feature-worker"]

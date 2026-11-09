@@ -6,6 +6,7 @@ Commands:
 * ``verify``  - recompute manifest hashes, row counts and file layout
 * ``report``  - summarise a dataset (stdout table + ``report.md``)
 * ``publish`` - stream a dataset to a Kafka topic (generator.delivery)
+* ``features`` - compute the independent Phase 2 reference feature vectors
 * ``version`` - print the package version
 """
 
@@ -132,7 +133,34 @@ def publish(
         raise typer.Exit(code=1)
 
 
-__all__ = ["app", "main", "run", "version", "verify", "report", "publish", "__version__"]
+@app.command()
+def features(
+    out: Path = typer.Option(..., "--out", help="Dataset directory containing events.parquet"),
+    config: Path = typer.Option(
+        Path("config/features.yaml"), "--config", help="Shared feature YAML"
+    ),
+    events_jsonl: Path | None = typer.Option(
+        None, "--events-jsonl", help="Optional path to export events for the Go parity CLI"
+    ),
+) -> None:
+    """Write features.parquet and features.jsonl from the Python reference."""
+    from generator.reference_features import write_features as run_reference
+
+    count = run_reference(out, out, config, events_jsonl)
+    typer.echo(f"wrote {count} reference feature vectors to {out}")
+
+
+__all__ = [
+    "app",
+    "main",
+    "run",
+    "version",
+    "verify",
+    "report",
+    "publish",
+    "features",
+    "__version__",
+]
 
 if __name__ == "__main__":  # pragma: no cover - exercised via __main__
     app()

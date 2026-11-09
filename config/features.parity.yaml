@@ -1,0 +1,66 @@
+# FADE feature contract - shared verbatim by the Go worker and the Python
+# reference. See docs/features.md. Changing a name/window/default requires a
+# schema version bump; additive fields require a minor bump.
+schema_version: "1.0.0"
+
+windows:
+  velocity_1m_s: 60
+  velocity_10m_s: 600
+  velocity_1h_s: 3600
+  amount_10m_s: 600
+  amount_24h_s: 86400
+  distinct_recip_24h_s: 86400
+  small_txn_1h_s: 3600
+  device_7d_s: 604800
+  recipient_30d_s: 2592000
+  recipient_senders_24h_s: 86400
+  inbound_outbound_1h_s: 3600
+  agent_cico_24h_s: 86400
+  cycle_24h_s: 86400
+  sim_change_72h_s: 259200
+
+stats:
+  min_count_30d: 5
+  daily_buckets: 31
+  daily_window_days: 30
+
+kyc_daily_limits_rwf:
+  1: 50000
+  2: 500000
+  3: 5000000
+
+structuring:
+  threshold_rwf: 500000
+  lower_ratio: 0.90
+  upper_ratio: 1.00
+  min_run: 3
+
+time:
+  timezone: Africa/Kigali
+  night_start_hour: 0
+  night_end_hour: 5
+
+geo:
+  earth_radius_km: 6371.0088
+
+cycle:
+  max_hops: 3
+  max_neighbors: 50
+  max_visited: 200
+  time_budget_ms: 3
+  cache_ttl_s: 0
+
+agent:
+  float_baseline_rwf: 100000
+  hourly_buckets: 31
+
+caps:
+  window_zset: 5000
+  out_edges: 50
+  state_history: 200
+
+retention:
+  state_ttl_s: 2678400
+  window_ttl_s: 2678400
+  edge_ttl_s: 2592000
+  device_ttl_s: 604800

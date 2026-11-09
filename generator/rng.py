@@ -29,7 +29,10 @@ DEFAULT_COMPONENTS: tuple[str, ...] = (
     "plan",  # per account-day behaviour planning (run twice, reset each pass)
     "fraud",  # fraud scenario parameters (spawned once per scenario)
     "noise",  # delivery-noise draws (duplicate / delay / late)
-    "ulid",  # ULID randomness bytes, consumed in event_time order
+    "ulid",   # ULID randomness bytes, consumed in event_time order
+    "channel",  # channel choice per emitted event
+    "labels",  # label-noise flips (labels.parquet only, never events)
+    "amounts",  # amount draws + geo drift at apply time (real pass only)
 )
 
 

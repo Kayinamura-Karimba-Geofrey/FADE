@@ -28,12 +28,11 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import date, timedelta
 from enum import StrEnum
 from typing import Any
 
 from numpy.random import Generator
-from ulid import ULID
 
 HASH_PREFIX_MSISDN = "h_"
 HASH_PREFIX_SIM = "sim_"
@@ -218,10 +217,47 @@ class LabelRecord:
 _CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 
 
+#: Cache of ISO date prefixes by days-since-epoch (populated once per day).
+_DATE_PREFIX: dict[int, str] = {}
+_EPOCH_DATE = date(1970, 1, 1)
+
+
 def format_event_time(ts_ms: int) -> str:
-    """UTC ISO-8601 with milliseconds and ``Z`` (``...T00:00:00.000Z``)."""
-    base = datetime.fromtimestamp(ts_ms // 1000, tz=UTC) + timedelta(milliseconds=ts_ms % 1000)
-    return base.strftime("%Y-%m-%dT%H:%M:%S.") + f"{base.microsecond // 1000:03d}Z"
+    """UTC ISO-8601 with milliseconds and ``Z`` (``...T00:00:00.000Z``).
+
+    Integer arithmetic instead of ``datetime.strftime``: the generator emits
+    millions of timestamps, and the strftime path cost ~40% of emission time
+    in the Audit 9 profile.  A per-day prefix cache keeps it allocation-light.
+    """
+    seconds, millis = divmod(int(ts_ms), 1000)
+    days, second_of_day = divmod(seconds, 86_400)
+    prefix = _DATE_PREFIX.get(days)
+    if prefix is None:
+        prefix = (_EPOCH_DATE + timedelta(days=days)).isoformat()
+        _DATE_PREFIX[days] = prefix
+    hour, rem = divmod(second_of_day, 3_600)
+    minute, second = divmod(rem, 60)
+    return f"{prefix}T{hour:02d}:{minute:02d}:{second:02d}.{millis:03d}Z"
+
+
+#: Two-character Crockford chunks for 10-bit groups (ULID fast path).
+_ULID_PAIRS: tuple[str, ...] = tuple(
+    _CROCKFORD[(v >> 5) & 31] + _CROCKFORD[v & 31] for v in range(1024)
+)
+
+
+def encode_ulid(value: int) -> str:
+    """Crockford base32-encode a 128-bit ULID value (26 chars, big-endian).
+
+    Encodes 13 ten-bit chunks through a lookup table instead of shifting one
+    bit at a time; the slow version cost ~40 microseconds per event in the
+    Audit 9 profile.
+    """
+    out = [""] * 13
+    for i in range(12, -1, -1):
+        out[i] = _ULID_PAIRS[value & 1023]
+        value >>= 10
+    return "".join(out)
 
 
 def make_ulid(ts_ms: int, rng: Generator) -> str:
@@ -231,9 +267,10 @@ def make_ulid(ts_ms: int, rng: Generator) -> str:
     significant 48 bits, so ULID order == event_time order (event_time is
     millisecond-quantised, matching the ULID timestamp field).
     """
-    rand = int.from_bytes(rng.bytes(10), "big")
+    raw = rng.bit_generator.random_raw(2)
+    rand = ((int(raw[0]) << 64) | int(raw[1])) >> 48
     payload = (int(ts_ms) & 0xFFFFFFFFFFFF) << 80 | rand
-    return str(ULID.from_bytes(payload.to_bytes(16, "big")))
+    return encode_ulid(payload)
 
 
 def hash_identifier(seed: int, kind: str, value: str) -> str:
@@ -248,6 +285,13 @@ def hash_identifier(seed: int, kind: str, value: str) -> str:
 
 def crockford_b32(value: int, length: int = 26) -> str:
     """Crockford base32-encode an integer (used for session identifiers)."""
+    if length == 8:  # session suffixes: four 10-bit chunks, table lookup
+        return (
+            _ULID_PAIRS[(value >> 30) & 1023]
+            + _ULID_PAIRS[(value >> 20) & 1023]
+            + _ULID_PAIRS[(value >> 10) & 1023]
+            + _ULID_PAIRS[value & 1023]
+        )
     out = []
     for i in range(length):
         out.append(_CROCKFORD[(value >> (5 * i)) & 31])

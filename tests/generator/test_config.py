@@ -10,6 +10,7 @@ from pydantic import ValidationError
 
 from generator.config import (
     DEFAULT_SEGMENTS,
+    SCENARIO_NAMES,
     GeneratorConfig,
     NoiseConfig,
     TierLimits,
@@ -76,7 +77,15 @@ def test_noise_rate_bounds() -> None:
 def test_noise_range_ordering() -> None:
     with pytest.raises(ValidationError, match="range"):
         NoiseConfig(delay_range_s=(50, 10))
-    assert NoiseConfig().max_delay_s == 600
+    # Late arrivals use (61, 300] s: inside the documented (60, 600] band and
+    # small enough that per-account reordering depth stays <= 300 s (Audit 8).
+    assert NoiseConfig().max_delay_s == 300
+
+
+def test_default_scenario_shares_sum_to_one() -> None:
+    cfg = GeneratorConfig()
+    assert sum(cfg.scenario_shares.values()) == pytest.approx(1.0)
+    assert set(cfg.scenario_shares) == set(SCENARIO_NAMES)
 
 
 def test_tier_validation() -> None:

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from math import asin, cos, radians, sin, sqrt
+from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.random import Generator
@@ -26,6 +27,9 @@ from generator.population.segments import (
     assign_kyc_tiers,
     assign_segments,
 )
+
+if TYPE_CHECKING:  # pragma: no cover - typing only, avoids a circular import
+    from generator.population.graph import Contacts
 
 # --------------------------------------------------------------------------- #
 # Cells
@@ -142,6 +146,8 @@ class Account:
     cur_device: str
     cur_cell: int
     cur_sim: str
+    #: per-account activity multiplier on all source rates (lognormal, E=1.38)
+    activity: float = 1.0
 
     @property
     def region(self) -> str:
@@ -218,6 +224,7 @@ def create_accounts(config: GeneratorConfig, rng: Generator) -> list[Account]:
             opening = max(MIN_OPENING, min(opening, config.tier_limits(tier).balance_cap))
             opening -= opening % 50
 
+        activity = float(rng.lognormal(0.0, 0.8)) if not is_agent else 1.0
         accounts.append(
             Account(
                 idx=idx,
@@ -238,6 +245,7 @@ def create_accounts(config: GeneratorConfig, rng: Generator) -> list[Account]:
                 cur_device=devices[0],
                 cur_cell=home_cell,
                 cur_sim=sim_hash,
+                activity=activity,
             )
         )
 
@@ -305,6 +313,8 @@ class Ledger:
         * ``CASH_OUT`` debits the sender by ``amount + fee`` and debits the
           agent's float by ``amount`` (the agent hands out cash).
         """
+        if sender < 0 or recipient < 0:
+            raise LedgerViolation(f"invalid ledger index sender={sender} recipient={recipient}")
         bal = self.balances
         amount = event.amount
         fee = event.fee
@@ -336,11 +346,27 @@ class Ledger:
         # daily volume (sender side, amount + fee) - checked against tier limits
         self.daily_spent[sender] = self.daily_spent.get(sender, 0) + amount + fee
 
-        if not event.recipient.first_seen_by_sender:
-            self.mark_seen(sender, recipient)
+        # Always remember the pair: ``first_seen_by_sender`` was computed by
+        # the caller *before* apply, so the next event from this sender sees
+        # the recipient as known.  (Defect fixed in Audit 2 review: the old
+        # inverted condition never marked the first contact, making every
+        # event look like a first contact.)
+        self.mark_seen(sender, recipient)
 
     def total(self) -> int:
         return sum(self.balances)
+
+
+@dataclass(frozen=True, slots=True)
+class SpecialAccount:
+    """A non-customer ledger wallet: telecom, a biller or an external bank."""
+
+    idx: int
+    account_id: str
+    kind: str  # "telecom" | "biller" | "bank"
+    name: str
+    msisdn_hash: str
+    opening_balance: int
 
 
 @dataclass(slots=True)
@@ -355,6 +381,7 @@ class World:
     merchant_payers: dict[int, list[int]] = field(default_factory=dict)
     customer_agents: dict[int, list[int]] = field(default_factory=dict)
     agent_customers: dict[int, list[int]] = field(default_factory=dict)
+    contacts: dict[int, Contacts] = field(default_factory=dict)
 
     @property
     def n_accounts(self) -> int:
@@ -378,8 +405,3 @@ class World:
         if idx < len(self.accounts):
             return self.accounts[idx].account_id
         return self.specials[idx - len(self.accounts)].account_id
-
-
-# SpecialAccount is defined in population.graph; import it here at the end to
-# avoid a circular import at module load (graph imports helpers from here).
-from generator.population.graph import SpecialAccount  # noqa: E402

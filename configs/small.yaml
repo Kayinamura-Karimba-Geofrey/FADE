@@ -1,0 +1,5 @@
+# data/small - fast audits (spec: 2000 accounts, 14 days, seed 7)
+accounts: 2000
+days: 14
+seed: 7
+start_date: 2026-01-01

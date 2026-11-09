@@ -93,7 +93,7 @@ _SALARIED = SegmentProfile(
         "airtime": 0.16,
         "bill": 0.15,
         "cash_out": 0.05,
-        "bank_out": 0.04,
+        "bank_out": 0.015,  # savings transfer; keeps wallet roughly neutral
         "salary_in": 0.95 / 4.0,  # ~1 salary per month over days 25-28
         "first_large": 0.002,
     },
@@ -140,14 +140,15 @@ _SMALL_TRADER = SegmentProfile(
     ),
     weekend_hourly=None,
     rates={
-        "merchant_in": 0.65,
-        "cash_out": 0.85,
+        # inflows: customer sales (merchant_in) + cash deposits at an agent
+        "merchant_in": 1.10,
+        "cash_out": 0.10,  # occasional cash withdrawal for the till
         "cash_in": 0.12,
         "p2p_out": 0.10,
         "airtime": 0.10,
         "merchant_out": 0.08,
         "bill": 0.06,
-        "bank_out": 0.02,
+        "bank_out": 0.01,  # supplier payments
         "restock": 0.010,  # night restocking (gated 01:00-04:00 local)
         "first_large": 0.001,
     },
@@ -201,6 +202,7 @@ _STUDENT_PARENT = SegmentProfile(
         "p2p_out": 0.12,
         "merchant_out": 0.12,
         "bill": 0.08,
+        "cash_in": 0.15,  # parents deposit cash before paying for things
         "school_fee": 0.05,  # gated: first 10 days of term (Jan/May/Sep)
         "first_large": 0.001,
     },
@@ -209,6 +211,7 @@ _STUDENT_PARENT = SegmentProfile(
         "p2p_out": (8.00, 0.70),  # ~3k
         "merchant_out": (8.30, 0.80),  # ~4k
         "bill": (9.20, 0.60),  # ~10k
+        "cash_in": (9.70, 0.70),  # ~16k deposit
         "school_fee": (9.60, 0.50),  # ~15k base, 3-10x => 45-150k
         "first_large": (9.00, 0.50),
     },
@@ -246,7 +249,7 @@ _RURAL_SAVER = SegmentProfile(
     weekend_hourly=None,
     rates={
         "cash_out": 0.20,
-        "cash_in": 0.06,
+        "cash_in": 0.35,  # regular deposits: the "saver" habit
         "airtime": 0.10,
         "p2p_out": 0.03,
         "bill": 0.04,
@@ -322,6 +325,7 @@ _URBAN_YOUTH = SegmentProfile(
         "airtime": 0.32,
         "merchant_out": 0.22,
         "bill": 0.06,
+        "cash_in": 0.25,  # deposits from side gigs / allowances
         "first_large": 0.002,
     },
     amount_params={
@@ -329,6 +333,7 @@ _URBAN_YOUTH = SegmentProfile(
         "airtime": (7.30, 0.70),  # ~1.5k
         "merchant_out": (8.15, 0.80),  # ~3.5k
         "bill": (8.70, 0.60),  # ~6k
+        "cash_in": (9.30, 0.70),  # ~11k deposit
         "first_large": (9.00, 0.50),
     },
     weekday_multipliers={5: 1.15, 6: 1.15},  # weekend evening peaks

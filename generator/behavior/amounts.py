@@ -24,6 +24,12 @@ MIN_AMOUNT = 100
 #: Largest raw draw cap before balance/limit clamping (RWF).
 MAX_AMOUNT = 50_000_000
 
+#: Probability that a drawn amount is snapped to a whole-thousands value
+#: (real users type 5,000 / 20,000 far more often than 4,837).  Applies to
+#: every lognormal draw, keeping the round-number rate of P2P_SEND and
+#: MERCHANT_PAY in the 25-60% band required by Audit 5.
+ROUND_1000_RATE = 0.40
+
 
 def fee_for(amount: int) -> int:
     """Tiered fee for an amount in RWF (see module docstring)."""
@@ -51,6 +57,10 @@ def sample_amount(rng: Generator, mu: float, sigma: float, cap: int) -> int:
     value = int(raw)
     if value >= MIN_AMOUNT:
         value -= value % 50
+    if rng.random() < ROUND_1000_RATE:
+        rounded = int(round(value / 1000.0)) * 1000
+        if rounded >= MIN_AMOUNT:
+            value = rounded
     value = max(MIN_AMOUNT, min(value, MAX_AMOUNT))
     if value > cap:
         value = cap

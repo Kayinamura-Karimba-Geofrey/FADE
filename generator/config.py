@@ -30,6 +30,30 @@ DEFAULT_SEGMENTS: dict[str, float] = {
     "urban_youth": 0.15,
 }
 
+#: The seven fraud scenarios (label values in labels.parquet).
+SCENARIO_NAMES: tuple[str, ...] = (
+    "VELOCITY",
+    "STRUCTURING",
+    "ATO_SIMSWAP",
+    "MULE",
+    "AGENT_FRAUD",
+    "CIRCULAR",
+    "SOCIAL_ENG",
+)
+
+#: Default per-scenario share of the fraud event budget.  Shares are chosen
+#: so the fraud-touched account share lands near fraud_account_share (see
+#: docs/phase-1-audit.md, Audit 6).
+DEFAULT_SCENARIO_SHARES: dict[str, float] = {
+    "VELOCITY": 0.49,
+    "STRUCTURING": 0.315,
+    "SOCIAL_ENG": 0.06,
+    "AGENT_FRAUD": 0.06,
+    "CIRCULAR": 0.05,
+    "ATO_SIMSWAP": 0.02,
+    "MULE": 0.005,
+}
+
 _DEFAULT_TIERS: dict[int, dict[str, int]] = {
     1: {"daily_limit": 200_000, "balance_cap": 500_000},
     2: {"daily_limit": 1_000_000, "balance_cap": 2_000_000},
@@ -46,7 +70,10 @@ class NoiseConfig(BaseModel):
     delay_rate: float = 0.02
     delay_range_s: tuple[int, int] = (1, 45)
     late_rate: float = 0.001
-    late_range_s: tuple[int, int] = (61, 600)
+    # Upper bound 300 s (well inside the documented (60, 600] late band) so
+    # the worst-case per-account out-of-order depth stays <= 300 s - see
+    # docs/phase-1-audit.md (Audit 8).
+    late_range_s: tuple[int, int] = (61, 300)
 
     @field_validator("duplicate_rate", "delay_rate", "late_rate")
     @classmethod
@@ -131,6 +158,11 @@ class GeneratorConfig(BaseModel):
     segments: dict[str, float] = Field(default_factory=lambda: dict(DEFAULT_SEGMENTS))
     noise: NoiseConfig = Field(default_factory=NoiseConfig)
     drift: DriftConfig = Field(default_factory=DriftConfig)
+    #: Per-scenario share of the fraud event budget (must sum to 1).
+    scenario_shares: dict[str, float] = Field(default_factory=dict)
+    #: Probability of flipping a ground-truth label in labels.parquet.
+    #: Events are never modified - only the label table (see Audit 7).
+    label_noise: float = 0.0
     kyc_tiers: dict[int, TierLimits] = Field(
         default_factory=lambda: {k: TierLimits(**v) for k, v in _DEFAULT_TIERS.items()}
     )
@@ -191,6 +223,40 @@ class GeneratorConfig(BaseModel):
         if not set(v) <= {1, 2, 3}:
             raise ValueError("kyc_tiers keys must be a subset of {1, 2, 3}")
         return v
+
+    @field_validator("label_noise")
+    @classmethod
+    def _label_noise_range(cls, v: float) -> float:
+        if not 0.0 <= v < 1.0:
+            raise ValueError("label_noise must be within [0, 1)")
+        return v
+
+    @field_validator("scenario_shares")
+    @classmethod
+    def _shares_valid(cls, v: dict[str, float]) -> dict[str, float]:
+        if not v:
+            return v  # filled with defaults in the model validator below
+        unknown = set(v) - set(SCENARIO_NAMES)
+        if unknown:
+            raise ValueError(f"unknown scenarios: {sorted(unknown)}")
+        for name, share in v.items():
+            if not 0.0 < share <= 1.0:
+                raise ValueError(f"scenario share for {name!r} must be within (0, 1]")
+        if abs(sum(v.values()) - 1.0) > 1e-6:
+            raise ValueError(f"scenario_shares must sum to 1, got {sum(v.values()):.6f}")
+        return v
+
+    @model_validator(mode="after")
+    def _defaults_filled(self) -> GeneratorConfig:
+        # Fill scenario shares from the default table on construction so
+        # downstream code never sees an empty mapping.  Re-validate the
+        # defaults too: a typo here would otherwise only surface at run time.
+        if not self.scenario_shares:
+            object.__setattr__(self, "scenario_shares", dict(DEFAULT_SCENARIO_SHARES))
+        total = sum(self.scenario_shares.values())
+        if abs(total - 1.0) > 1e-6:
+            raise ValueError(f"scenario_shares must sum to 1, got {total:.6f}")
+        return self
 
     @model_validator(mode="after")
     def _shares_sum_to_one(self) -> GeneratorConfig:

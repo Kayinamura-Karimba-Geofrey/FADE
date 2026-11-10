@@ -38,8 +38,8 @@ services:
       - --reserve-memory=0M
       - --node-id=0
       - --check=false
-      - --kafka-addr=internal://0.0.0.0:9092
-      - --advertise-kafka-addr=internal://redpanda:9092
+      - --kafka-addr=internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr=internal://redpanda:9092,external://localhost:19092
       - --rpc-addr=0.0.0.0:33145
       - --advertise-rpc-addr=redpanda:33145
       # admin API listens on 0.0.0.0:9644 by default (redpanda property)
@@ -50,6 +50,8 @@ services:
       - --default-log-level=warn
     volumes:
       - redpandadata:/var/lib/redpanda/data
+    ports:
+      - "19092:19092"
     healthcheck:
       test: ["CMD-SHELL", "rpk cluster info >/dev/null 2>&1"]
       interval: 10s
@@ -91,8 +93,10 @@ services:
       - noeviction
     volumes:
       - redisdata:/data
-    # No host port published: `make redis-cli` shells in via `exec`, and the
-    # host's 6379 may be occupied by other local projects.
+    # 6380 on the host is the local parity/test endpoint; containers use
+    # redis:6379. Publishing 6379 would collide with common local Redis.
+    ports:
+      - "6380:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -167,6 +171,45 @@ services:
       timeout: 3s
       retries: 12
       start_period: 5s
+
+  # --------------------------------------------------------- feature-worker
+  feature-worker:
+    image: fade-feature-worker:0.3.0
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.feature-worker
+    restart: unless-stopped
+    profiles: [app]
+    depends_on:
+      redpanda:
+        condition: service_healthy
+      redpanda-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKERS: redpanda:9092
+      KAFKA_TOPIC: txn.raw
+      KAFKA_GROUP_ID: fade-feature-worker
+      KAFKA_DLQ_TOPIC: txn.dead
+      FEATURE_OUTPUT_TOPIC: ""
+      REDIS_ADDR: redis:6379
+      REDIS_DB: "0"
+      WORKERS_PER_PARTITION: "1"
+      MAX_INFLIGHT_PER_PARTITION: "256"
+      LATE_TOLERANCE_S: "60"
+      DEDUPE_TTL_S: "86400"
+      FEATURE_CONFIG: /etc/fade/features.yaml
+      WORKER_HTTP_ADDR: ":8083"
+      LOG_LEVEL: info
+    ports:
+      - "8083:8083"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8083/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
 
   # ------------------------------------------------------------- ml-scorer
   ml-scorer:

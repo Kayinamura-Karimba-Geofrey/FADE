@@ -7,9 +7,18 @@ COMPOSE := docker compose -f deploy/docker-compose.yml --env-file "$(CURDIR)/.en
 PROFILES := --profile infra --profile app
 GO := go
 UV := uv
+PY := .venv/bin/python
+DATA ?= small
+TMP ?= /tmp/fade-parity
+PARITY_REDIS ?= localhost:6380
+PARITY_REDIS_DB ?= 15
+RATE ?= 1000
+DURATION ?= 10s
 
 .PHONY: help env up up-infra down nuke logs ps migrate migrate-down topics \
-        test lint fmt build psql redis-cli clean
+        test test-integration lint fmt build psql redis-cli clean \
+        gen-features worker parity-golden parity-small parity-run42 \
+        load-ingest lag dlq redis-flush bench-feature
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -69,6 +78,62 @@ psql: ## Open a psql shell in Postgres
 
 redis-cli: ## Open a redis-cli shell in Redis
 	$(COMPOSE) --profile infra exec redis redis-cli
+
+gen-features: ## Compute reference features for DATA (default: small)
+	$(PY) -m generator features --out data/$(DATA) --config config/features.yaml
+
+worker: ## Run the Phase 2 feature worker locally
+	$(GO) run ./cmd/feature-worker
+
+test-integration: ## Run Go tests including Redis/Redpanda testcontainers
+	FADE_TEST_REDIS_ADDR=$${FADE_TEST_REDIS_ADDR:-} \
+	FADE_TEST_KAFKA_BROKERS=$${FADE_TEST_KAFKA_BROKERS:-} \
+	$(GO) test ./internal/... -race -cover
+
+parity-golden: ## Python reference vs Go feature store on data/golden
+	@mkdir -p $(TMP)/golden
+	$(PY) -m generator features --out data/golden --config config/features.yaml \
+		--events-jsonl $(TMP)/golden/events.jsonl
+	$(GO) run ./cmd/feature-parity --events $(TMP)/golden/events.jsonl \
+		--out $(TMP)/golden/go-features.jsonl --redis $(PARITY_REDIS) --db $(PARITY_REDIS_DB) --reset
+	$(PY) -m generator.parity --reference data/golden/features.jsonl \
+		--actual $(TMP)/golden/go-features.jsonl
+
+parity-small: ## Python reference vs Go feature store on data/small
+	@mkdir -p $(TMP)/small
+	$(PY) -m generator features --out data/small --config config/features.yaml \
+		--events-jsonl $(TMP)/small/events.jsonl
+	$(GO) run ./cmd/feature-parity --events $(TMP)/small/events.jsonl \
+		--out $(TMP)/small/go-features.jsonl --redis $(PARITY_REDIS) --db $(PARITY_REDIS_DB) --reset
+	$(PY) -m generator.parity --reference data/small/features.jsonl \
+		--actual $(TMP)/small/go-features.jsonl
+
+parity-run42: ## Python reference vs Go feature store on data/run42
+	@mkdir -p $(TMP)/run42
+	$(PY) -m generator features --out data/run42 --config config/features.yaml \
+		--events-jsonl $(TMP)/run42/events.jsonl
+	$(GO) run ./cmd/feature-parity --events $(TMP)/run42/events.jsonl \
+		--out $(TMP)/run42/go-features.jsonl --redis $(PARITY_REDIS) --db $(PARITY_REDIS_DB) --reset
+	$(PY) -m generator.parity --reference data/run42/features.jsonl \
+		--actual $(TMP)/run42/go-features.jsonl
+
+load-ingest: ## Publish DATA to txn.raw at max speed (host external listener :19092)
+	$(PY) -m generator publish --out data/$(DATA) --brokers localhost:19092 \
+		--topic txn.raw --speed 0
+
+lag: ## Show the feature-worker consumer group lag
+	$(COMPOSE) --profile infra exec -T redpanda rpk group describe fade-feature-worker
+
+dlq: ## Show up to 10 dead-letter records
+	$(COMPOSE) --profile infra exec -T redpanda rpk topic consume txn.dead -n 10
+
+bench-feature: ## Sustained feature-store load at RATE ev/s for DURATION
+	$(GO) run ./cmd/feature-load --rate $(RATE) --duration $(DURATION) \
+		--redis $(PARITY_REDIS) --config config/features.yaml
+
+redis-flush: ## Flush Redis feature state (requires CONFIRM=yes)
+	@test "$(CONFIRM)" = "yes" || (echo "refusing: run make redis-flush CONFIRM=yes"; exit 1)
+	$(COMPOSE) --profile infra exec -T redis redis-cli FLUSHALL
 
 clean: ## Remove local build artifacts
 	go clean -cache=0 2>/dev/null || true

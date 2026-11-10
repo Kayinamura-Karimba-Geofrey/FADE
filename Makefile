@@ -3,7 +3,7 @@
 
 .DEFAULT_GOAL := help
 
-COMPOSE := docker compose -f deploy/docker-compose.yml --env-file $(CURDIR)/.env
+COMPOSE := docker compose -f deploy/docker-compose.yml --env-file "$(CURDIR)/.env"
 PROFILES := --profile infra --profile app
 GO := go
 UV := uv
@@ -16,7 +16,7 @@ help: ## Show this help
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
 env: ## Create .env from .env.example if it does not exist
-	@test -f $(CURDIR)/.env || (cp $(CURDIR)/.env.example $(CURDIR)/.env && echo "created .env from .env.example")
+	@test -f "$(CURDIR)/.env" || (cp "$(CURDIR)/.env.example" "$(CURDIR)/.env" && echo "created .env from .env.example")
 
 up: env ## Start the full stack (infra + app profiles)
 	$(COMPOSE) $(PROFILES) up -d --build

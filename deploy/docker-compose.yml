@@ -42,8 +42,7 @@ services:
       - --advertise-kafka-addr=internal://redpanda:9092
       - --rpc-addr=0.0.0.0:33145
       - --advertise-rpc-addr=redpanda:33145
-      - --admin-addr=0.0.0.0:9644
-      - --advertise-admin-addr=redpanda:9644
+      # admin API listens on 0.0.0.0:9644 by default (redpanda property)
       - --set
       - redpanda.empty_seed_starts_cluster=true
       - --set
@@ -69,12 +68,13 @@ services:
     command:
       - |
         set -eu
-        rpk topic create txn.raw --partitions 12 --replicas 1
-        rpk topic create txn.decisions --partitions 12 --replicas 1
-        rpk topic create txn.dead --partitions 3 --replicas 1
-        rpk topic create labels.feedback --partitions 3 --replicas 1
+        RP="rpk -X brokers=redpanda:9092"
+        $$RP topic create txn.raw --partitions 12 --replicas 1
+        $$RP topic create txn.decisions --partitions 12 --replicas 1
+        $$RP topic create txn.dead --partitions 3 --replicas 1
+        $$RP topic create labels.feedback --partitions 3 --replicas 1
         echo "topics created:"
-        rpk topic list
+        $$RP topic list
 
   # ------------------------------------------------------------------ redis
   redis:

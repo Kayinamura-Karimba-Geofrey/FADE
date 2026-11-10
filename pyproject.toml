@@ -19,6 +19,8 @@ generator = [
     "typer==0.15.1",
     # typer 0.15.x renders help via click's pre-8.2 Parameter.make_metavar API
     "click==8.1.8",
+    "pyyaml==6.0.2",
+    "confluent-kafka==2.6.1",
 ]
 ml = [
     "scikit-learn==1.6.1",
@@ -37,6 +39,9 @@ dev = [
     "ruff==0.8.6",
     "mypy==1.14.1",
     "httpx==0.28.1",
+    "pytest-cov==5.0.0",
+    "hypothesis==6.112.0",
+    "types-pyyaml==6.0.12.20250516",
 ]
 
 [tool.uv]
@@ -57,6 +62,10 @@ extend-exclude = [".venv", "dashboard", "node_modules"]
 select = ["E", "F", "W", "I", "UP", "B"]
 ignore = ["E501"]
 
+[tool.ruff.lint.flake8-bugbear]
+# Typer declares options as function-call defaults by design.
+extend-immutable-calls = ["typer.Option", "typer.Argument"]
+
 [tool.ruff.format]
 quote-style = "double"
 
@@ -65,3 +74,8 @@ python_version = "3.12"
 files = ["generator", "ml", "tests"]
 ignore_missing_imports = true
 check_untyped_defs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true

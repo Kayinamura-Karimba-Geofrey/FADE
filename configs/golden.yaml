@@ -1,0 +1,13 @@
+# data/golden - committed fixture (spec: 40 accounts, 3 days, seed 1).
+# fraud_rate 0.5 and the elevated noise rates guarantee at least one
+# instance of every scenario and every delivery-noise type in ~300 events;
+# noise-rate audits run against configs/small and configs/run42 instead.
+accounts: 40
+days: 3
+seed: 1
+start_date: 2026-01-01
+fraud_rate: 0.5
+noise:
+  duplicate_rate: 0.08
+  delay_rate: 0.30
+  late_rate: 0.10

@@ -1,0 +1,9 @@
+# data/run42 - statistical audits (spec: 50k accounts, 90 days, seed 42).
+# This is the default GeneratorConfig, pinned to a file so `make gen` is
+# reproducible from the repository alone.
+accounts: 50000
+days: 90
+seed: 42
+start_date: 2026-01-01
+fraud_rate: 0.004
+fraud_account_share: 0.03

@@ -1,0 +1,380 @@
+{
+  "dataset": "data/small",
+  "rule_set": "prod",
+  "rule_version": 1,
+  "events": 38584,
+  "decisions": {
+    "ALLOW": 37879,
+    "BLOCK": 3,
+    "HOLD": 626,
+    "STEP_UP": 76
+  },
+  "fraud": 164,
+  "legit": 38420,
+  "caught": 145,
+  "blocked": 104,
+  "false_positives": 560,
+  "fpr": 0.014575741801145237,
+  "recall": 0.8841463414634146,
+  "degraded": 0,
+  "scenarios": [
+    {
+      "scenario": "AGENT_FRAUD",
+      "fraud": 9,
+      "caught": 9,
+      "blocked": 9,
+      "recall": 1
+    },
+    {
+      "scenario": "ATO_SIMSWAP",
+      "fraud": 4,
+      "caught": 4,
+      "blocked": 0,
+      "recall": 1
+    },
+    {
+      "scenario": "CIRCULAR",
+      "fraud": 8,
+      "caught": 4,
+      "blocked": 4,
+      "recall": 0.5
+    },
+    {
+      "scenario": "MULE",
+      "fraud": 9,
+      "caught": 9,
+      "blocked": 2,
+      "recall": 1
+    },
+    {
+      "scenario": "SOCIAL_ENG",
+      "fraud": 9,
+      "caught": 9,
+      "blocked": 9,
+      "recall": 1
+    },
+    {
+      "scenario": "STRUCTURING",
+      "fraud": 50,
+      "caught": 50,
+      "blocked": 50,
+      "recall": 1
+    },
+    {
+      "scenario": "VELOCITY",
+      "fraud": 75,
+      "caught": 60,
+      "blocked": 30,
+      "recall": 0.8
+    }
+  ],
+  "rules": [
+    {
+      "rule_id": "R-VEL-002",
+      "mode": "enforce",
+      "fires": 60,
+      "tp": 60,
+      "fp": 0,
+      "precision": 1
+    },
+    {
+      "rule_id": "R-STR-001",
+      "mode": "enforce",
+      "fires": 54,
+      "tp": 51,
+      "fp": 3,
+      "precision": 0.9444444444444444
+    },
+    {
+      "rule_id": "R-STR-002",
+      "mode": "enforce",
+      "fires": 39,
+      "tp": 39,
+      "fp": 0,
+      "precision": 1
+    },
+    {
+      "rule_id": "R-ATO-001",
+      "mode": "enforce",
+      "fires": 32,
+      "tp": 12,
+      "fp": 20,
+      "precision": 0.375
+    },
+    {
+      "rule_id": "R-VEL-001",
+      "mode": "enforce",
+      "fires": 30,
+      "tp": 30,
+      "fp": 0,
+      "precision": 1
+    },
+    {
+      "rule_id": "R-SOC-001",
+      "mode": "enforce",
+      "fires": 19,
+      "tp": 9,
+      "fp": 10,
+      "precision": 0.47368421052631576
+    },
+    {
+      "rule_id": "R-AGT-002",
+      "mode": "enforce",
+      "fires": 19,
+      "tp": 9,
+      "fp": 10,
+      "precision": 0.47368421052631576
+    },
+    {
+      "rule_id": "R-SOC-002",
+      "mode": "enforce",
+      "fires": 15,
+      "tp": 10,
+      "fp": 5,
+      "precision": 0.6666666666666666
+    },
+    {
+      "rule_id": "R-MUL-001",
+      "mode": "enforce",
+      "fires": 13,
+      "tp": 1,
+      "fp": 12,
+      "precision": 0.07692307692307693
+    },
+    {
+      "rule_id": "R-AGT-001",
+      "mode": "enforce",
+      "fires": 12,
+      "tp": 9,
+      "fp": 3,
+      "precision": 0.75
+    },
+    {
+      "rule_id": "R-CIR-001",
+      "mode": "enforce",
+      "fires": 10,
+      "tp": 4,
+      "fp": 6,
+      "precision": 0.4
+    },
+    {
+      "rule_id": "R-MUL-003",
+      "mode": "enforce",
+      "fires": 8,
+      "tp": 8,
+      "fp": 0,
+      "precision": 1
+    },
+    {
+      "rule_id": "R-RAW-001",
+      "mode": "enforce",
+      "fires": 5,
+      "tp": 5,
+      "fp": 0,
+      "precision": 1
+    }
+  ],
+  "top_false_positives": [
+    {
+      "event_id": "01KE1329RGRNN5SQA0WP85JZH0",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 100650,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW7V4HGTR7104Q300AH5QJC",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 66200,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDVVAVYG9PTZN9N6TKY5M9XW",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 72000,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDVW7WN876FVD9PN2RN3DPYX",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 81300,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDVY7FT8V51DA8V3610BH6VW",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 104800,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDVY8MXR0QPKQ0N91AYGFRTC",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 74450,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDVZKG0RH1WM72VJNHD6EX3N",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 57650,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW0RWA0DAD8FWWNH4CGCGD2",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 200450,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW15KH8MQBKXA86SBF4XYWW",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 74000,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW1DT7GZZJFPQG859NSPSR8",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 246150,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW4T8Y0C120BRR1T0TD079X",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 60400,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW5H898Y35R93WS0QCDZWQN",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 88000,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW5TF6RP5EG25KE00B3M5JE",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 66650,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KE12PBXRK4KVRRA7HRFH8NWR",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 90000,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW83PYR83H3G6TJVVKK73QV",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 59000,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW88W00BPFB0PKTZ74Z0PJC",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 51150,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDWBA0CR88DPGDC142X5TEKS",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 124750,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDWG6J58VJ6FW89QA5THD6SX",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 85900,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDWK20XGJMMWW010KA64F6YA",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 76400,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDWKVBF04T1BWCMSY7F9JHP3",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 97950,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    }
+  ],
+  "elapsed_seconds": 105.248385623
+}

@@ -1,0 +1,761 @@
+openapi: 3.0.3
+info:
+  title: FADE Decision API
+  description: |
+    Synchronous, rules-only fraud decisions for mobile money transactions.
+    Phase 3 contract. Every error is RFC 7807 `application/problem+json` with a
+    stable `type` URI.
+  version: 0.4.0
+servers:
+  - url: http://localhost:8080
+security:
+  - bearerAuth: []
+paths:
+  /v1/decide:
+    post:
+      operationId: decide
+      summary: Decide one transaction
+      tags: [decisions]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: include
+          in: query
+          schema: {type: string, enum: [features, explain]}
+        - name: X-Fail-Policy
+          in: header
+          schema: {type: string, enum: [apply]}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Event'}
+            examples:
+              p2p:
+                summary: Large P2P send from a new device
+                value:
+                  event_id: 01JA1Z6Q2M8N4P7R9T2V5X8B3C
+                  event_time: '2026-11-10T12:00:00.000Z'
+                  txn_type: P2P_SEND
+                  amount: 70000
+                  currency: RWF
+                  fee: 500
+                  sender:
+                    account_id: acct_000123
+                    msisdn_hash: h_0123456789abcdef0123456789abcdef
+                    device_id: dev_000123_1
+                    sim_serial_hash: sim_0123456789abcdef0123456789abcdef
+                    geo: {lat: -1.9441, lon: 30.0619, cell_id: KGL-01}
+                    account_age_days: 120
+                    kyc_tier: 1
+                    balance_before: 90000
+                  recipient:
+                    account_id: acct_000456
+                    msisdn_hash: h_fedcba9876543210fedcba9876543210
+                    is_agent: false
+                    first_seen_by_sender: false
+                  channel: APP
+                  agent_id: null
+                  session_id: p2p-1234ABCD
+      responses:
+        '200':
+          description: Decision
+          headers:
+            X-Decision-ID:
+              schema: {type: string}
+            Idempotent-Replay:
+              schema: {type: boolean}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Decision'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/TooLarge'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '429': {$ref: '#/components/responses/RateLimited'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/decide/batch:
+    post:
+      operationId: decideBatch
+      summary: Decide up to 500 transactions in per-account order
+      tags: [decisions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/BatchRequest'}
+      responses:
+        '200':
+          description: Per-item results; processing order is preserved per account
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BatchResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/TooLarge'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/decisions/{id}:
+    get:
+      operationId: getDecision
+      summary: Fetch a persisted decision
+      tags: [decisions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string}
+        - name: include
+          in: query
+          schema: {type: string, enum: [features]}
+      responses:
+        '200':
+          description: Decision
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Decision'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /v1/decisions:
+    get:
+      operationId: listDecisions
+      summary: List persisted decisions with keyset pagination
+      tags: [decisions]
+      parameters:
+        - name: account_id
+          in: query
+          schema: {type: string}
+        - name: decision
+          in: query
+          schema: {type: string, enum: [ALLOW, STEP_UP, HOLD, BLOCK]}
+        - name: rule_id
+          in: query
+          schema: {type: string}
+        - name: from
+          in: query
+          schema: {type: string, format: date-time}
+        - name: to
+          in: query
+          schema: {type: string, format: date-time}
+        - name: limit
+          in: query
+          schema: {type: integer, minimum: 1, maximum: 200, default: 50}
+        - name: cursor
+          in: query
+          schema: {type: string}
+      responses:
+        '200':
+          description: Page of decisions
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/DecisionPage'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /v1/rules/reload:
+    post:
+      operationId: reloadRules
+      summary: Recompile rules/*.json and swap atomically
+      tags: [rules]
+      responses:
+        '200':
+          description: Reload result
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReloadResult'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /v1/rules/active:
+    get:
+      operationId: getActiveRules
+      summary: Active rule set and metadata
+      tags: [rules]
+      responses:
+        '200':
+          description: Active rule set
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ActiveRuleSet'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /v1/rules/versions:
+    get:
+      operationId: listRuleVersions
+      summary: Known rule-set versions
+      tags: [rules]
+      responses:
+        '200':
+          description: Versions newest first
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RuleVersions'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /v1/rules/{id}:
+    put:
+      operationId: putRule
+      summary: Create a new active version with one rule changed
+      tags: [rules]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string, pattern: '^R-[A-Z]{2,6}-[0-9]{3}$'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Rule'}
+      responses:
+        '200':
+          description: New active version
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ActiveRuleSet'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /v1/rules/validate:
+    post:
+      operationId: validateRules
+      summary: Dry-run validation, no activation
+      tags: [rules]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RuleSet'}
+      responses:
+        '200':
+          description: Valid rule set
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ValidateResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /v1/lists:
+    get:
+      operationId: listEntries
+      summary: List allow/block entries
+      tags: [lists]
+      parameters:
+        - name: list_type
+          in: query
+          schema: {type: string, enum: [ALLOW, BLOCK]}
+        - name: subject
+          in: query
+          schema: {type: string, enum: [ACCOUNT, DEVICE, MSISDN]}
+        - name: value
+          in: query
+          schema: {type: string}
+        - name: limit
+          in: query
+          schema: {type: integer, minimum: 1, maximum: 500, default: 100}
+      responses:
+        '200':
+          description: Entries
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ListEntryPage'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+    post:
+      operationId: addListEntry
+      summary: Add an allow/block entry (admin, audited)
+      tags: [lists]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ListEntryInput'}
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ListEntry'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /v1/lists/{id}:
+    delete:
+      operationId: deleteListEntry
+      summary: Remove an allow/block entry (admin, audited)
+      tags: [lists]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer, format: int64}
+      responses:
+        '204':
+          description: Deleted
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /v1/metrics/rules:
+    get:
+      operationId: ruleMetrics
+      summary: Per-rule fires, share and shadow hits over a window
+      tags: [metrics]
+      parameters:
+        - name: window
+          in: query
+          schema: {type: string, default: 24h, pattern: '^[0-9]+(m|h|d)$'}
+      responses:
+        '200':
+          description: Rule metrics
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RuleMetricPage'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /healthz:
+    get:
+      operationId: healthz
+      security: []
+      summary: Liveness
+      responses:
+        '200':
+          description: Alive
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Health'}
+  /readyz:
+    get:
+      operationId: readyz
+      security: []
+      summary: Readiness (degraded when no rule set is loaded)
+      responses:
+        '200':
+          description: Ready
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Health'}
+        '503':
+          description: Not ready or degraded
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Health'}
+  /version:
+    get:
+      operationId: version
+      security: []
+      summary: Service and rule-set version
+      responses:
+        '200':
+          description: Version information
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/VersionInfo'}
+  /metrics:
+    get:
+      operationId: metrics
+      security: []
+      summary: Prometheus exposition
+      responses:
+        '200':
+          description: Metrics
+          content:
+            text/plain:
+              schema: {type: string}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      schema: {type: string, maxLength: 128}
+  responses:
+    BadRequest:
+      description: Malformed request
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    Unauthorized:
+      description: Missing or invalid token
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    Forbidden:
+      description: Insufficient role
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    NotFound:
+      description: Not found
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    TooLarge:
+      description: Body too large
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    Unprocessable:
+      description: Validation failed
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    RateLimited:
+      description: Rate limited
+      headers:
+        Retry-After:
+          schema: {type: integer}
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    Unavailable:
+      description: Temporarily unavailable
+      headers:
+        Retry-After:
+          schema: {type: integer}
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+  schemas:
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: {type: string, format: uri}
+        title: {type: string}
+        status: {type: integer}
+        detail: {type: string}
+        instance: {type: string}
+        code: {type: string}
+        request_id: {type: string}
+        errors:
+          type: array
+          items: {$ref: '#/components/schemas/FieldError'}
+    FieldError:
+      type: object
+      required: [field, detail]
+      properties:
+        field: {type: string}
+        detail: {type: string}
+    Health:
+      type: object
+      required: [status]
+      properties:
+        status: {type: string, enum: [ok, degraded, unavailable]}
+        failed: {type: string}
+        rules: {type: string}
+        version: {type: string}
+    VersionInfo:
+      type: object
+      required: [service, version, api, rule_set_version]
+      properties:
+        service: {type: string}
+        version: {type: string}
+        api: {type: string}
+        rule_set_version: {type: integer}
+    Event:
+      type: object
+      additionalProperties: false
+      required: [event_id, event_time, txn_type, amount, currency, fee, sender, recipient, channel, session_id]
+      properties:
+        event_id: {type: string}
+        event_time: {type: string, pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$'}
+        txn_type:
+          type: string
+          enum: [P2P_SEND, CASH_IN, CASH_OUT, AIRTIME, BILL_PAY, MERCHANT_PAY, BANK_TRANSFER]
+        amount: {type: integer, format: int64, minimum: 1}
+        currency: {type: string, enum: [RWF]}
+        fee: {type: integer, format: int64, minimum: 0}
+        sender: {$ref: '#/components/schemas/Sender'}
+        recipient: {$ref: '#/components/schemas/Recipient'}
+        channel:
+          type: string
+          enum: [USSD, APP, AGENT, API]
+        agent_id:
+          type: string
+          nullable: true
+        session_id: {type: string}
+    Sender:
+      type: object
+      additionalProperties: false
+      required: [account_id, msisdn_hash, device_id, sim_serial_hash, geo, account_age_days, kyc_tier, balance_before]
+      properties:
+        account_id: {type: string}
+        msisdn_hash: {type: string}
+        device_id: {type: string}
+        sim_serial_hash: {type: string}
+        geo: {$ref: '#/components/schemas/Geo'}
+        account_age_days: {type: integer, minimum: 0}
+        kyc_tier: {type: integer, minimum: 1, maximum: 3}
+        balance_before: {type: integer, format: int64, minimum: 0}
+    Recipient:
+      type: object
+      additionalProperties: false
+      required: [account_id, msisdn_hash, is_agent, first_seen_by_sender]
+      properties:
+        account_id: {type: string}
+        msisdn_hash: {type: string}
+        is_agent: {type: boolean}
+        first_seen_by_sender: {type: boolean}
+    Geo:
+      type: object
+      additionalProperties: false
+      required: [lat, lon, cell_id]
+      properties:
+        lat: {type: number}
+        lon: {type: number}
+        cell_id: {type: string}
+    Decision:
+      type: object
+      required: [decision_id, event_id, decision, risk_score, rule_score, ml_score, ml_status, degraded, rule_set_version, model_version, reasons, shadow_hits, latency_ms, decided_at]
+      properties:
+        decision_id: {type: string}
+        event_id: {type: string}
+        decision: {type: string, enum: [ALLOW, STEP_UP, HOLD, BLOCK]}
+        risk_score: {type: integer, minimum: 0, maximum: 100}
+        rule_score: {type: integer, minimum: 0, maximum: 100}
+        ml_score: {type: integer, nullable: true}
+        ml_status: {type: string, enum: [NOT_CONFIGURED, OK, ERROR, TIMEOUT]}
+        degraded: {type: boolean}
+        rule_set_version: {type: integer}
+        model_version: {type: string, nullable: true}
+        reasons:
+          type: array
+          items: {$ref: '#/components/schemas/Reason'}
+        shadow_hits:
+          type: array
+          items: {type: string}
+        features_snapshot: {$ref: '#/components/schemas/FeatureVector'}
+        latency_ms: {type: number}
+        decided_at: {type: string, format: date-time}
+        idempotent_replay: {type: boolean}
+    Reason:
+      type: object
+      required: [source, id, text]
+      properties:
+        source: {type: string, enum: [rule, list, tier, fail_policy, override]}
+        id: {type: string}
+        text: {type: string}
+        weight: {type: integer}
+        mode: {type: string, enum: [enforce, shadow]}
+    FeatureVector:
+      type: object
+      additionalProperties: true
+      required: [event_id, feature_schema_version]
+      properties:
+        event_id: {type: string}
+        feature_schema_version: {type: string}
+    BatchRequest:
+      type: object
+      additionalProperties: false
+      required: [events]
+      properties:
+        events:
+          type: array
+          minItems: 1
+          maxItems: 500
+          items: {$ref: '#/components/schemas/Event'}
+    BatchResponse:
+      type: object
+      required: [results]
+      properties:
+        results:
+          type: array
+          items: {$ref: '#/components/schemas/BatchItem'}
+        succeeded: {type: integer}
+        failed: {type: integer}
+    BatchItem:
+      type: object
+      required: [index, event_id]
+      properties:
+        index: {type: integer}
+        event_id: {type: string}
+        decision: {$ref: '#/components/schemas/Decision'}
+        error: {$ref: '#/components/schemas/Problem'}
+    DecisionPage:
+      type: object
+      required: [decisions]
+      properties:
+        decisions:
+          type: array
+          items: {$ref: '#/components/schemas/Decision'}
+        next_cursor: {type: string, nullable: true}
+    RuleSet:
+      type: object
+      additionalProperties: false
+      required: [rule_set, version, author, config, rules]
+      properties:
+        rule_set: {type: string, pattern: '^[a-z][a-z0-9_]{1,31}$'}
+        version: {type: integer, minimum: 1}
+        author: {type: string, minLength: 1}
+        changelog: {type: string, maxLength: 500}
+        config: {$ref: '#/components/schemas/RuleConfig'}
+        rules:
+          type: array
+          maxItems: 256
+          items: {$ref: '#/components/schemas/Rule'}
+    RuleConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        combiner: {$ref: '#/components/schemas/CombinerConfig'}
+        fail_mode:
+          type: object
+          additionalProperties:
+            type: string
+            enum: [open, closed, step_up]
+    CombinerConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        thresholds: {$ref: '#/components/schemas/Thresholds'}
+        floors: {$ref: '#/components/schemas/Floors'}
+    Thresholds:
+      type: object
+      additionalProperties: false
+      required: [step_up, hold, block]
+      properties:
+        step_up: {type: integer, minimum: 0, maximum: 100}
+        hold: {type: integer, minimum: 0, maximum: 100}
+        block: {type: integer, minimum: 0, maximum: 100}
+    Floors:
+      type: object
+      additionalProperties: false
+      properties:
+        STEP_UP: {type: integer, minimum: 0, maximum: 100}
+        HOLD: {type: integer, minimum: 0, maximum: 100}
+        BLOCK: {type: integer, minimum: 0, maximum: 100}
+    Rule:
+      type: object
+      additionalProperties: false
+      required: [id, name, enabled, mode, weight, action, when, reason]
+      properties:
+        id: {type: string, pattern: '^R-[A-Z]{2,6}-[0-9]{3}$'}
+        name: {type: string, minLength: 1, maxLength: 80}
+        enabled: {type: boolean}
+        mode: {type: string, enum: [enforce, shadow]}
+        weight: {type: integer, minimum: 0, maximum: 100}
+        action: {type: string, enum: [ALLOW, STEP_UP, HOLD, BLOCK]}
+        when: {$ref: '#/components/schemas/Condition'}
+        reason: {type: string, minLength: 1, maxLength: 280}
+        tags:
+          type: array
+          maxItems: 8
+          items: {type: string}
+        applies_to:
+          type: array
+          items:
+            type: string
+            enum: [P2P_SEND, CASH_IN, CASH_OUT, AIRTIME, BILL_PAY, MERCHANT_PAY, BANK_TRANSFER]
+        stateless: {type: boolean}
+    Condition:
+      type: object
+      additionalProperties: false
+      properties:
+        f: {type: string}
+        op: {type: string, enum: ['==', '!=', '>', '>=', '<', '<=', in, not_in]}
+        v: {}
+        all:
+          type: array
+          items: {$ref: '#/components/schemas/Condition'}
+        any:
+          type: array
+          items: {$ref: '#/components/schemas/Condition'}
+        not: {$ref: '#/components/schemas/Condition'}
+    RuleSnapshot:
+      type: object
+      required: [rule_set, version, hash, rules, active]
+      properties:
+        rule_set: {type: string}
+        version: {type: integer}
+        hash: {type: string}
+        rules: {type: integer}
+        active: {type: boolean}
+        author: {type: string}
+        changelog: {type: string}
+        compiled_at: {type: string, format: date-time}
+        source: {type: string, enum: [file, postgres, empty]}
+    ActiveRuleSet:
+      type: object
+      required: [snapshot, rule_set]
+      properties:
+        snapshot: {$ref: '#/components/schemas/RuleSnapshot'}
+        rule_set: {$ref: '#/components/schemas/RuleSet'}
+    RuleVersions:
+      type: object
+      required: [versions]
+      properties:
+        versions:
+          type: array
+          items: {$ref: '#/components/schemas/RuleSnapshot'}
+    ReloadResult:
+      type: object
+      required: [active, version, hash, rules]
+      properties:
+        active: {type: boolean}
+        version: {type: integer}
+        hash: {type: string}
+        rules: {type: integer}
+        previous_version: {type: integer}
+        duration_ms: {type: number}
+    ValidateResult:
+      type: object
+      required: [valid, snapshot]
+      properties:
+        valid: {type: boolean}
+        snapshot: {$ref: '#/components/schemas/RuleSnapshot'}
+    ListEntry:
+      type: object
+      required: [id, list_type, subject, value, created_at]
+      properties:
+        id: {type: integer, format: int64}
+        list_type: {type: string, enum: [ALLOW, BLOCK]}
+        subject: {type: string, enum: [ACCOUNT, DEVICE, MSISDN]}
+        value: {type: string}
+        reason: {type: string}
+        created_by: {type: string}
+        created_at: {type: string, format: date-time}
+        expires_at: {type: string, format: date-time, nullable: true}
+    ListEntryInput:
+      type: object
+      additionalProperties: false
+      required: [list_type, subject, value]
+      properties:
+        list_type: {type: string, enum: [ALLOW, BLOCK]}
+        subject: {type: string, enum: [ACCOUNT, DEVICE, MSISDN]}
+        value: {type: string, minLength: 1, maxLength: 128}
+        reason: {type: string, maxLength: 280}
+        expires_at: {type: string, format: date-time, nullable: true}
+    ListEntryPage:
+      type: object
+      required: [entries]
+      properties:
+        entries:
+          type: array
+          items: {$ref: '#/components/schemas/ListEntry'}
+        count: {type: integer}
+    RuleMetric:
+      type: object
+      required: [rule_id, mode, fires, share]
+      properties:
+        rule_id: {type: string}
+        mode: {type: string}
+        fires: {type: integer}
+        share: {type: number}
+        shadow_hits: {type: integer}
+    RuleMetricPage:
+      type: object
+      required: [window_seconds, decisions, rules]
+      properties:
+        window_seconds: {type: integer}
+        decisions: {type: integer}
+        rules:
+          type: array
+          items: {$ref: '#/components/schemas/RuleMetric'}

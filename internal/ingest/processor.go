@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -12,7 +13,14 @@ import (
 
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/events"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/features"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/pipeline"
 )
+
+// Decider is the synchronous decision function. The feature worker and the
+// HTTP API call the same pipeline.Decide implementation.
+type Decider interface {
+	Decide(ctx context.Context, ev *events.Event, opts pipeline.Options) (*pipeline.Decision, error)
+}
 
 // Processor turns one Kafka record into at most one feature vector. It is
 // safe for concurrent use.
@@ -24,6 +32,7 @@ type Processor struct {
 	dlqTopic    string
 	outputTopic string
 	version     string
+	decider     Decider
 }
 
 // NewProcessor constructs a processor. outputTopic may be empty.
@@ -48,6 +57,10 @@ type DLQPayload struct {
 	Raw             string `json:"raw_base64"`
 }
 
+// SetDecider enables async decision mode. When set, features are computed by
+// the shared pipeline (exactly once) instead of the processor's own store call.
+func (p *Processor) SetDecider(d Decider) { p.decider = d }
+
 // Handle processes one record. A nil error means the offset is safe to commit.
 // Non-nil errors are transient (Redis/Kafka unavailable) and must be retried.
 func (p *Processor) Handle(ctx context.Context, rec *kgo.Record) error {
@@ -67,6 +80,10 @@ func (p *Processor) Handle(ctx context.Context, rec *kgo.Record) error {
 			return err
 		}
 		return nil
+	}
+
+	if p.decider != nil {
+		return p.handleDecision(ctx, rec, ev)
 	}
 
 	vector, status, err := p.store.Compute(ctx, ev)
@@ -106,6 +123,39 @@ func (p *Processor) Handle(ctx context.Context, rec *kgo.Record) error {
 	}
 
 	p.metrics.Events.WithLabelValues("ok").Inc()
+	return nil
+}
+
+func (p *Processor) handleDecision(ctx context.Context, rec *kgo.Record, ev *events.Event) error {
+	dec, err := p.decider.Decide(ctx, ev, pipeline.Options{IdempotencyKey: ev.EventID, IncludeFeatures: true})
+	if err != nil {
+		var pe *pipeline.Error
+		if errors.As(err, &pe) && pe.Kind == "DUPLICATE_EVENT" {
+			p.metrics.Events.WithLabelValues("duplicate").Inc()
+			return nil
+		}
+		p.metrics.Events.WithLabelValues("error").Inc()
+		return fmt.Errorf("decide %s: %w", ev.EventID, err)
+	}
+
+	if p.outputTopic != "" && dec.Features != nil {
+		payload, err := dec.Features.MarshalCanonical()
+		if err != nil {
+			p.metrics.Events.WithLabelValues("error").Inc()
+			return fmt.Errorf("marshal features %s: %w", ev.EventID, err)
+		}
+		headers := []kgo.RecordHeader{
+			{Key: "event_id", Value: []byte(ev.EventID)},
+			{Key: "feature_schema_version", Value: []byte(dec.Features.FeatureSchemaVersion)},
+		}
+		if err := p.publisher.Publish(ctx, p.outputTopic, []byte(ev.Sender.AccountID), payload, headers); err != nil {
+			p.metrics.Events.WithLabelValues("error").Inc()
+			return fmt.Errorf("publish features %s: %w", ev.EventID, err)
+		}
+		p.metrics.FeatureOutput.Inc()
+	}
+	p.metrics.Events.WithLabelValues("ok").Inc()
+	_ = rec
 	return nil
 }
 

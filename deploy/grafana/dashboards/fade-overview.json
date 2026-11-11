@@ -62,8 +62,8 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum(rate(fade_http_requests_total[1m])) by (path)",
-          "legendFormat": "{{path}}",
+          "expr": "sum(rate(fade_http_requests_total[1m])) by (route)",
+          "legendFormat": "{{route}}",
           "range": true,
           "refId": "A"
         }
@@ -217,8 +217,8 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "avg(fade_http_request_duration_seconds_sum / fade_http_request_duration_seconds_count) by (path)",
-          "legendFormat": "avg {{path}}",
+          "expr": "avg(fade_http_request_duration_seconds_sum / fade_http_request_duration_seconds_count) by (route)",
+          "legendFormat": "avg {{route}}",
           "range": true,
           "refId": "A"
         }

@@ -14,11 +14,15 @@ PARITY_REDIS ?= localhost:6380
 PARITY_REDIS_DB ?= 15
 RATE ?= 1000
 DURATION ?= 10s
+K6 ?= k6
+BASE_URL ?= http://localhost:8080
 
 .PHONY: help env up up-infra down nuke logs ps migrate migrate-down topics \
         test test-integration lint fmt build psql redis-cli clean \
         gen-features worker parity-golden parity-small parity-run42 \
-        load-ingest lag dlq redis-flush bench-feature
+        load-ingest lag dlq redis-flush bench-feature \
+        rules-validate rules-test rules-bench tune decide-demo dev-token \
+        openapi-gen openapi-lint load-decide load-batch pprof-eval
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -84,6 +88,48 @@ gen-features: ## Compute reference features for DATA (default: small)
 
 worker: ## Run the Phase 2 feature worker locally
 	$(GO) run ./cmd/feature-worker
+
+rules-validate: ## Validate every rule document in rules/
+	$(GO) run ./cmd/rules-validate -dir rules
+
+rules-test: ## Run the rules engine, store and reload tests with the race detector
+	$(GO) test ./internal/rules/... -race
+
+rules-bench: ## Evaluate/compile benchmarks with allocation counts
+	$(GO) test ./internal/rules -run '^$$' -bench . -benchmem -count=1
+
+tune: ## Replay DATA through the active rules and write a tuning report
+	$(GO) run ./cmd/replay-lite --set data/$(DATA) --rules rules/prod.json \
+		--redis $${REPLAY_REDIS:-localhost:6390} --db $${REPLAY_DB:-15} \
+		--out bench/results/replay-$(DATA)-$$(date +%Y%m%d)
+
+decide-demo: ## Send one demo decision to a running API
+	$(GO) run ./cmd/decide-demo -url $(BASE_URL)
+
+dev-token: ## Print a local JWT (ROLE=service|analyst|admin)
+	$(GO) run ./cmd/dev-token -role $${ROLE:-service}
+
+openapi-gen: ## Regenerate the OpenAPI Go types
+	$(GO) run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1 \
+		-config api/oapi-codegen.yaml api/openapi.yaml
+
+openapi-lint: ## Validate the API contract and responses with kin-openapi
+	$(GO) test ./internal/api -run 'TestOpenAPIContract' -count=1
+
+load-decide: ## k6 constant-arrival load on /v1/decide
+	BASE_URL=$(BASE_URL) TOKEN=$$($(GO) run ./cmd/dev-token) RATE=$(RATE) DURATION=$(DURATION) \
+		$(K6) run bench/k6/decide.js
+
+load-batch: ## k6 batch smoke load on /v1/decide/batch
+	BASE_URL=$(BASE_URL) TOKEN=$$($(GO) run ./cmd/dev-token) \
+		$(K6) run bench/k6/batch.js
+
+pprof-eval: ## CPU/memory profile of the 200-rule evaluation benchmark
+	@mkdir -p bench/results
+	$(GO) test ./internal/rules -run '^$$' -bench BenchmarkEvaluate200Rules \
+		-benchtime 2s -cpuprofile bench/results/rules-cpu.pprof \
+		-memprofile bench/results/rules-mem.pprof -count=1 | tee bench/results/pprof-eval.txt
+	$(GO) tool pprof -top -nodecount=15 bench/results/rules-cpu.pprof | tee -a bench/results/pprof-eval.txt
 
 test-integration: ## Run Go tests including Redis/Redpanda testcontainers
 	FADE_TEST_REDIS_ADDR=$${FADE_TEST_REDIS_ADDR:-} \

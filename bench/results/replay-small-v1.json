@@ -1,0 +1,372 @@
+{
+  "dataset": "data/small",
+  "rule_set": "prod",
+  "rule_version": 1,
+  "events": 38584,
+  "decisions": {
+    "ALLOW": 31951,
+    "HOLD": 5206,
+    "STEP_UP": 1427
+  },
+  "fraud": 164,
+  "legit": 38420,
+  "caught": 71,
+  "blocked": 55,
+  "false_positives": 6562,
+  "fpr": 0.17079646017699116,
+  "recall": 0.4329268292682927,
+  "degraded": 0,
+  "scenarios": [
+    {
+      "scenario": "AGENT_FRAUD",
+      "fraud": 9,
+      "caught": 8,
+      "blocked": 8,
+      "recall": 0.8888888888888888
+    },
+    {
+      "scenario": "ATO_SIMSWAP",
+      "fraud": 4,
+      "caught": 1,
+      "blocked": 0,
+      "recall": 0.25
+    },
+    {
+      "scenario": "CIRCULAR",
+      "fraud": 8,
+      "caught": 5,
+      "blocked": 4,
+      "recall": 0.625
+    },
+    {
+      "scenario": "MULE",
+      "fraud": 9,
+      "caught": 9,
+      "blocked": 6,
+      "recall": 1
+    },
+    {
+      "scenario": "SOCIAL_ENG",
+      "fraud": 9,
+      "caught": 4,
+      "blocked": 4,
+      "recall": 0.4444444444444444
+    },
+    {
+      "scenario": "STRUCTURING",
+      "fraud": 50,
+      "caught": 44,
+      "blocked": 33,
+      "recall": 0.88
+    },
+    {
+      "scenario": "VELOCITY",
+      "fraud": 75,
+      "caught": 0,
+      "blocked": 0,
+      "recall": 0
+    }
+  ],
+  "rules": [
+    {
+      "rule_id": "R-AGT-002",
+      "mode": "enforce",
+      "fires": 4872,
+      "tp": 9,
+      "fp": 4863,
+      "precision": 0.0018472906403940886
+    },
+    {
+      "rule_id": "R-AGT-001",
+      "mode": "enforce",
+      "fires": 3103,
+      "tp": 9,
+      "fp": 3094,
+      "precision": 0.0029004189494038026
+    },
+    {
+      "rule_id": "R-MUL-001",
+      "mode": "enforce",
+      "fires": 127,
+      "tp": 5,
+      "fp": 122,
+      "precision": 0.03937007874015748
+    },
+    {
+      "rule_id": "R-STR-002",
+      "mode": "enforce",
+      "fires": 94,
+      "tp": 39,
+      "fp": 55,
+      "precision": 0.4148936170212766
+    },
+    {
+      "rule_id": "R-SOC-002",
+      "mode": "enforce",
+      "fires": 50,
+      "tp": 5,
+      "fp": 45,
+      "precision": 0.1
+    },
+    {
+      "rule_id": "R-ATO-001",
+      "mode": "enforce",
+      "fires": 29,
+      "tp": 9,
+      "fp": 20,
+      "precision": 0.3103448275862069
+    },
+    {
+      "rule_id": "R-CIR-001",
+      "mode": "enforce",
+      "fires": 10,
+      "tp": 4,
+      "fp": 6,
+      "precision": 0.4
+    },
+    {
+      "rule_id": "R-MUL-003",
+      "mode": "enforce",
+      "fires": 8,
+      "tp": 8,
+      "fp": 0,
+      "precision": 1
+    },
+    {
+      "rule_id": "R-SOC-001",
+      "mode": "enforce",
+      "fires": 7,
+      "tp": 4,
+      "fp": 3,
+      "precision": 0.5714285714285714
+    },
+    {
+      "rule_id": "R-RAW-001",
+      "mode": "enforce",
+      "fires": 5,
+      "tp": 5,
+      "fp": 0,
+      "precision": 1
+    }
+  ],
+  "top_false_positives": [
+    {
+      "event_id": "01KDVVAVYG9PTZN9N6TKY5M9XW",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 72000,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-001: agent CICO ratio 72001.00 in 24h",
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDWBA0CR88DPGDC142X5TEKS",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 124750,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDV7F18R9C5C28S06W67XEW1",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 78550,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW9BW3R1M8WECVEVK32W6XR",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 6600,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-002: agent float moved 259.25%",
+        "R-AGT-001: agent CICO ratio 52.84 in 24h"
+      ]
+    },
+    {
+      "event_id": "01KDW9414G9CYDNW21B7YNF0X3",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 5000,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-002: agent float moved 208.90%",
+        "R-AGT-001: agent CICO ratio 208901.00 in 24h"
+      ]
+    },
+    {
+      "event_id": "01KDW92N68Y1N5EFN2VQFMWYSF",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 19050,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-002: agent float moved 252.65%",
+        "R-AGT-001: agent CICO ratio 51.52 in 24h"
+      ]
+    },
+    {
+      "event_id": "01KDW88W00BPFB0PKTZ74Z0PJC",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 51150,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW83PYR83H3G6TJVVKK73QV",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 59000,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-001: agent CICO ratio 121301.00 in 24h",
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW7V4HGTR7104Q300AH5QJC",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 66200,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW6Z14807296AT19037GKWG",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 22250,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-002: agent float moved 233.60%",
+        "R-AGT-001: agent CICO ratio 47.71 in 24h"
+      ]
+    },
+    {
+      "event_id": "01KDW606SRAT3HTFXWA42N9TDM",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 191750,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-002: agent float moved 203.90%",
+        "R-AGT-001: agent CICO ratio 203901.00 in 24h"
+      ]
+    },
+    {
+      "event_id": "01KDW5TF6RP5EG25KE00B3M5JE",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 66650,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-001: agent CICO ratio 0.05 in 24h",
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW5H898Y35R93WS0QCDZWQN",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 88000,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-001: agent CICO ratio 13.13 in 24h",
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW590KRBPM1MBSRK003NZ4N",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 20000,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-002: agent float moved 298.45%",
+        "R-AGT-001: agent CICO ratio 298451.00 in 24h"
+      ]
+    },
+    {
+      "event_id": "01KDW4T8Y0C120BRR1T0TD079X",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 60400,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW4SCKRAA8ABY0ZPF7XPH7X",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 4550,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-002: agent float moved 278.45%",
+        "R-AGT-001: agent CICO ratio 278451.00 in 24h"
+      ]
+    },
+    {
+      "event_id": "01KDW2XGK85CZDZCXP5C8J8VA2",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 3200,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-002: agent float moved 211.35%",
+        "R-AGT-001: agent CICO ratio 43.26 in 24h"
+      ]
+    },
+    {
+      "event_id": "01KDW1DT7GZZJFPQG859NSPSR8",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 246150,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-002: agent float moved 273.90%",
+        "R-AGT-001: agent CICO ratio 273901.00 in 24h",
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW15KH8MQBKXA86SBF4XYWW",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 74000,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-001: agent CICO ratio 9.43 in 24h",
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    },
+    {
+      "event_id": "01KDW0RWA0DAD8FWWNH4CGCGD2",
+      "decision": "HOLD",
+      "risk_score": 65,
+      "amount": 200450,
+      "scenario": "UNLABELLED",
+      "reasons": [
+        "R-AGT-002: agent float moved 208.15%",
+        "R-AGT-001: agent CICO ratio 42.62 in 24h",
+        "TIER_LIMIT_EXCEEDED: amount above the daily KYC tier limit"
+      ]
+    }
+  ],
+  "elapsed_seconds": 75.886807301
+}

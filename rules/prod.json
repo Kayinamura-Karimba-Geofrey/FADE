@@ -1,0 +1,305 @@
+{
+  "rule_set": "prod",
+  "version": 1,
+  "author": "rules@fade",
+  "changelog": "Phase 3 starter pack: velocity, structuring, ATO, mule, agent, circular and social-engineering coverage; thresholds tuned on replay-lite",
+  "config": {
+    "combiner": {
+      "thresholds": {"step_up": 40, "hold": 65, "block": 85},
+      "floors": {"STEP_UP": 40, "HOLD": 65, "BLOCK": 85}
+    },
+    "fail_mode": {
+      "P2P_SEND": "step_up",
+      "CASH_OUT": "step_up",
+      "AIRTIME": "open",
+      "default": "step_up"
+    }
+  },
+  "rules": [
+    {
+      "id": "R-VEL-001",
+      "name": "Rapid burst with high 10m turnover",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 35,
+      "action": "HOLD",
+      "when": {"all": [
+        {"f": "velocity_10m", "op": ">=", "v": 6},
+        {"f": "amount_sum_10m", "op": ">", "v": 150000}
+      ]},
+      "reason": "{velocity_10m} sends in 10 min totalling {amount_sum_10m} RWF",
+      "tags": ["velocity"],
+      "applies_to": ["P2P_SEND", "CASH_OUT"]
+    },
+    {
+      "id": "R-VEL-002",
+      "name": "Rapid repeat sends",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 20,
+      "action": "STEP_UP",
+      "when": {"f": "velocity_1m", "op": ">=", "v": 3},
+      "reason": "{velocity_1m} sends in 1 min",
+      "tags": ["velocity"],
+      "applies_to": ["P2P_SEND", "CASH_OUT", "AIRTIME"]
+    },
+    {
+      "id": "R-STR-001",
+      "name": "Near-limit sweeping or small-transaction run",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 30,
+      "action": "HOLD",
+      "when": {"any": [
+        {"all": [
+          {"f": "small_txn_run_1h", "op": ">=", "v": 3},
+          {"f": "near_limit_ratio", "op": ">=", "v": 0.9},
+          {"f": "near_limit_ratio", "op": "<=", "v": 1.0}
+        ]},
+        {"all": [
+          {"f": "near_limit_ratio", "op": ">=", "v": 0.9},
+          {"f": "amount_sum_24h", "op": ">", "v": 500000}
+        ]}
+      ]},
+      "reason": "near-limit sends at ratio {near_limit_ratio} with {amount_sum_24h} RWF in 24h",
+      "tags": ["structuring"],
+      "applies_to": ["P2P_SEND", "CASH_OUT", "BANK_TRANSFER"]
+    },
+    {
+      "id": "R-STR-002",
+      "name": "24h turnover far above the tier limit",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 25,
+      "action": "STEP_UP",
+      "when": {"any": [
+        {"all": [{"f": "kyc_tier", "op": "==", "v": 1}, {"f": "amount_sum_24h", "op": ">", "v": 500000}]},
+        {"all": [{"f": "kyc_tier", "op": "==", "v": 2}, {"f": "amount_sum_24h", "op": ">", "v": 1500000}]},
+        {"all": [{"f": "kyc_tier", "op": "==", "v": 3}, {"f": "amount_sum_24h", "op": ">", "v": 15000000}]}
+      ]},
+      "reason": "{amount_sum_24h} RWF sent in 24h at KYC tier {kyc_tier}",
+      "tags": ["structuring"],
+      "applies_to": ["P2P_SEND", "CASH_OUT", "BANK_TRANSFER"]
+    },
+    {
+      "id": "R-ATO-001",
+      "name": "New device or recent SIM change",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 25,
+      "action": "STEP_UP",
+      "when": {"any": [
+        {"all": [
+          {"f": "new_device", "op": "==", "v": true},
+          {"f": "time_since_sim_change_min", "op": "<", "v": 4320}
+        ]},
+        {"all": [
+          {"f": "sim_changed_72h", "op": "==", "v": true},
+          {"f": "time_since_sim_change_min", "op": ">=", "v": 0},
+          {"f": "time_since_sim_change_min", "op": "<=", "v": 60}
+        ]}
+      ]},
+      "reason": "device activity {time_since_sim_change_min} min after SIM change",
+      "tags": ["ato"],
+      "applies_to": ["P2P_SEND", "CASH_OUT", "BANK_TRANSFER"]
+    },
+    {
+      "id": "R-ATO-002",
+      "name": "New device, distant geo and high balance drain",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 30,
+      "action": "HOLD",
+      "when": {"all": [
+        {"f": "new_device", "op": "==", "v": true},
+        {"f": "new_geo_km", "op": ">", "v": 50},
+        {"f": "balance_before_ratio", "op": ">", "v": 0.7}
+      ]},
+      "reason": "new device {new_geo_km} km away draining {balance_before_ratio} of balance",
+      "tags": ["ato"],
+      "applies_to": ["P2P_SEND", "CASH_OUT", "BANK_TRANSFER"]
+    },
+    {
+      "id": "R-ATO-003",
+      "name": "SIM swap takeover signature",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 50,
+      "action": "BLOCK",
+      "when": {"all": [
+        {"f": "sim_changed_72h", "op": "==", "v": true},
+        {"f": "balance_before_ratio", "op": ">", "v": 0.9},
+        {"f": "new_device", "op": "==", "v": true}
+      ]},
+      "reason": "SIM changed in 72h, new device, {balance_before_ratio} of balance moved",
+      "tags": ["ato"],
+      "applies_to": ["P2P_SEND", "CASH_OUT", "BANK_TRANSFER"]
+    },
+    {
+      "id": "R-MUL-001",
+      "name": "Recipient fan-in",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 20,
+      "action": "STEP_UP",
+      "when": {"f": "recip_distinct_senders_24h", "op": ">=", "v": 12},
+      "reason": "{recip_distinct_senders_24h} distinct senders credited this recipient in 24h",
+      "tags": ["mule"],
+      "applies_to": ["P2P_SEND"]
+    },
+    {
+      "id": "R-MUL-002",
+      "name": "Fan-in followed by immediate cash-out",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 30,
+      "action": "HOLD",
+      "when": {"all": [
+        {"f": "recip_distinct_senders_24h", "op": ">=", "v": 12},
+        {"f": "recip_cashout_lag_min", "op": ">=", "v": 0},
+        {"f": "recip_cashout_lag_min", "op": "<=", "v": 30}
+      ]},
+      "reason": "{recip_distinct_senders_24h} senders then cash-out {recip_cashout_lag_min} min later",
+      "tags": ["mule"],
+      "applies_to": ["P2P_SEND"]
+    },
+    {
+      "id": "R-MUL-003",
+      "name": "Device shared across many accounts",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 20,
+      "action": "STEP_UP",
+      "when": {"f": "acc_per_device_7d", "op": ">=", "v": 3},
+      "reason": "{acc_per_device_7d} accounts use this device in 7d",
+      "tags": ["mule"],
+      "applies_to": ["P2P_SEND", "CASH_OUT", "AIRTIME"]
+    },
+    {
+      "id": "R-AGT-001",
+      "name": "Agent cash-in/cash-out imbalance",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 20,
+      "action": "STEP_UP",
+      "when": {"f": "agent_cico_ratio_24h", "op": ">", "v": 500000},
+      "reason": "agent CICO ratio {agent_cico_ratio_24h} in 24h",
+      "tags": ["agent"],
+      "applies_to": ["CASH_IN", "CASH_OUT", "BANK_TRANSFER"]
+    },
+    {
+      "id": "R-AGT-002",
+      "name": "Agent float outflow spike",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 30,
+      "action": "HOLD",
+      "when": {"f": "agent_float_delta_pct", "op": ">", "v": 3400},
+      "reason": "agent float moved {agent_float_delta_pct}%",
+      "tags": ["agent"],
+      "applies_to": ["CASH_IN", "CASH_OUT", "BANK_TRANSFER"]
+    },
+    {
+      "id": "R-CIR-001",
+      "name": "Circular transfer loop",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 30,
+      "action": "HOLD",
+      "when": {"f": "cycle_len_2_4", "op": ">=", "v": 2},
+      "reason": "transfer closes a cycle of length {cycle_len_2_4}",
+      "tags": ["circular"],
+      "applies_to": ["P2P_SEND", "BANK_TRANSFER"]
+    },
+    {
+      "id": "R-SOC-001",
+      "name": "Night-time social-engineering transfer to a new recipient",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 30,
+      "action": "HOLD",
+      "when": {"all": [
+        {"f": "recip_new_for_sender", "op": "==", "v": true},
+        {"f": "amount_vs_avg_30d", "op": ">", "v": 2},
+        {"f": "night_hour", "op": "==", "v": true}
+      ]},
+      "reason": "new recipient at night, {amount_vs_avg_30d}x the 30d average",
+      "tags": ["social_eng"],
+      "applies_to": ["P2P_SEND"]
+    },
+    {
+      "id": "R-SOC-002",
+      "name": "Large transfer to a new recipient on elevated turnover",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 30,
+      "action": "HOLD",
+      "when": {"all": [
+        {"f": "recip_new_for_sender", "op": "==", "v": true},
+        {"f": "amount_vs_avg_30d", "op": ">", "v": 2},
+        {"f": "amount_sum_24h", "op": ">", "v": 250000}
+      ]},
+      "reason": "new recipient, {amount_vs_avg_30d}x the 30d average, {amount_sum_24h} RWF in 24h",
+      "tags": ["social_eng"],
+      "applies_to": ["P2P_SEND"]
+    },
+    {
+      "id": "R-RAW-001",
+      "name": "Single amount above the ecosystem ceiling",
+      "enabled": true,
+      "mode": "enforce",
+      "weight": 30,
+      "action": "HOLD",
+      "stateless": true,
+      "when": {"f": "amount", "op": ">", "v": 5000000},
+      "reason": "single transfer of {amount} RWF",
+      "tags": ["amount", "stateless"],
+      "applies_to": ["P2P_SEND", "CASH_OUT", "BANK_TRANSFER"]
+    },
+    {
+      "id": "R-EXP-001",
+      "name": "Experiment: velocity plus distance",
+      "enabled": true,
+      "mode": "shadow",
+      "weight": 40,
+      "action": "HOLD",
+      "when": {"all": [
+        {"f": "velocity_10m", "op": ">", "v": 6},
+        {"f": "new_geo_km", "op": ">", "v": 20}
+      ]},
+      "reason": "shadow: {velocity_10m} sends from {new_geo_km} km away",
+      "tags": ["experiment", "velocity"],
+      "applies_to": ["P2P_SEND", "CASH_OUT"]
+    },
+    {
+      "id": "R-EXP-002",
+      "name": "Experiment: mule fan-in at night",
+      "enabled": true,
+      "mode": "shadow",
+      "weight": 40,
+      "action": "BLOCK",
+      "when": {"all": [
+        {"f": "recip_distinct_senders_24h", "op": ">=", "v": 5},
+        {"f": "night_hour", "op": "==", "v": true}
+      ]},
+      "reason": "shadow: fan-in {recip_distinct_senders_24h} at night",
+      "tags": ["experiment", "mule"],
+      "applies_to": ["P2P_SEND"]
+    },
+    {
+      "id": "R-EXP-003",
+      "name": "Experiment: young account structuring",
+      "enabled": true,
+      "mode": "shadow",
+      "weight": 35,
+      "action": "HOLD",
+      "when": {"all": [
+        {"f": "account_age_days", "op": "<", "v": 30},
+        {"f": "small_txn_run_1h", "op": ">=", "v": 2}
+      ]},
+      "reason": "shadow: {account_age_days}d-old account with {small_txn_run_1h} near-limit sends",
+      "tags": ["experiment", "structuring"],
+      "applies_to": ["P2P_SEND", "CASH_OUT"]
+    }
+  ]
+}

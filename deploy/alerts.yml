@@ -1,0 +1,70 @@
+# FADE Phase 3 alert rules. Loaded by deploy/prometheus.yml.
+groups:
+  - name: fade-decision-api
+    interval: 15s
+    rules:
+      - alert: DecisionApiDown
+        expr: up{job="decision-api"} == 0
+        for: 1m
+        labels: { severity: critical, service: decision-api }
+        annotations:
+          summary: decision-api is not scrapeable
+          description: No successful scrape of decision-api for 1 minute.
+
+      - alert: DecisionApiHighErrorRate
+        expr: |
+          sum(rate(fade_http_requests_total{route="/v1/decide",status=~"5.."}[2m]))
+            / clamp_min(sum(rate(fade_http_requests_total{route="/v1/decide"}[2m])), 0.001) > 0.01
+        for: 2m
+        labels: { severity: critical, service: decision-api }
+        annotations:
+          summary: More than 1% of decide requests fail
+          description: 5xx rate on /v1/decide exceeds 1% for 2 minutes.
+
+      - alert: DecisionLatencyBudgetBreached
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le) (rate(fade_decision_latency_seconds_bucket[2m]))) > 0.04
+        for: 5m
+        labels: { severity: warning, service: decision-api }
+        annotations:
+          summary: Decision p95 exceeds the 40 ms budget
+          description: The pipeline request budget is 40 ms; p95 has been above it for 5 minutes.
+
+      - alert: DecisionApiShedding
+        expr: increase(fade_shed_total[5m]) > 0
+        for: 1m
+        labels: { severity: warning, service: decision-api }
+        annotations:
+          summary: Decision API is shedding load
+          description: The concurrency semaphore rejected requests in the last 5 minutes.
+
+      - alert: RuleSetRolledBack
+        expr: increase(fade_rules_rollback_total[10m]) > 0
+        labels: { severity: critical, service: decision-api }
+        annotations:
+          summary: A rule set was automatically rolled back
+          description: More than 1% of evaluations failed in the 30 s activation window.
+
+      - alert: RuleReloadRejected
+        expr: increase(fade_rules_reload_total{result="rejected"}[10m]) > 0
+        labels: { severity: warning, service: decision-api }
+        annotations:
+          summary: A rule reload was rejected
+          description: The previous rule set is still active; inspect the API error and rules/rules.md.
+
+      - alert: PersistenceQueueBacklog
+        expr: fade_persist_queue_depth > 5000
+        for: 5m
+        labels: { severity: warning, service: decision-api }
+        annotations:
+          summary: Async persistence queue is backing up
+          description: Decisions are spooling to disk faster than Postgres drains them.
+
+      - alert: PersistenceSpoolGrowing
+        expr: fade_spool_bytes > 100 * 1024 * 1024
+        for: 5m
+        labels: { severity: warning, service: decision-api }
+        annotations:
+          summary: Persistence spool exceeds 100 MiB
+          description: Postgres has been unavailable long enough to grow the disk spool.

@@ -1,0 +1,27 @@
+goos: linux
+goarch: amd64
+pkg: github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules
+cpu: 13th Gen Intel(R) Core(TM) i7-1355U
+BenchmarkEvaluate200Rules-12            	  486670	      4671 ns/op	       0 B/op	       0 allocs/op
+BenchmarkEvaluate200RulesParallel-12    	 1901130	      1210 ns/op	       1 B/op	       0 allocs/op
+PASS
+ok  	github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules	6.119s
+File: rules.test
+Type: cpu
+Time: Nov 11, 2026 at 1:51pm (CAT)
+Duration: 6.10s, Total samples = 39.56s (648.36%)
+Showing nodes accounting for 39.05s, 98.71% of 39.56s total
+Dropped 51 nodes (cum <= 0.20s)
+      flat  flat%   sum%        cum   cum%
+    15.66s 39.59% 39.59%     25.99s 65.70%  github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules.compileCondition.func3
+     9.99s 25.25% 64.84%     39.25s 99.22%  github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules.(*RuleSet).Evaluate
+     7.16s 18.10% 82.94%     10.30s 26.04%  github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules.intOp.func3
+     1.90s  4.80% 87.74%      1.92s  4.85%  github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules.init.func2
+     1.89s  4.78% 92.52%      1.89s  4.78%  github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules.Decision.Severity (inline)
+     1.23s  3.11% 95.63%      1.23s  3.11%  github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules.(*Result).Reset (inline)
+     1.14s  2.88% 98.51%      1.14s  2.88%  github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules.init.func4
+     0.06s  0.15% 98.66%     37.09s 93.76%  github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules.BenchmarkEvaluate200RulesParallel.func1
+     0.02s 0.051% 98.71%      2.33s  5.89%  github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules.BenchmarkEvaluate200Rules
+         0     0% 98.71%     37.09s 93.76%  testing.(*B).RunParallel.func1
+         0     0% 98.71%      2.34s  5.92%  testing.(*B).launch
+         0     0% 98.71%      2.34s  5.92%  testing.(*B).runN

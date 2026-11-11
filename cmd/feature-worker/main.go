@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -22,10 +23,13 @@ import (
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/features"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/ingest"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/obs"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/pipeline"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/store"
 )
 
 // version is overridden at link time.
-var version = "0.3.0"
+var version = "0.4.0"
 
 const shutdownTimeout = 15 * time.Second
 
@@ -81,6 +85,15 @@ func run() error {
 	store := features.NewStore(rdb, cfg.Features, cfg.LateTolerance, cfg.DedupeTTL, hooks)
 	processor := ingest.NewProcessor(store, ingest.NewKgoPublisher(client), metrics, logger,
 		cfg.KafkaDLQTopic, cfg.FeatureOutputTopic, version)
+	if strings.EqualFold(os.Getenv("DECIDE"), "true") {
+		decider, closeDecider, err := buildDecider(ctx, cfg, logger, obsMetrics, store, rdb)
+		if err != nil {
+			return err
+		}
+		defer closeDecider()
+		processor.SetDecider(decider)
+		logger.Info("async decision mode enabled", "rules", os.Getenv("RULES_DIR"))
+	}
 	consumer := ingest.NewConsumer(client, processor, metrics, logger,
 		cfg.WorkersPerPartition, cfg.MaxInflight)
 	defer consumer.Close()
@@ -136,6 +149,63 @@ func shutdown(srv *http.Server, logger *slog.Logger) {
 	if err := srv.Shutdown(ctx); err != nil {
 		logger.Error("http shutdown error", "error", err)
 	}
+}
+
+// buildDecider wires the same pipeline.Decide function used by the HTTP API.
+// The worker may run without Postgres; decisions are then published to Kafka
+// and the spool absorbs persistence failures.
+func buildDecider(ctx context.Context, cfg *config.Config, logger *slog.Logger,
+	metrics *obs.Metrics, featureStore *features.Store, rdb *redis.Client) (ingest.Decider, func(), error) {
+	rulesDir := os.Getenv("RULES_DIR")
+	if rulesDir == "" {
+		rulesDir = "rules"
+	}
+	spoolDir := os.Getenv("SPOOL_DIR")
+	if spoolDir == "" {
+		spoolDir = "./spool"
+	}
+
+	manager := rules.NewManager(rulesDir, logger, nil, rules.Hooks{
+		OnReload:   func(result string, _ int) { metrics.RulesReload.WithLabelValues(result).Inc() },
+		OnVersion:  func(v int) { metrics.RuleSetVersion.Set(float64(v)) },
+		OnRollback: func(int, int) { metrics.RulesRollback.Inc() },
+	})
+	if err := manager.LoadStartup(ctx); err != nil {
+		logger.Warn("async decisions starting with degraded rule state", "error", err)
+	}
+	metrics.RuleSetVersion.Set(float64(manager.Current().Version))
+	if err := manager.Watch(ctx); err != nil {
+		logger.Warn("rules watch disabled", "error", err)
+	}
+	manager.StartRollbackMonitor(ctx)
+
+	var pgStore *pipeline.PostgresStore
+	if pool, err := store.NewPostgresPool(ctx, cfg.PostgresDSN()); err == nil {
+		pgStore = pipeline.NewPostgresStore(pool)
+		_ = pgStore.EnsureSchema(ctx)
+	} else {
+		logger.Warn("async decision persistence degraded", "error", err)
+	}
+	var publisher pipeline.Publisher
+	if p, err := pipeline.NewKafkaPublisher(cfg.KafkaBrokers, "txn.decisions"); err == nil {
+		publisher = p
+	} else {
+		logger.Warn("decision publisher disabled", "error", err)
+	}
+	persister := pipeline.NewAsyncPersister(pgStore, publisher, spoolDir, logger, metrics)
+	persister.Start(ctx)
+	lists := pipeline.NewListCache(pipeline.NewMemoryListSource(), logger)
+	lists.Start(ctx)
+
+	pcfg := pipeline.DefaultConfig()
+	pcfg.TierLimits = cfg.Features.KYCLimits
+	p := pipeline.New(pipeline.Deps{
+		Rules: manager, Features: featureStore, Idem: pipeline.NewRedisIdempotency(rdb),
+		Fallback: pipeline.NewMemoryIdempotency(), Lists: lists, Sink: persister,
+		Store: pgStore, Metrics: metrics, Logger: logger, Config: pcfg,
+	})
+	closeFn := func() { persister.Close() }
+	return p, closeFn, nil
 }
 
 func newRouter(metrics *obs.Metrics, logger *slog.Logger, rdb *redis.Client, consumer *ingest.Consumer) http.Handler {

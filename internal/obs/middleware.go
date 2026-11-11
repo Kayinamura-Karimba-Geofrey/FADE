@@ -37,15 +37,18 @@ func HTTPMiddleware(m *Metrics) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
+			m.HTTPInflight.Inc()
 			ww := &wrapResponseWriter{ResponseWriter: w}
+			defer func() {
+				m.HTTPInflight.Dec()
+				route := chi.RouteContext(r.Context()).RoutePattern()
+				if route == "" {
+					route = "unmatched"
+				}
+				m.HTTPRequests.WithLabelValues(route, strconv.Itoa(ww.Status())).Inc()
+				m.HTTPDuration.WithLabelValues(route).Observe(time.Since(start).Seconds())
+			}()
 			next.ServeHTTP(ww, r)
-
-			route := chi.RouteContext(r.Context()).RoutePattern()
-			if route == "" {
-				route = "unmatched"
-			}
-			m.HTTPRequests.WithLabelValues(r.Method, route, strconv.Itoa(ww.Status())).Inc()
-			m.HTTPDuration.WithLabelValues(r.Method, route).Observe(time.Since(start).Seconds())
 		})
 	}
 }

@@ -100,8 +100,21 @@ variable, its meaning and default:
 | `LOG_LEVEL` | slog level: `debug`, `info`, `warn`, `error` | `info` |
 | `ML_SCORER_URL` | Base URL of the ML scoring service | `http://ml-scorer:8000` |
 | `JWT_SECRET` | HMAC secret for auth tokens (change it) | `change-me` |
+| `JWT_ISSUER` | Expected `iss` claim; empty disables the check | empty |
+| `RULES_DIR` | Directory watched for rule documents | `rules` |
+| `SPOOL_DIR` | Disk spool for decisions when Postgres is unavailable | `./spool` |
+| `REQUEST_BUDGET` | End-to-end decision budget | `40ms` |
+| `FEATURE_TIMEOUT` | Phase 2 feature-compute cap | `20ms` |
+| `MAX_CONCURRENCY` | In-flight decision semaphore | `2000` |
+| `IDEMPOTENCY_TTL` | Redis idempotency key lifetime | `24h` |
+| `CORS_ORIGIN` | Allowed dashboard origin | `http://localhost:3000` |
+| `DECISION_TOPIC` | Kafka topic for decisions | `txn.decisions` |
 
 Optional (compose-level): `GRAFANA_ADMIN_PASSWORD` (default `admin`).
+
+Local API without Docker: run Redis and `go run ./cmd/decision-api` with
+`REDIS_ADDR=localhost:6379 JWT_SECRET=... RULES_DIR=rules`, then
+`JWT_SECRET=... go run ./cmd/decide-demo`.
 
 ## Ports
 
@@ -142,6 +155,17 @@ Run `make` (or `make help`) for the full list with descriptions:
 | `make psql` | Open a `psql` shell in Postgres |
 | `make redis-cli` | Open a `redis-cli` shell in Redis |
 | `make clean` | Remove local build artifacts |
+| `make rules-validate` | Validate every rule document in `rules/` |
+| `make rules-test` | Rule engine/store/reload tests with `-race` |
+| `make rules-bench` | Evaluator/compiler benchmarks with allocations |
+| `make openapi-gen` | Regenerate `internal/api/oapi/types.gen.go` |
+| `make openapi-lint` | Run the kin-openapi contract tests |
+| `make decide-demo` | Send one demo decision to a running API |
+| `make dev-token ROLE=admin` | Mint a local JWT |
+| `make tune DATA=small` | Replay a dataset and write a tuning report |
+| `make load-decide RATE=1000 DURATION=30s` | k6 load test for `/v1/decide` |
+| `make load-batch` | k6 batch smoke test |
+| `make pprof-eval` | CPU/memory profile of the rule evaluator |
 
 ## Repository layout
 
@@ -157,7 +181,7 @@ fade/
   rules/               rule-set definitions (JSON, Phase 3)
   api/                 API contracts / OpenAPI (Phase 1+)
   deploy/              docker-compose.yml, prometheus.yml, grafana provisioning
-  bench/               k6 load tests (Phase 8)
+  bench/               k6 load tests (k6/*.js) and results/ reports
   docs/                documentation index and phase notes
   .github/workflows/   CI (go, python, dashboard, compose)
   Makefile             one-command developer workflows
@@ -169,7 +193,8 @@ fade/
       (Redpanda/Redis/Postgres/Prometheus/Grafana), migrations, CI, docs
 - [ ] Phase 1 - Event ingestion: generator scenarios, event schema, `txn.raw`
 - [ ] Phase 2 - Feature store: feature worker, Redis-backed features
-- [ ] Phase 3 - Rules engine: rule sets, versions, audit logging
+- [x] **Phase 3 - Rules engine: COMPLETE** - hot-reloadable rule sets,
+      versions, audit logging, synchronous rules-only decision API
 - [ ] Phase 4 - ML scoring: training pipeline, LightGBM + SHAP explanations
 - [ ] Phase 5 - Decision pipeline: combiner, thresholds, `txn.decisions`
 - [ ] Phase 6 - Case management: cases, labels, analyst dashboard workflows
@@ -178,6 +203,6 @@ fade/
 
 ## Documentation
 
-See [docs/README.md](docs/README.md) for the documentation index and
-[docs/phase-0.md](docs/phase-0.md) for what Phase 0 delivered plus its exit
-checks.
+See [docs/README.md](docs/README.md) for the documentation index,
+[docs/phase-0.md](docs/phase-0.md) for Phase 0 and
+[docs/phase-3.md](docs/phase-3.md) for the rules engine and decision API.

@@ -12,9 +12,11 @@ import (
 	"time"
 
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/events"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/combiner"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/features"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/obs"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/scoring"
 )
 
 // Deps are the pipeline collaborators.
@@ -259,6 +261,8 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 	default:
 		return nil, &Error{Kind: KindInternal, Status: 500, Message: "unknown feature status"}
 	}
+	vector.TxnTypeCode = int64(scoring.EncodeTxnType(ev.TxnType))
+	vector.ChannelCode = int64(scoring.EncodeChannel(ev.Channel))
 
 	rs := p.currentRuleSet()
 	if rs.Empty {
@@ -269,6 +273,19 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 		complete(dec)
 		p.sink.Enqueue(dec.ToStored())
 		return dec, nil
+	}
+
+	// Start ML prediction in parallel with rule evaluation.
+	type mlOutcome struct {
+		result rules.MLResult
+		err    error
+	}
+	mlCh := make(chan mlOutcome, 1)
+	if p.scorer != nil {
+		go func() {
+			result, err := p.scorer.Score(ctx, &vector)
+			mlCh <- mlOutcome{result: result, err: err}
+		}()
 	}
 
 	// ----------------------------------------------------------------- rules
@@ -291,17 +308,40 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 	}
 
 	// ------------------------------------------------------------- combine
-	stage = p.now()
+	mlStage := p.now()
 	ml := rules.MLResult{Status: rules.MLNotConfigured}
 	if p.scorer != nil {
-		if result, serr := p.scorer.Score(ctx, &vector); serr == nil {
-			ml = result
+		select {
+		case out := <-mlCh:
+			if out.err == nil {
+				ml = out.result
+			} else {
+				ml = rules.MLResult{Status: rules.MLDegraded}
+				p.logger.Warn("ml scoring failed; rules-only decision", "error", out.err)
+			}
+		case <-ctx.Done():
+			ml = rules.MLResult{Status: rules.MLDegraded}
+		}
+		// Request SHAP only for risky or explicitly explained decisions.
+		if ml.Status == rules.MLOK && (res.RuleScore >= rs.Combiner.StepUpThreshold || opts.IncludeExplain) {
+			type explainer interface {
+				Explain(context.Context, *features.FeatureVector) ([]rules.Contribution, error)
+			}
+			if ex, ok := p.scorer.(explainer); ok {
+				if contribs, err := ex.Explain(ctx, &vector); err == nil {
+					ml.TopContributions = contribs
+				} else {
+					ml.ExplainSkipped = true
+				}
+			}
 		} else {
-			ml = rules.MLResult{Status: rules.MLError}
-			p.logger.Warn("ml scoring failed; rules-only decision", "error", serr)
+			ml.ExplainSkipped = true
 		}
 	}
-	risk, decision := rules.Combine(rs, res, ml)
+	if p.metrics != nil {
+		p.metrics.ObserveStage("ml", p.now().Sub(mlStage).Seconds())
+	}
+	risk, decision := combiner.CombineTyped(rs, res, ml)
 
 	countHits := func() {
 		for i := 0; i < res.FiredCount; i++ {
@@ -321,6 +361,10 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 	stage = p.now()
 	blocked, allowed := p.lists.Check(ev.Sender.AccountID, ev.Sender.DeviceID, ev.Sender.MSISDNHash)
 	reasons := make([]Reason, 0, res.FiredCount+2)
+	if ml.Status == rules.MLOK && ml.FraudProb >= 0.98 {
+		reasons = append(reasons, Reason{Source: "ml", ID: "ML_VERY_HIGH_CONFIDENCE",
+			Text: "ML fraud probability >= 0.98"})
+	}
 	explain := opts.IncludeExplain || decision.Severity() >= rules.StepUp.Severity()
 	if explain {
 		for i := 0; i < res.FiredCount; i++ {
@@ -328,6 +372,15 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 			reasons = append(reasons, Reason{
 				Source: "rule", ID: r.ID, Text: r.Reason.Render(&evalCtx),
 				Weight: r.Weight, Mode: r.Mode,
+			})
+		}
+	}
+	if ml.Status == rules.MLOK {
+		for _, c := range ml.TopContributions {
+			reasons = append(reasons, Reason{
+				Source: "model", ID: c.Feature,
+				Text:   "SHAP contribution from " + c.Feature,
+				Feature: c.Feature, Value: c.Value, Contribution: c.SHAP,
 			})
 		}
 	}
@@ -454,7 +507,7 @@ func (p *Pipeline) degraded(ctx context.Context, ev *events.Event, cause string,
 	if score > 100 {
 		score = 100
 	}
-	risk, combined := rules.Combine(rs, &rules.Result{RuleScore: score, RuleAction: action}, rules.MLResult{Status: rules.MLNotConfigured})
+	risk, combined := combiner.CombineTyped(rs, &rules.Result{RuleScore: score, RuleAction: action}, rules.MLResult{Status: rules.MLNotConfigured})
 	decision = rules.MaxDecision(decision, combined)
 
 	blocked, allowed := p.lists.Check(ev.Sender.AccountID, ev.Sender.DeviceID, ev.Sender.MSISDNHash)

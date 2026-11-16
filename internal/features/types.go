@@ -37,6 +37,10 @@ type FeatureVector struct {
 	AccountAgeDays          int64   `json:"account_age_days"`
 	KYCTier                 int64   `json:"kyc_tier"`
 
+	// ML-only raw fields (not part of the Phase 2 contract or canonical JSON).
+	TxnTypeCode             int64   `json:"-"`
+	ChannelCode             int64   `json:"-"`
+
 	FeatureSchemaVersion string `json:"feature_schema_version"`
 }
 

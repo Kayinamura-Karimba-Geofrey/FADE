@@ -14,11 +14,14 @@ import (
 
 // Reason is one explanation in the decision contract.
 type Reason struct {
-	Source string     `json:"source"`
-	ID     string     `json:"id"`
-	Text   string     `json:"text"`
-	Weight int        `json:"weight,omitempty"`
-	Mode   rules.Mode `json:"mode,omitempty"`
+	Source       string     `json:"source"`
+	ID           string     `json:"id"`
+	Text         string     `json:"text"`
+	Weight       int        `json:"weight,omitempty"`
+	Mode         rules.Mode `json:"mode,omitempty"`
+	Feature      string     `json:"feature,omitempty"`
+	Value        float64    `json:"value,omitempty"`
+	Contribution float64    `json:"contribution,omitempty"`
 }
 
 // Decision is the Phase 3 response contract. Internal fields carry persistence

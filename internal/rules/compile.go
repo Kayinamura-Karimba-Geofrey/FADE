@@ -187,6 +187,19 @@ func Compile(f RuleSetFile) (*RuleSet, error) {
 	combiner.StepUpFloor = combiner.StepUpThreshold
 	combiner.HoldFloor = combiner.HoldThreshold
 	combiner.BlockFloor = combiner.BlockThreshold
+	if w := f.Config.Combiner.RuleWeight; w != nil {
+		combiner.RuleWeight = *w
+	}
+	if w := f.Config.Combiner.MLWeight; w != nil {
+		combiner.MLWeight = *w
+	}
+	if v := f.Config.Combiner.AllowMLOnlyBlock; v != nil {
+		combiner.AllowMLOnlyBlock = *v
+	}
+	if combiner.RuleWeight == 0 && combiner.MLWeight == 0 {
+		combiner.RuleWeight = 0.55
+		combiner.MLWeight = 0.45
+	}
 	if fl := f.Config.Combiner.Floors; fl != nil {
 		if fl.StepUp != nil {
 			combiner.StepUpFloor = *fl.StepUp

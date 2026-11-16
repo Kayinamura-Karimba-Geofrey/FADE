@@ -18,6 +18,7 @@ import (
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/obs"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/pipeline"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/scoring"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/store"
 )
 
@@ -127,8 +128,12 @@ func run() error {
 	persister.Start(ctx)
 	defer persister.Close()
 
+	var mlScorer rules.Scorer = rules.NoopScorer{}
+	if cfg.MLScorerURL != "" {
+		mlScorer = scoring.New(scoring.Config{BaseURL: cfg.MLScorerURL, Timeout: 15 * time.Millisecond, Metrics: metrics})
+	}
 	p := pipeline.New(pipeline.Deps{
-		Rules: manager, Features: featureStore, Idem: pipeline.NewRedisIdempotency(rdb),
+		Rules: manager, Features: featureStore, Scorer: mlScorer, Idem: pipeline.NewRedisIdempotency(rdb),
 		Fallback: pipeline.NewMemoryIdempotency(), Lists: lists, Sink: persister,
 		Store: decisionStore, Metrics: metrics, Logger: logger, Config: cfg.Pipeline,
 	})

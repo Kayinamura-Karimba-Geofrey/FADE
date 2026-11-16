@@ -10,16 +10,32 @@ import (
 const (
 	MLNotConfigured = "NOT_CONFIGURED"
 	MLOK            = "OK"
+	MLDegraded      = "DEGRADED"
+	MLStaleModel    = "STALE_MODEL"
 	MLError         = "ERROR"
 	MLTimeout       = "TIMEOUT"
 )
 
+// Contribution is one SHAP entry returned by a scorer.
+type Contribution struct {
+	Feature   string  `json:"feature"`
+	Value     float64 `json:"value"`
+	SHAP      float64 `json:"shap"`
+	Direction string  `json:"direction"`
+}
+
 // MLResult is a model output. A nil Score means "no score", which is the
 // Phase 3 NoopScorer contract.
 type MLResult struct {
-	Score        *int
-	Status       string
-	ModelVersion string
+	Score            *int
+	Status           string
+	ModelVersion     string
+	FraudProb        float64
+	AnomalyScore     float64
+	MLScore          *int
+	TopContributions []Contribution
+	ExplainSkipped   bool
+	LatencyMS        float64
 }
 
 // Scorer is the Phase 4 plug point. Phase 3 always ships NoopScorer, so the

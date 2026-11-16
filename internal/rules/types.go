@@ -91,8 +91,11 @@ type Floors struct {
 
 // CombinerConfig is the authored combiner configuration.
 type CombinerConfig struct {
-	Thresholds *Thresholds `json:"thresholds,omitempty"`
-	Floors     *Floors     `json:"floors,omitempty"`
+	Thresholds         *Thresholds `json:"thresholds,omitempty"`
+	Floors             *Floors     `json:"floors,omitempty"`
+	RuleWeight         *float64    `json:"rule_weight,omitempty"`
+	MLWeight           *float64    `json:"ml_weight,omitempty"`
+	AllowMLOnlyBlock   *bool       `json:"allow_ml_only_block,omitempty"`
 }
 
 // Config is the authored rule-set configuration.
@@ -103,19 +106,23 @@ type Config struct {
 
 // Combiner is the compiled, validated combiner configuration.
 type Combiner struct {
-	StepUpThreshold int
-	HoldThreshold   int
-	BlockThreshold  int
-	StepUpFloor     int
-	HoldFloor       int
-	BlockFloor      int
+	StepUpThreshold   int
+	HoldThreshold     int
+	BlockThreshold    int
+	StepUpFloor       int
+	HoldFloor         int
+	BlockFloor        int
+	RuleWeight        float64
+	MLWeight          float64
+	AllowMLOnlyBlock  bool
 }
 
-// DefaultCombiner is the documented Phase 3 policy.
+// DefaultCombiner is the documented Phase 4 policy.
 func DefaultCombiner() Combiner {
 	return Combiner{
 		StepUpThreshold: 40, HoldThreshold: 65, BlockThreshold: 85,
 		StepUpFloor: 40, HoldFloor: 65, BlockFloor: 85,
+		RuleWeight:      0.55, MLWeight: 0.45,
 	}
 }
 

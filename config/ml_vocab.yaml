@@ -1,0 +1,19 @@
+# Versioned categorical vocabulary for FADE ML models.
+# Code 0 is reserved for unknown/unseen values and must never be assigned.
+# Changing a code or adding a value requires a new vocabulary version.
+version: "1.0.0"
+unknown_code: 0
+categories:
+  txn_type:
+    AIRTIME: 1
+    BANK_TRANSFER: 2
+    BILL_PAY: 3
+    CASH_IN: 4
+    CASH_OUT: 5
+    MERCHANT_PAY: 6
+    P2P_SEND: 7
+  channel:
+    AGENT: 1
+    API: 2
+    APP: 3
+    USSD: 4

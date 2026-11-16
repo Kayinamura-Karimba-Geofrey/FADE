@@ -16,6 +16,8 @@ RATE ?= 1000
 DURATION ?= 10s
 K6 ?= k6
 BASE_URL ?= http://localhost:8080
+TIME_BUDGET ?= 300
+MODEL_DIR ?= ml/models/lgbm-2026.11.1
 
 .PHONY: help env up up-infra down nuke logs ps migrate migrate-down topics \
         test test-integration lint fmt build psql redis-cli clean \
@@ -61,6 +63,16 @@ topics: ## List Redpanda topics (rpk topic list)
 test: ## Run Go tests (-race) and pytest
 	$(GO) test ./... -race
 	$(UV) run pytest
+
+ml-train: ## Train the Phase 4 model on DATA (default: run42)
+	$(PY) -m ml.train build-table --data-dir data/$(DATA)
+	$(PY) -m ml.train train --data-dir data/$(DATA) --time-budget $(TIME_BUDGET)
+
+ml-serve: ## Run the ML scorer service locally
+	MODEL_DIR=$(MODEL_DIR) $(UV) run uvicorn ml.serve.app:app --host 0.0.0.0 --port 8090
+
+ml-test: ## Run ML-focused tests
+	$(UV) run pytest tests/test_ml_serve.py tests/test_ml_explain.py -q
 
 lint: ## Run go vet, staticcheck, ruff and eslint
 	$(GO) vet ./...

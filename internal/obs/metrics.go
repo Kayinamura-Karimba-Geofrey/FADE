@@ -33,6 +33,8 @@ type Metrics struct {
 	PersistBatches    *prometheus.CounterVec
 	IdempotentReplays prometheus.Counter
 	FailPolicy        *prometheus.CounterVec
+	MLBreakerState    prometheus.Gauge
+	MLBreakerTransitions prometheus.Counter
 }
 
 // NewMetrics creates a fresh registry pre-populated with the FADE collectors.
@@ -106,6 +108,14 @@ func NewMetrics(service string) *Metrics {
 			Name: "fade_fail_policy_total",
 			Help: "Degraded decisions by cause and fail mode.",
 		}, []string{"cause", "mode"}),
+		MLBreakerState: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "fade_ml_breaker_state",
+			Help: "Circuit breaker state (0 closed, 1 open, 2 half-open).",
+		}),
+		MLBreakerTransitions: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "fade_ml_breaker_transitions_total",
+			Help: "Circuit breaker state transitions.",
+		}),
 	}
 	reg.MustRegister(
 		collectors.NewGoCollector(),
@@ -115,6 +125,7 @@ func NewMetrics(service string) *Metrics {
 		m.RulesReload, m.RulesRollback, m.RuleSetVersion,
 		m.PersistQueueDepth, m.SpoolBytes, m.PersistBatches,
 		m.IdempotentReplays, m.FailPolicy,
+		m.MLBreakerState, m.MLBreakerTransitions,
 	)
 	m.Up.WithLabelValues(service).Set(1)
 	return m

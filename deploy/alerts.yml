@@ -68,3 +68,46 @@ groups:
         annotations:
           summary: Persistence spool exceeds 100 MiB
           description: Postgres has been unavailable long enough to grow the disk spool.
+
+  - name: fade-governance
+    interval: 15s
+    rules:
+      - alert: AuditChainBroken
+        expr: increase(fade_audit_verify_total{result="broken"}[10m]) > 0
+        for: 0m
+        labels: { severity: critical, service: decision-api }
+        annotations:
+          summary: Audit hash chain verification failed
+          description: A verifier reported a broken audit chain. Preserve the database and checkpoint directory and investigate the reported seq.
+
+      - alert: AuditAppendFailing
+        expr: increase(fade_audit_appends_total{result="error"}[5m]) > 0
+        for: 1m
+        labels: { severity: critical, service: decision-api }
+        annotations:
+          summary: Governance changes are not reaching the audit log
+          description: Audit append failed at least once in the last 5 minutes; a governance action may be unlogged.
+
+      - alert: AuditCheckpointStale
+        expr: time() - max(fade_audit_checkpoint_timestamp_seconds) > 26 * 3600
+        for: 10m
+        labels: { severity: warning, service: decision-api }
+        annotations:
+          summary: No signed audit checkpoint in 26 hours
+          description: The daily checkpoint job has not run; a chain rewrite would no longer be detectable.
+
+      - alert: ExplainLatencyHigh
+        expr: histogram_quantile(0.99, sum by (le) (rate(fade_explain_latency_seconds_bucket[5m]))) > 0.05
+        for: 10m
+        labels: { severity: warning, service: decision-api }
+        annotations:
+          summary: Explanation p99 is above 50 ms
+          description: Explain rendering is off the decision path but should stay well under 1 ms per build; check template/catalog changes.
+
+      - alert: ExplainPrivacyGuardTripped
+        expr: increase(fade_explain_total{result="privacy_blocked"}[5m]) > 0
+        for: 0m
+        labels: { severity: critical, service: decision-api }
+        annotations:
+          summary: Explanation privacy guard withheld a response
+          description: An explanation contained a raw personal identifier and was blocked. Treat as a potential data leak.

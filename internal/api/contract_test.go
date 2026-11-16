@@ -67,7 +67,7 @@ func validateExchange(t *testing.T, route routers.Router, method, path string, b
 
 func TestOpenAPIContractDecide(t *testing.T) {
 	doc, router := loadSpec(t)
-	if doc.Info.Version != "0.4.0" {
+	if doc.Info.Version != "0.6.0" {
 		t.Fatalf("spec version=%q", doc.Info.Version)
 	}
 	for _, path := range []string{"/v1/decide", "/v1/decide/batch", "/v1/decisions", "/v1/decisions/{id}",

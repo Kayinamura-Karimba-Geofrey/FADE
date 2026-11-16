@@ -91,6 +91,71 @@ func (t *ReasonTemplate) Render(ctx *EvalContext) string {
 	return b.String()
 }
 
+// RenderWithParams formats the sentence and its structured parameters in one
+// pass. The decision path uses this instead of Render+Params so the values are
+// formatted once; it still allocates, so callers only use it when an explainable
+// decision is being built.
+func (t *ReasonTemplate) RenderWithParams(ctx *EvalContext) (string, map[string]string) {
+	if t == nil {
+		return "", nil
+	}
+	var b strings.Builder
+	b.Grow(64)
+	var out map[string]string
+	for _, part := range t.parts {
+		if part.field == nil {
+			b.WriteString(part.literal)
+			continue
+		}
+		var value string
+		switch part.field.Kind {
+		case KindInt:
+			value = strconv.FormatInt(part.field.Int(ctx), 10)
+		case KindFloat:
+			value = strconv.FormatFloat(part.field.Float(ctx), 'f', 2, 64)
+		case KindBool:
+			value = strconv.FormatBool(part.field.Bool(ctx))
+		case KindString:
+			value = part.field.Str(ctx)
+		}
+		b.WriteString(value)
+		if out == nil {
+			out = make(map[string]string, 4)
+		}
+		out[part.field.Name] = value
+	}
+	return b.String(), out
+}
+
+// Params returns the structured values that fill the template placeholders.
+// Explanations localize the sentence from these values instead of re-parsing
+// the rendered English text.
+func (t *ReasonTemplate) Params(ctx *EvalContext) map[string]string {
+	if t == nil {
+		return nil
+	}
+	out := make(map[string]string, len(t.parts))
+	for _, part := range t.parts {
+		if part.field == nil {
+			continue
+		}
+		switch part.field.Kind {
+		case KindInt:
+			out[part.field.Name] = strconv.FormatInt(part.field.Int(ctx), 10)
+		case KindFloat:
+			out[part.field.Name] = strconv.FormatFloat(part.field.Float(ctx), 'f', 2, 64)
+		case KindBool:
+			out[part.field.Name] = strconv.FormatBool(part.field.Bool(ctx))
+		case KindString:
+			out[part.field.Name] = part.field.Str(ctx)
+		}
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
+}
+
 // Lit is the raw template text, used by the admin preview.
 func (t *ReasonTemplate) Lit() string {
 	if t == nil {

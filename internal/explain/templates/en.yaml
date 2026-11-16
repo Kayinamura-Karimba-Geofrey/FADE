@@ -1,0 +1,80 @@
+# FADE explanation templates (English, authoritative).
+#
+# Every user-visible sentence is authored here. A template may only reference
+# parameters that the decision actually stored; rendering never invents a fact.
+# Placeholders use {name} and are filled from the decision's structured reason
+# parameters. Keys beginning with "feature." describe model contributions.
+language: en
+needs_review: false
+version: 1
+templates:
+  # ---------------------------------------------------------------- rule reasons
+  R-VEL-001: "{velocity_10m} sends within 10 minutes totalling {amount_sum_10m} RWF"
+  R-VEL-002: "{velocity_1m} sends within 1 minute"
+  R-STR-001: "near-limit sends at ratio {near_limit_ratio} with {amount_sum_24h} RWF in 24 hours"
+  R-STR-002: "{amount_sum_24h} RWF sent in 24 hours at KYC tier {kyc_tier}"
+  R-ATO-001: "device activity {time_since_sim_change_min} minutes after a SIM change"
+  R-ATO-002: "new device {new_geo_km} km away moving {balance_before_ratio} of the balance"
+  R-ATO-003: "SIM changed within 72 hours, new device, {balance_before_ratio} of the balance moved"
+  R-MUL-001: "{recip_distinct_senders_24h} distinct senders credited this recipient in 24 hours"
+  R-MUL-002: "{recip_distinct_senders_24h} senders followed by a cash-out {recip_cashout_lag_min} minutes later"
+  R-MUL-003: "{acc_per_device_7d} accounts use this device in 7 days"
+  R-AGT-001: "agent cash-in/cash-out ratio {agent_cico_ratio_24h} in 24 hours"
+  R-AGT-002: "agent float moved {agent_float_delta_pct} percent"
+  R-CIR-001: "the transfer closes a cycle of length {cycle_len_2_4}"
+  R-SOC-001: "new recipient at night, {amount_vs_avg_30d} times the 30-day average"
+  R-SOC-002: "new recipient, {amount_vs_avg_30d} times the 30-day average, {amount_sum_24h} RWF in 24 hours"
+  R-RAW-001: "single transfer of {amount} RWF"
+  R-EXP-001: "shadow experiment: {velocity_10m} sends from {new_geo_km} km away"
+  R-EXP-002: "shadow experiment: fan-in of {recip_distinct_senders_24h} senders at night"
+  R-EXP-003: "shadow experiment: {account_age_days}-day-old account with {small_txn_run_1h} near-limit sends"
+
+  # ------------------------------------------------------------- system reasons
+  LIST_BLOCK: "the {subject} is on the block list"
+  LIST_ALLOW: "the {subject} is on the allow list"
+  TIER_LIMIT_EXCEEDED: "the amount is above the daily limit for KYC tier {kyc_tier}"
+  ML_VERY_HIGH_CONFIDENCE: "the risk model reports very high fraud confidence"
+  FAIL_POLICY: "the decision was made in degraded mode because {cause}"
+
+  # --------------------------------------------------- model contribution facts
+  "feature.velocity_1m": "transfers in the last minute: {value}"
+  "feature.velocity_10m": "transfers in the last 10 minutes: {value}"
+  "feature.velocity_1h": "transfers in the last hour: {value}"
+  "feature.amount_sum_10m": "amount sent in the last 10 minutes: {value} RWF"
+  "feature.amount_sum_24h": "amount sent in the last 24 hours: {value} RWF"
+  "feature.distinct_recip_24h": "distinct recipients in 24 hours: {value}"
+  "feature.amount_vs_avg_30d": "amount relative to the 30-day average: {value}"
+  "feature.amount_zscore_30d": "amount z-score against 30 days: {value}"
+  "feature.near_limit_ratio": "share of the tier limit used: {value}"
+  "feature.small_txn_run_1h": "near-limit transfers in the last hour: {value}"
+  "feature.new_device": "device seen before: {value}"
+  "feature.new_geo_km": "distance from the usual location: {value} km"
+  "feature.sim_changed_72h": "SIM changed in the last 72 hours: {value}"
+  "feature.time_since_sim_change_min": "minutes since the SIM change: {value}"
+  "feature.acc_per_device_7d": "accounts on this device in 7 days: {value}"
+  "feature.recip_new_for_sender": "recipient is new for this sender: {value}"
+  "feature.recip_distinct_senders_24h": "distinct senders to this recipient in 24 hours: {value}"
+  "feature.recip_cashout_lag_min": "minutes between credit and cash-out: {value}"
+  "feature.inbound_outbound_ratio_1h": "inbound to outbound ratio in the last hour: {value}"
+  "feature.night_hour": "transaction in the night window: {value}"
+  "feature.cycle_len_2_4": "cycle length: {value}"
+  "feature.agent_cico_ratio_24h": "agent cash-in/cash-out ratio: {value}"
+  "feature.agent_float_delta_pct": "agent float movement: {value} percent"
+  "feature.account_age_days": "account age in days: {value}"
+  "feature.kyc_tier": "KYC tier: {value}"
+
+# ------------------------------------------------------------------ customer view
+# Customer-safe sentences contain no thresholds, feature names, rule ids, model
+# details or numbers. They are selected by category, never by rendering an
+# analyst sentence.
+customer:
+  blocked: "This transaction was blocked because it did not pass our security checks. Contact support if you need help."
+  allowed: "This transaction was approved."
+  limit: "This transaction is above the limit for your account level. Complete verification to raise your limit."
+  account_security: "We noticed a recent security change on this account, so we need to confirm this transaction with you."
+  unusual_activity: "This transaction looked unusual for this account, so we need to confirm it with you."
+  recipient_pattern: "The receiving account showed an unusual pattern, so we need to confirm this transaction with you."
+  new_recipient: "This is a new recipient for you, so we need to confirm the transaction."
+  review: "We are reviewing this transaction before it completes."
+  step_up: "This transaction needs extra verification before it completes."
+  hold: "This transaction is on hold while we review it."

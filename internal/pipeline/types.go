@@ -22,6 +22,9 @@ type Reason struct {
 	Feature      string     `json:"feature,omitempty"`
 	Value        float64    `json:"value,omitempty"`
 	Contribution float64    `json:"contribution,omitempty"`
+	// Params are the structured facts referenced by the reason. Explanations
+	// are localized from these values, never by re-parsing text.
+	Params map[string]string `json:"params,omitempty"`
 }
 
 // Decision is the Phase 3 response contract. Internal fields carry persistence
@@ -40,8 +43,13 @@ type Decision struct {
 	Reasons        []Reason                `json:"reasons"`
 	ShadowHits     []string                `json:"shadow_hits"`
 	Features       *features.FeatureVector `json:"features_snapshot,omitempty"`
-	LatencyMS      float64                 `json:"latency_ms"`
-	DecidedAt      time.Time               `json:"decided_at"`
+
+	// Phase 5 provenance (not part of the public decision contract).
+	SnapshotID           string     `json:"-"`
+	Provenance           Provenance `json:"-"`
+	ExplainSchemaVersion int        `json:"-"`
+	LatencyMS            float64    `json:"latency_ms"`
+	DecidedAt            time.Time  `json:"decided_at"`
 
 	// Replay is surfaced as the Idempotent-Replay response header.
 	Replay bool `json:"idempotent_replay,omitempty"`
@@ -91,7 +99,7 @@ func DefaultConfig() Config {
 		IdempotencyTTL: 24 * time.Hour,
 		MaxConcurrency: 2000,
 		TierLimits:     map[int]int64{1: 50_000, 2: 500_000, 3: 5_000_000},
-		Version:        "0.4.0",
+		Version:        "0.6.0",
 	}
 }
 
@@ -145,6 +153,16 @@ const (
 	CauseRulePanic      = "RULE_PANIC"
 	CauseNoRuleSet      = "NO_RULE_SET"
 )
+
+// Provenance captures the immutable inputs that produced a decision.
+type Provenance struct {
+	RuleSetVersion       int            `json:"rule_set_version"`
+	RuleSetHash          string         `json:"rule_set_hash"`
+	ModelVersion         string         `json:"model_version"`
+	CombinerConfig       map[string]any `json:"combiner,omitempty"`
+	SnapshotID           string         `json:"snapshot_id"`
+	ExplainSchemaVersion int            `json:"explain_schema_version"`
+}
 
 // StoredDecision is the persisted/spooled form with the internal context.
 type StoredDecision struct {

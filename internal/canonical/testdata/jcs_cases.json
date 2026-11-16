@@ -1,0 +1,4081 @@
+{
+"reference": "rfc8785==0.1.4",
+"cases": [
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "{\"b\":1,\"a\":2}",
+"expected": "{\"a\":2,\"b\":1}"
+},
+{
+"input": "{\"a\":{\"c\":3,\"b\":[true,false,null]}}",
+"expected": "{\"a\":{\"b\":[true,false,null],\"c\":3}}"
+},
+{
+"input": "{\"key\":\"value\",\"nested\":{\"arr\":[1,2,3]}}",
+"expected": "{\"key\":\"value\",\"nested\":{\"arr\":[1,2,3]}}"
+},
+{
+"input": "{\"unicode\":\"é\",\"emoji\":\"😀\",\"control\":\"\\u0001\\u001f\"}",
+"expected": "{\"control\":\"\\u0001\\u001f\",\"emoji\":\"😀\",\"unicode\":\"é\"}"
+},
+{
+"input": "{\"quote\":\"\\\"\",\"backslash\":\"\\\\\",\"tab\":\"\\t\"}",
+"expected": "{\"backslash\":\"\\\\\",\"quote\":\"\\\"\",\"tab\":\"\\t\"}"
+},
+{
+"input": "{\"n\":1e21}",
+"expected": "{\"n\":1e+21}"
+},
+{
+"input": "{\"n\":1e-7}",
+"expected": "{\"n\":1e-7}"
+},
+{
+"input": "{\"n\":1e-6}",
+"expected": "{\"n\":0.000001}"
+},
+{
+"input": "{\"n\":0.000001}",
+"expected": "{\"n\":0.000001}"
+},
+{
+"input": "{\"n\":123.456}",
+"expected": "{\"n\":123.456}"
+},
+{
+"input": "{\"n\":-0.0}",
+"expected": "{\"n\":0}"
+},
+{
+"input": "{\"n\":9007199254740991}",
+"expected": "{\"n\":9007199254740991}"
+},
+{
+"input": "{\"n\":1.7976931348623157e308}",
+"expected": "{\"n\":1.7976931348623157e+308}"
+},
+{
+"input": "{\"n\":5e-324}",
+"expected": "{\"n\":5e-324}"
+},
+{
+"input": "{\"a\":1,\"A\":2,\"á\":3,\"ä\":4,\"z\":5}",
+"expected": "{\"A\":2,\"a\":1,\"z\":5,\"á\":3,\"ä\":4}"
+},
+{
+"input": "{\"\\u00e9\":1,\"e\":2}",
+"expected": "{\"e\":2,\"é\":1}"
+},
+{
+"input": "{\"nested\":{\"a\":[{\"b\":1},{\"b\":2}]}}",
+"expected": "{\"nested\":{\"a\":[{\"b\":1},{\"b\":2}]}}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "[0.001, null, {\"a\\t\\t\\\"-\\t1\\\"\\tü\\n\": 1.0}]",
+"expected": "[0.001,null,{\"a\\t\\t\\\"-\\t1\\\"\\tü\\n\":1}]"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"X€0Z1\\\"a\"",
+"expected": "\"X€0Z1\\\"a\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"Z0Y1\\n\\n1éXZ\\\"\"",
+"expected": "\"Z0Y1\\n\\n1éXZ\\\"\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "\"Z\"",
+"expected": "\"Z\""
+},
+{
+"input": "[9.025471790024547e+210, \"X€\\nX é\", \"\\\\\\t1😀1bacé1a\", true]",
+"expected": "[9.025471790024547e+210,\"X€\\nX é\",\"\\\\\\t1😀1bacé1a\",true]"
+},
+{
+"input": "{\"_0-\\\"b\": [{\"üXa\\\\ a\": null, \"\\t\": null}, [\"\\\\\", \"aX\\\"ü😀1\\t_\", null, -905913.9948096953, -466987.80933607044], null]}",
+"expected": "{\"_0-\\\"b\":[{\"\\t\":null,\"üXa\\\\ a\":null},[\"\\\\\",\"aX\\\"ü😀1\\t_\",null,-905913.9948096953,-466987.80933607044],null]}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "[false, true, {\"19\\\"c\\tü9\": {\"€X-😀-\": null, \"_a\\\\Z baY \": null, \"\\téXb\\néé\": -550103.0945605782, \"ü\\\"\": true, \"😀é Y-\": -601315}}]",
+"expected": "[false,true,{\"19\\\"c\\tü9\":{\"\\téXb\\néé\":-550103.0945605782,\"_a\\\\Z baY \":null,\"ü\\\"\":true,\"€X-😀-\":null,\"😀é Y-\":-601315}}]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"\\n 1 -\"",
+"expected": "\"\\n 1 -\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"\\na1\"",
+"expected": "\"\\na1\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "1e-06",
+"expected": "0.000001"
+},
+{
+"input": "102870",
+"expected": "102870"
+},
+{
+"input": "{\"Y\": -525841, \"ü€b9bb9\": {\"é \": \"éY-c-\\\\\", \"a😀üé\\naX\": [true], \"\\t_ \": {\"_-éX\": 0.0, \"k1\": false, \" 9\": -2.25, \"\\n\\\\bé\\t\": \"aYécb9é9üü9\", \"0é9😀ü0Z9\": \"😀X\\t€X_bZ b\\t\"}}}",
+"expected": "{\"Y\":-525841,\"ü€b9bb9\":{\"\\t_ \":{\"\\n\\\\bé\\t\":\"aYécb9é9üü9\",\" 9\":-2.25,\"0é9😀ü0Z9\":\"😀X\\t€X_bZ b\\t\",\"_-éX\":0,\"k1\":false},\"a😀üé\\naX\":[true],\"é \":\"éY-c-\\\\\"}}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"-😀\"",
+"expected": "\"-😀\""
+},
+{
+"input": "{\"k0\": null, \"\\nYcZ\": null}",
+"expected": "{\"\\nYcZ\":null,\"k0\":null}"
+},
+{
+"input": "[[null, {}, [], 641924, \"YZüb0b\"], 0, null, -2.25]",
+"expected": "[[null,{},[],641924,\"YZüb0b\"],0,null,-2.25]"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "\"X Xé😀b\"",
+"expected": "\"X Xé😀b\""
+},
+{
+"input": "[[\"Y\\\"-é\\\\c\\\\c0Z\", true, null, false, {\"-9\": 1e-06, \" \\\\aé 😀Y\": 154274}], [false, [\"é\\nébc\"]]]",
+"expected": "[[\"Y\\\"-é\\\\c\\\\c0Z\",true,null,false,{\" \\\\aé 😀Y\":154274,\"-9\":0.000001}],[false,[\"é\\nébc\"]]]"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"\\n\\n1\": 310266.18903349247, \"\\\"bbüaü0\\\\cé1€\": [null, [null, -285905.634802714, null, false], null]}",
+"expected": "{\"\\n\\n1\":310266.18903349247,\"\\\"bbüaü0\\\\cé1€\":[null,[null,-285905.634802714,null,false],null]}"
+},
+{
+"input": "1e-07",
+"expected": "1e-7"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\" a\\tb\\\\\\\"\"",
+"expected": "\" a\\tb\\\\\\\"\""
+},
+{
+"input": "{\"\\t  \\t\\t\\\\X\\\\😀\": null, \" \\\\X😀Y-c\": {\"Zü9_😀éX\\tZé_\": [0.14285714285714285, -926379.6768667304, false, 2005738992], \"cé\\\\ €Z😀XY\\\\ c\": false, \"b\\n😀\\\"üc\": 0.0, \"91\\né\": true}, \"Z\\n\": {\"c1\\n\": {}, \"1_9c\\n_\": {}, \"\\\\_-1\\nüab\\\"\\n\": {}, \"\\\\\": [null, null, false]}, \"-\\t a€\": [true]}",
+"expected": "{\"\\t  \\t\\t\\\\X\\\\😀\":null,\" \\\\X😀Y-c\":{\"91\\né\":true,\"Zü9_😀éX\\tZé_\":[0.14285714285714285,-926379.6768667304,false,2005738992],\"b\\n😀\\\"üc\":0,\"cé\\\\ €Z😀XY\\\\ c\":false},\"-\\t a€\":[true],\"Z\\n\":{\"1_9c\\n_\":{},\"\\\\\":[null,null,false],\"\\\\_-1\\nüab\\\"\\n\":{},\"c1\\n\":{}}}"
+},
+{
+"input": "[null, -398371.43174311134]",
+"expected": "[null,-398371.43174311134]"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "\"YbY€9ZXYü\"",
+"expected": "\"YbY€9ZXYü\""
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "\"a\"",
+"expected": "\"a\""
+},
+{
+"input": "-793382",
+"expected": "-793382"
+},
+{
+"input": "{\"€XbX1 1ü\": \"-1Z90 cüXa1\", \"\\\\X€0  Z\\tc\": {\"9 1é 0X\": [null, null, -700645830, true, 743070.6296018204], \"éc1c\\t\\tXZ😀€\": -510845.66786699905, \"€-Z😀cY\": [true, \"€X\\\\\\\\üY\\\"\\té\\t\", 921833.9521639145, 0.0, \"_ccYY\\tZ\"], \"-ü\": true}, \"k2\": false, \"-9😀€ 9c€\": null}",
+"expected": "{\"-9😀€ 9c€\":null,\"\\\\X€0  Z\\tc\":{\"-ü\":true,\"9 1é 0X\":[null,null,-700645830,true,743070.6296018204],\"éc1c\\t\\tXZ😀€\":-510845.66786699905,\"€-Z😀cY\":[true,\"€X\\\\\\\\üY\\\"\\té\\t\",921833.9521639145,0,\"_ccYY\\tZ\"]},\"k2\":false,\"€XbX1 1ü\":\"-1Z90 cüXa1\"}"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"\\t\\\\Y\\tabZY\\\"a1a\"",
+"expected": "\"\\t\\\\Y\\tabZY\\\"a1a\""
+},
+{
+"input": "\"0😀\"",
+"expected": "\"0😀\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"0Y\"",
+"expected": "\"0Y\""
+},
+{
+"input": "1.5",
+"expected": "1.5"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"€\\nüZé_é😀 \": [false, [], false, null, [\"1\", true, false, \"a\\t€b9-\", true]], \"é\\n\": null, \"baa_ca\": \"Y\\n-1b--\\\\é-0€\"}",
+"expected": "{\"baa_ca\":\"Y\\n-1b--\\\\é-0€\",\"é\\n\":null,\"€\\nüZé_é😀 \":[false,[],false,null,[\"1\",true,false,\"a\\t€b9-\",true]]}"
+},
+{
+"input": "[[{\" \\\"1Zbüc9 a\": \"\\\"\", \"€-\": false, \"\\\\919-\\n\": \"-_0Xc9bé_\", \"a\\n_c9 9\\n€Z\": null}, \"c_b0😀X\", [null, null]], \"-😀\\t\\t€\\\" \", -1.07522090332609e+25]",
+"expected": "[[{\" \\\"1Zbüc9 a\":\"\\\"\",\"\\\\919-\\n\":\"-_0Xc9bé_\",\"a\\n_c9 9\\n€Z\":null,\"€-\":false},\"c_b0😀X\",[null,null]],\"-😀\\t\\t€\\\" \",-1.07522090332609e+25]"
+},
+{
+"input": "\"9üa0aY\\\"é9\"",
+"expected": "\"9üa0aY\\\"é9\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "{\"k0\": 170936170, \"Yé\": -932608.4998040259, \"Xü\\\"😀😀Z\": null, \"€Z0\\\"\\\"  1_Yb\": -110012.95957834099}",
+"expected": "{\"Xü\\\"😀😀Z\":null,\"Yé\":-932608.4998040259,\"k0\":170936170,\"€Z0\\\"\\\"  1_Yb\":-110012.95957834099}"
+},
+{
+"input": "\"€\\t1\\n0bYüZc€-\"",
+"expected": "\"€\\t1\\n0bYüZc€-\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"\\\\ YXb9é😀\"",
+"expected": "\"\\\\ YXb9é😀\""
+},
+{
+"input": "\"a\"",
+"expected": "\"a\""
+},
+{
+"input": "[\"\\t\", \"\\nb9-😀9X😀😀b\", [{\"k0\": \"__9üc\\\\b\\nb€\", \"k1\": \"0ü0X0\\n\", \"_😀€\\\"a\\nc_9\\\"9\": \"\\nbXü__€9é Y\", \"YX a\": null}, \"cb0\\nYé€\\\"-\", false, false, false]]",
+"expected": "[\"\\t\",\"\\nb9-😀9X😀😀b\",[{\"YX a\":null,\"_😀€\\\"a\\nc_9\\\"9\":\"\\nbXü__€9é Y\",\"k0\":\"__9üc\\\\b\\nb€\",\"k1\":\"0ü0X0\\n\"},\"cb0\\nYé€\\\"-\",false,false,false]]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "0",
+"expected": "0"
+},
+{
+"input": "[\"9é\\t\", -1758963138, {}, \"1-é€Xü\\n1\", null]",
+"expected": "[\"9é\\t\",-1758963138,{},\"1-é€Xü\\n1\",null]"
+},
+{
+"input": "\"_c9ZbY\"",
+"expected": "\"_c9ZbY\""
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "{\"éé1-_\": true}",
+"expected": "{\"éé1-_\":true}"
+},
+{
+"input": "[null, null]",
+"expected": "[null,null]"
+},
+{
+"input": "[null, true]",
+"expected": "[null,true]"
+},
+{
+"input": "[\"\", [null, []], true, null]",
+"expected": "[\"\",[null,[]],true,null]"
+},
+{
+"input": "\"a€€9\\t9-€ü\\\\\\\"b\"",
+"expected": "\"a€€9\\t9-€ü\\\\\\\"b\""
+},
+{
+"input": "-2025202589",
+"expected": "-2025202589"
+},
+{
+"input": "9.270731185235057e-190",
+"expected": "9.270731185235057e-190"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"9\"",
+"expected": "\"9\""
+},
+{
+"input": "\"-é\\n\\\"X1€YX9\\n\"",
+"expected": "\"-é\\n\\\"X1€YX9\\n\""
+},
+{
+"input": "0",
+"expected": "0"
+},
+{
+"input": "-144579.8376141725",
+"expected": "-144579.8376141725"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[\"--üü0\", {\"X€0cbc\\\\\": \"bééX😀9b😀\", \"\\t_😀\": -1683232689, \"€\\n\\\"\\\\ü0_\\\\_\": {\"ZZü-_\\\\X\\\"aX-\": null, \"aY\": \"€é\\nX\\\"😀Z€\", \"-_\": 0.0}, \"Y-\\\"Y\\n\\\"a\\\\\": \"😀Z\\\"\", \"\\tü\": 0.0}, []]",
+"expected": "[\"--üü0\",{\"\\t_😀\":-1683232689,\"\\tü\":0,\"X€0cbc\\\\\":\"bééX😀9b😀\",\"Y-\\\"Y\\n\\\"a\\\\\":\"😀Z\\\"\",\"€\\n\\\"\\\\ü0_\\\\_\":{\"-_\":0,\"ZZü-_\\\\X\\\"aX-\":null,\"aY\":\"€é\\nX\\\"😀Z€\"}},[]]"
+},
+{
+"input": "{\"ZX\\\"€ü0\": 415650113, \"\\\\ac1-Y_c\": [null, -653656341], \"büXéaa😀1\\\"\\\\\": null, \"_9Y9üZü b\": \"ü9😀Z\\\\\", \"€a€Z\\t0 1\": -1.002859073430011e+101}",
+"expected": "{\"ZX\\\"€ü0\":415650113,\"\\\\ac1-Y_c\":[null,-653656341],\"_9Y9üZü b\":\"ü9😀Z\\\\\",\"büXéaa😀1\\\"\\\\\":null,\"€a€Z\\t0 1\":-1.002859073430011e+101}"
+},
+{
+"input": "1e-07",
+"expected": "1e-7"
+},
+{
+"input": "{\"-9€€c€\\t\\t\\t\": \"a \", \"Z\\t\\n \": null, \"0\\n\": {\"aéb-😀0Z€\\\\ZZ\\n\": null}}",
+"expected": "{\"-9€€c€\\t\\t\\t\":\"a \",\"0\\n\":{\"aéb-😀0Z€\\\\ZZ\\n\":null},\"Z\\t\\n \":null}"
+},
+{
+"input": "\"€\\t\"",
+"expected": "\"€\\t\""
+},
+{
+"input": "[[[null, \"Y b0-1😀\\\"YaX\", \"\\n10aa\\naX\\\\ü\\t\", null, true], [null, null, -5.628766901685706e-233, \"9_ZX\\t_01_\\t\", \"Y-\"]]]",
+"expected": "[[[null,\"Y b0-1😀\\\"YaX\",\"\\n10aa\\naX\\\\ü\\t\",null,true],[null,null,-5.628766901685706e-233,\"9_ZX\\t_01_\\t\",\"Y-\"]]]"
+},
+{
+"input": "\"Z\\\\\\\"\"",
+"expected": "\"Z\\\\\\\"\""
+},
+{
+"input": "{\"1\\n\\n\\t\\\\\\\\_\\\"c0\": \"c9-1aa😀\\t\"}",
+"expected": "{\"1\\n\\n\\t\\\\\\\\_\\\"c0\":\"c9-1aa😀\\t\"}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"-\\\\\": null, \"k1\": {\"ü-€\": null, \"\\\"\": [null, \"b\"], \"ü\": -0.0, \"\\\"\\té\\t\\\\Zü\\\" \\\\\": {\" éü\\n😀\\tc 0--Y\": 517648.8223689357, \"-é\\t0\\n\": null, \"Z\\\\9-\\t0cXZ Za\": null, \"bXé-\\\\\": 1e+21}}, \" X9éYbü\": 699837, \"\\\"\": null, \"cYZ_9a\\t€ 00\": \"-\"}",
+"expected": "{\" X9éYbü\":699837,\"\\\"\":null,\"-\\\\\":null,\"cYZ_9a\\t€ 00\":\"-\",\"k1\":{\"\\\"\":[null,\"b\"],\"\\\"\\té\\t\\\\Zü\\\" \\\\\":{\" éü\\n😀\\tc 0--Y\":517648.8223689357,\"-é\\t0\\n\":null,\"Z\\\\9-\\t0cXZ Za\":null,\"bXé-\\\\\":1e+21},\"ü\":0,\"ü-€\":null}}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"_1b - cb0😀9\\t\": {\"-9X-😀X\": {\"Y1\": true, \"b0\": 1e-06}}, \"9\": [{\"ü c1\": 0.0, \"€\\\\\\nY\\\\09a\": -295269.8589955913}, true, 362021.24958484946]}",
+"expected": "{\"9\":[{\"ü c1\":0,\"€\\\\\\nY\\\\09a\":-295269.8589955913},true,362021.24958484946],\"_1b - cb0😀9\\t\":{\"-9X-😀X\":{\"Y1\":true,\"b0\":0.000001}}}"
+},
+{
+"input": "-685813.9782189291",
+"expected": "-685813.9782189291"
+},
+{
+"input": "[[-3.512190073916401e-276, {\"Y\\\"_\\nY\\\\é😀1\\t\": 257649.90272033634}, null], null, true, \"ü\\n\\\\Xb€b€\"]",
+"expected": "[[-3.512190073916401e-276,{\"Y\\\"_\\nY\\\\é😀1\\t\":257649.90272033634},null],null,true,\"ü\\n\\\\Xb€b€\"]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"a_aYc écé1 \"",
+"expected": "\"a_aYc écé1 \""
+},
+{
+"input": "1330108199",
+"expected": "1330108199"
+},
+{
+"input": "\"9\\\"ca\"",
+"expected": "\"9\\\"ca\""
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "\"c\\tXb\"",
+"expected": "\"c\\tXb\""
+},
+{
+"input": "\"\\t1b_😀\"",
+"expected": "\"\\t1b_😀\""
+},
+{
+"input": "[{\"\\tX\\t1üé0\\tY\": 0.0, \"_😀b9é\": 0.0, \"1\\n\\tbcZ1cX-\\t\": 732741.7443635387, \" ZZé\": [], \"_\": null}, [{}, {\"9 \\t99\\\"cYé\\\" \": 753316, \" é\": -597278536, \"-üa😀-X éüc\\\\\": null, \" 9X1--\": false}], true, [[\"ü\", \"0Yé_\\\\\\\\\\t_é \", 445226, true], \" \", \"-1éY€\\\"1\\nY1\\\\ü\", [-105964.22732006432, true], true], [{\"\\\"1é-b€c_\\n\\\"-\": 1.0, \"€ZZYb0Z\": false, \"9XZbZb\\n€\": null}, \"éXc_cZcc\\na\", \"19b9üüü😀a\", [true, null, null, \"1Xü\\n\", \"üéYcéc0é\"], {\"\\\"0\\t--éaXé-ü\": null, \"c\\\\\\n\\\\\": null, \"€0\": true, \"é😀1\\\"\\tZ😀_c\\\"a\": 0.14285714285714285, \"b\\\\-bZZbüüé\": \"€1a €😀b\"}]]",
+"expected": "[{\"\\tX\\t1üé0\\tY\":0,\" ZZé\":[],\"1\\n\\tbcZ1cX-\\t\":732741.7443635387,\"_\":null,\"_😀b9é\":0},[{},{\" 9X1--\":false,\" é\":-597278536,\"-üa😀-X éüc\\\\\":null,\"9 \\t99\\\"cYé\\\" \":753316}],true,[[\"ü\",\"0Yé_\\\\\\\\\\t_é \",445226,true],\" \",\"-1éY€\\\"1\\nY1\\\\ü\",[-105964.22732006432,true],true],[{\"\\\"1é-b€c_\\n\\\"-\":1,\"9XZbZb\\n€\":null,\"€ZZYb0Z\":false},\"éXc_cZcc\\na\",\"19b9üüü😀a\",[true,null,null,\"1Xü\\n\",\"üéYcéc0é\"],{\"\\\"0\\t--éaXé-ü\":null,\"b\\\\-bZZbüüé\":\"€1a €😀b\",\"c\\\\\\n\\\\\":null,\"é😀1\\\"\\tZ😀_c\\\"a\":0.14285714285714285,\"€0\":true}]]"
+},
+{
+"input": "0.001",
+"expected": "0.001"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"\\\"Xé1ü9_\": \"\", \" \": [{\"a😀\": null, \"\\t-Zb-\": -603767.9730686115}, [null, \"ü9\\\"0\\\"\\\\üü Y\\n\", -1.648417146441313e-143], false, true, false], \" \\\\0_é\\\"\": \"\\\\\\t9-XYéü-\", \"aZ0€a€99- \\n_\": null}",
+"expected": "{\" \":[{\"\\t-Zb-\":-603767.9730686115,\"a😀\":null},[null,\"ü9\\\"0\\\"\\\\üü Y\\n\",-1.648417146441313e-143],false,true,false],\" \\\\0_é\\\"\":\"\\\\\\t9-XYéü-\",\"\\\"Xé1ü9_\":\"\",\"aZ0€a€99- \\n_\":null}"
+},
+{
+"input": "[null, false, null]",
+"expected": "[null,false,null]"
+},
+{
+"input": "[-6.512907e-318, [null, null, true, 1.312353330850581e-57, [\"\\\"bZXüY\", \"\\n\\t\", null]]]",
+"expected": "[-6.512907e-318,[null,null,true,1.312353330850581e-57,[\"\\\"bZXüY\",\"\\n\\t\",null]]]"
+},
+{
+"input": "361732966",
+"expected": "361732966"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "{\"\\t\": [], \"üX€€ü\\n-Y9\": null, \"\\t0\\\\91écY\": {\"é\\\\ü-€\": {}}}",
+"expected": "{\"\\t\":[],\"\\t0\\\\91écY\":{\"é\\\\ü-€\":{}},\"üX€€ü\\n-Y9\":null}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "{\"\\t-\": null, \"k1\": {\"ZXaa0Z\": true, \"\\\\\": {\"_übcb😀Z\": true, \"\\\"1c_ü\": true}, \"0-_\\t \": -736687.0464402686, \"0-_1\": \"1X90\"}, \"😀a_\": null, \"aY\\naXXcX€\": [[-662168, false, 112614, false], [null, \"\\tZ\\\\_\", null, 0.0, null], null]}",
+"expected": "{\"\\t-\":null,\"aY\\naXXcX€\":[[-662168,false,112614,false],[null,\"\\tZ\\\\_\",null,0,null],null],\"k1\":{\"0-_\\t \":-736687.0464402686,\"0-_1\":\"1X90\",\"ZXaa0Z\":true,\"\\\\\":{\"\\\"1c_ü\":true,\"_übcb😀Z\":true}},\"😀a_\":null}"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "{\"_\": null, \"c9\": {\"\\\\X\\\\\": {\"9a\\t \\\\1-€\\\"é\": \"\\t1aé_-\\\\ac\\t\"}, \"1b0\": \"\\n0c\\\"0bYY\\\"Z\\\" \", \"\\tYa\": {\"😀é a\": null, \"X\": true}}, \"acü\": null}",
+"expected": "{\"_\":null,\"acü\":null,\"c9\":{\"\\tYa\":{\"X\":true,\"😀é a\":null},\"1b0\":\"\\n0c\\\"0bYY\\\"Z\\\" \",\"\\\\X\\\\\":{\"9a\\t \\\\1-€\\\"é\":\"\\t1aé_-\\\\ac\\t\"}}}"
+},
+{
+"input": "{\"b\\\\9\": null}",
+"expected": "{\"b\\\\9\":null}"
+},
+{
+"input": "\"\\t0-9ac\\ta-€9\\\\\"",
+"expected": "\"\\t0-9ac\\ta-€9\\\\\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "[[{\"😀b\": \"\\n\", \"-aZ😀ü😀\": null, \" bc\\n_X1Y\\\\a0\": null, \"1c-_Yé\\\\_Y_\": -2.25}, [false, 0.0, 1903630769, null, null], \"a😀c€\\\\\\\"\"], false]",
+"expected": "[[{\" bc\\n_X1Y\\\\a0\":null,\"-aZ😀ü😀\":null,\"1c-_Yé\\\\_Y_\":-2.25,\"😀b\":\"\\n\"},[false,0,1903630769,null,null],\"a😀c€\\\\\\\"\"],false]"
+},
+{
+"input": "-9.451925694606379e-177",
+"expected": "-9.451925694606379e-177"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "7.070398742247286e-154",
+"expected": "7.070398742247286e-154"
+},
+{
+"input": "{\"XYbX€1\\n😀aac\": {\"-c_\\\\1\\n\\\"c1\": \"😀_€\", \"€1\\t1\": \" 1€\\\"\\\\10\\\"b\", \"ü1Y\\t\\\\\": {\"c😀ü😀b\": false, \"\\\\\\\\0cü\\t\\nü1-üé\": true, \"\\\\ _\": -1789414842, \"0X😀\": 0.001}, \"\\nX😀\": [\"-\\\"Xa-Y9-a\\n\\\"\", true, -1638230050]}, \"\\\\\": false, \"€\": -841306.0230523369, \"a9üZ😀 cYY\\n0\": null}",
+"expected": "{\"XYbX€1\\n😀aac\":{\"\\nX😀\":[\"-\\\"Xa-Y9-a\\n\\\"\",true,-1638230050],\"-c_\\\\1\\n\\\"c1\":\"😀_€\",\"ü1Y\\t\\\\\":{\"0X😀\":0.001,\"\\\\ _\":-1789414842,\"\\\\\\\\0cü\\t\\nü1-üé\":true,\"c😀ü😀b\":false},\"€1\\t1\":\" 1€\\\"\\\\10\\\"b\"},\"\\\\\":false,\"a9üZ😀 cYY\\n0\":null,\"€\":-841306.0230523369}"
+},
+{
+"input": "[[\"éZY-\\\\ü9😀é\\\\\"]]",
+"expected": "[[\"éZY-\\\\ü9😀é\\\\\"]]"
+},
+{
+"input": "0",
+"expected": "0"
+},
+{
+"input": "\"0a\\t1üZc\"",
+"expected": "\"0a\\t1üZc\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "1.7473086855039277e+154",
+"expected": "1.7473086855039277e+154"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"\\\\\"",
+"expected": "\"\\\\\""
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "{\"\\nYb1écc_\": false, \"_€b😀€-Z\\n_bXb\": false, \"k2\": []}",
+"expected": "{\"\\nYb1écc_\":false,\"_€b😀€-Z\\n_bXb\":false,\"k2\":[]}"
+},
+{
+"input": "\"09cZ9éZZ\"",
+"expected": "\"09cZ9éZZ\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "{\"X__c€bX€9\\\\\": true}",
+"expected": "{\"X__c€bX€9\\\\\":true}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "{\"1c\": null, \"00a\": {\"\\\"😀\\\\€X\\nü_\": null, \"k1\": true, \" €é_\\\\\\\"c😀Xb\": null, \"9é\": null}, \"\\nY ZZ\\n\": [35515], \"0bY\": 1132227809, \"\\\"0b0c😀\\\"\\n\\na\\\"_\": \"-_0-üXüYa\"}",
+"expected": "{\"\\nY ZZ\\n\":[35515],\"\\\"0b0c😀\\\"\\n\\na\\\"_\":\"-_0-üXüYa\",\"00a\":{\" €é_\\\\\\\"c😀Xb\":null,\"\\\"😀\\\\€X\\nü_\":null,\"9é\":null,\"k1\":true},\"0bY\":1132227809,\"1c\":null}"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "\"😀€b\\\"19X€€\"",
+"expected": "\"😀€b\\\"19X€€\""
+},
+{
+"input": "\"1éX9\"",
+"expected": "\"1éX9\""
+},
+{
+"input": "{\"--\\\"\\\"\": {\"é 0😀c\\\"\\tZ€\\tZ_\": null}, \"😀9😀😀bb a€Z\": []}",
+"expected": "{\"--\\\"\\\"\":{\"é 0😀c\\\"\\tZ€\\tZ_\":null},\"😀9😀😀bb a€Z\":[]}"
+},
+{
+"input": "[true, 249108]",
+"expected": "[true,249108]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"\\n-😀b\"",
+"expected": "\"\\n-😀b\""
+},
+{
+"input": "{\"_Ya_-\\\\😀ü  €\": null, \"a😀\": {\" Xc€€b99€Y \": {\"0-Z\\\\9Z1\\\"\": null, \"0\": false}, \"\\\\€a\": \"ü😀 9\", \"Y\\\\-9 c\\n\": null}}",
+"expected": "{\"_Ya_-\\\\😀ü  €\":null,\"a😀\":{\" Xc€€b99€Y \":{\"0\":false,\"0-Z\\\\9Z1\\\"\":null},\"Y\\\\-9 c\\n\":null,\"\\\\€a\":\"ü😀 9\"}}"
+},
+{
+"input": "\"\\na\\\"-é091\\\"\"",
+"expected": "\"\\na\\\"-é091\\\"\""
+},
+{
+"input": "-2.0922865689396423e+199",
+"expected": "-2.0922865689396423e+199"
+},
+{
+"input": "-370235395",
+"expected": "-370235395"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "{\"Ya\\\\aX-0-\": true, \"\\n\": 0.0}",
+"expected": "{\"\\n\":0,\"Ya\\\\aX-0-\":true}"
+},
+{
+"input": "\"1\\\\ Xc\\ta\"",
+"expected": "\"1\\\\ Xc\\ta\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"\\tü😀9-_b\\nY0\\t9\"",
+"expected": "\"\\tü😀9-_b\\nY0\\t9\""
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "[1e-06]",
+"expected": "[0.000001]"
+},
+{
+"input": "\"_b9c1b\"",
+"expected": "\"_b9c1b\""
+},
+{
+"input": "{\"Zbü\": \"üZ \", \"ba\": 1e-06, \"0- €-9\\n1\": \"😀 b99\"}",
+"expected": "{\"0- €-9\\n1\":\"😀 b99\",\"Zbü\":\"üZ \",\"ba\":0.000001}"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"_\\nZ a\\nZZ€a \"",
+"expected": "\"_\\nZ a\\nZZ€a \""
+},
+{
+"input": "\"cc\\\"0\\n\"",
+"expected": "\"cc\\\"0\\n\""
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "810010",
+"expected": "810010"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "918275",
+"expected": "918275"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"1\\t😀9 1\\n\\nZ0a\\\"\": 1014986025}",
+"expected": "{\"1\\t😀9 1\\n\\nZ0a\\\"\":1014986025}"
+},
+{
+"input": "-801934685",
+"expected": "-801934685"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "-473349",
+"expected": "-473349"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"0é\\t_ü1cb\": {\"\\\"Y b0c\\t\": 964174, \"aéX_\\n  c_Z\": null, \"k2\": null, \"990😀aü\": [\" \\tb\\\\€ü\", true, 2.3952983394190955e-117, \"-Y\", \"\\n_\\nZa 19ZaX-\"]}, \"Zéa\\\\é\": true, \"k2\": 1.0, \"\\t1\\t€_0éX_0c😀\": {\"acY😀-a\\\"\": true, \" €\\\\€Zbé\": null, \"Z€\": null, \"YX9 9\": null, \"ZZ😀\\n€ab\": \"\\n\\\"0X00😀\\t1üYc\"}}",
+"expected": "{\"\\t1\\t€_0éX_0c😀\":{\" €\\\\€Zbé\":null,\"YX9 9\":null,\"ZZ😀\\n€ab\":\"\\n\\\"0X00😀\\t1üYc\",\"Z€\":null,\"acY😀-a\\\"\":true},\"0é\\t_ü1cb\":{\"\\\"Y b0c\\t\":964174,\"990😀aü\":[\" \\tb\\\\€ü\",true,2.3952983394190955e-117,\"-Y\",\"\\n_\\nZa 19ZaX-\"],\"aéX_\\n  c_Z\":null,\"k2\":null},\"Zéa\\\\é\":true,\"k2\":1}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"Yéé-\"",
+"expected": "\"Yéé-\""
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[{\"é€b€😀XY-\": [false, 1.0, true], \"_-😀b\\t\\\"\\\\\": [\"b€\", \"\\\\9XX aZü1acX\", \"€\", true], \"üX 😀 919é__\": null, \"c\\\\\": [-944541.6188453375], \"\\n\": false}]",
+"expected": "[{\"\\n\":false,\"_-😀b\\t\\\"\\\\\":[\"b€\",\"\\\\9XX aZü1acX\",\"€\",true],\"c\\\\\":[-944541.6188453375],\"é€b€😀XY-\":[false,1,true],\"üX 😀 919é__\":null}]"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"\\\"\\n\": null, \"\\na\": {\"k0\": false, \"\\t\\\"\\\\é1😀\": [0, \"Xa\", -9.55954852650298e+165]}, \"\\\\99Zé\": true}",
+"expected": "{\"\\na\":{\"\\t\\\"\\\\é1😀\":[0,\"Xa\",-9.55954852650298e+165],\"k0\":false},\"\\\"\\n\":null,\"\\\\99Zé\":true}"
+},
+{
+"input": "\"Y\\\\0\"",
+"expected": "\"Y\\\\0\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"-\\\\X\\\"c9Y€\\\"\": 1555013702, \"00Z€é😀 \": null, \"b1_c\\\\€é1\": null, \"b\\\"\\n€ü\": false}",
+"expected": "{\"-\\\\X\\\"c9Y€\\\"\":1555013702,\"00Z€é😀 \":null,\"b\\\"\\n€ü\":false,\"b1_c\\\\€é1\":null}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[true, [true, 958527, -183846, \" X€\"], {}, null, 0.0]",
+"expected": "[true,[true,958527,-183846,\" X€\"],{},null,0]"
+},
+{
+"input": "\"a_ \\t\"",
+"expected": "\"a_ \\t\""
+},
+{
+"input": "0.3333333333333333",
+"expected": "0.3333333333333333"
+},
+{
+"input": "{\"-0ü \": \"üYbé_-_\\né\\\"\", \"c_é\\t\": [], \"_😀\\\\béY😀 --😀 \": \"9Xü0\\nZZ\\t\", \"é😀a0\\\\übX😀€a\": false}",
+"expected": "{\"-0ü \":\"üYbé_-_\\né\\\"\",\"_😀\\\\béY😀 --😀 \":\"9Xü0\\nZZ\\t\",\"c_é\\t\":[],\"é😀a0\\\\übX😀€a\":false}"
+},
+{
+"input": "{\"€9\": {\" c\\t\\tb\\t9Z\\n9Z\": \"üa\"}}",
+"expected": "{\"€9\":{\" c\\t\\tb\\t9Z\\n9Z\":\"üa\"}}"
+},
+{
+"input": "[[]]",
+"expected": "[[]]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[null, [null, [true], \"1\\\\Z\", -21890.09862053988, null]]",
+"expected": "[null,[null,[true],\"1\\\\Z\",-21890.09862053988,null]]"
+},
+{
+"input": "\"0\"",
+"expected": "\"0\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "-885626",
+"expected": "-885626"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"0ü\\n01\": \"\\ta\", \"YY€\\n\": {}}",
+"expected": "{\"0ü\\n01\":\"\\ta\",\"YY€\\n\":{}}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "\"c\\t \\\\üY\\\"-\"",
+"expected": "\"c\\t \\\\üY\\\"-\""
+},
+{
+"input": "0.001",
+"expected": "0.001"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "-2.25",
+"expected": "-2.25"
+},
+{
+"input": "{\"\\\\Y-😀Y\\tc_\\t\": true, \" \\t\": false, \"ü0a \": {\"\\\\😀\\n\\\"€😀\\\"0\": {\"€YYYb😀Y\": 991761.0299842386, \"\\n€1c\": 1.297676657696125e+84, \"YZ1\\\\\\t_ \\\\b\\t😀Y\": null, \"€é_\": null, \"\\t1_X\": true}}}",
+"expected": "{\" \\t\":false,\"\\\\Y-😀Y\\tc_\\t\":true,\"ü0a \":{\"\\\\😀\\n\\\"€😀\\\"0\":{\"\\t1_X\":true,\"\\n€1c\":1.297676657696125e+84,\"YZ1\\\\\\t_ \\\\b\\t😀Y\":null,\"€YYYb😀Y\":991761.0299842386,\"€é_\":null}}}"
+},
+{
+"input": "\"_9\"",
+"expected": "\"_9\""
+},
+{
+"input": "0.3333333333333333",
+"expected": "0.3333333333333333"
+},
+{
+"input": "{\"ac1\\\"1😀\\tZü\": [false, \"\\\" Z€0\\nZ90-_9\", false, 0.0, {}], \"€\\\"\": [null, 1176367598, null, null]}",
+"expected": "{\"ac1\\\"1😀\\tZü\":[false,\"\\\" Z€0\\nZ90-_9\",false,0,{}],\"€\\\"\":[null,1176367598,null,null]}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "1e-07",
+"expected": "1e-7"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"\\n9a€\": 0.0009120534994294643, \"\\\"Yü \\\\\\\\\": \"😀 1Y9Z €11c_\", \"91\\\\é119😀-é\": null}",
+"expected": "{\"\\n9a€\":0.0009120534994294643,\"\\\"Yü \\\\\\\\\":\"😀 1Y9Z €11c_\",\"91\\\\é119😀-é\":null}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "[{\"k0\": 923387139, \"\\taaé\": null, \"😀a  \\nb11a\": true}, -134551.804360935, 2.850755734799272e-76]",
+"expected": "[{\"\\taaé\":null,\"k0\":923387139,\"😀a  \\nb11a\":true},-134551.804360935,2.850755734799272e-76]"
+},
+{
+"input": "{\"😀0\": true, \"99c\": null, \"\\\\X\": {\"k0\": \"Xbaé😀€\\ncc10ü\", \"a0b€\": null, \"a\": {\"😀\\tb\\n\": \"Z€9\"}}, \"a1_\\t1 Yc1a\": \"Y€\\t\\nZaZ9éc-Z\", \"b1Z _ béX_é\": \"\\\\bYX\"}",
+"expected": "{\"99c\":null,\"\\\\X\":{\"a\":{\"😀\\tb\\n\":\"Z€9\"},\"a0b€\":null,\"k0\":\"Xbaé😀€\\ncc10ü\"},\"a1_\\t1 Yc1a\":\"Y€\\t\\nZaZ9éc-Z\",\"b1Z _ béX_é\":\"\\\\bYX\",\"😀0\":true}"
+},
+{
+"input": "614618",
+"expected": "614618"
+},
+{
+"input": "\"X1😀 😀\"",
+"expected": "\"X1😀 😀\""
+},
+{
+"input": "{\"Ya-aéc😀😀\": -1.188974272813666e+98, \"😀0\\na1\": {\"ZZ\\tüc0aY\\n\": {}}, \"😀X\": \"\\\"\\\"b_\\\" \", \"1bXa\\\\99\": true, \"\\\"\": [null]}",
+"expected": "{\"\\\"\":[null],\"1bXa\\\\99\":true,\"Ya-aéc😀😀\":-1.188974272813666e+98,\"😀0\\na1\":{\"ZZ\\tüc0aY\\n\":{}},\"😀X\":\"\\\"\\\"b_\\\" \"}"
+},
+{
+"input": "{\"a\": null, \"--0\\tYa1 \\\"😀b\": \"X\\t\", \"ü1X0éc\\n\\\"😀😀\": [2365894603.199713, \"0a9b\", 0.0, false, null], \"\\n_ 😀9éY\": {\"Y_éb\\\"Y0b\\\\_\\t\": false, \"XZ\": 1.5, \"9_0éb€😀 \": [], \"\\n9a9 1\\\\\": null, \"\\t😀\\\\c0Z\\n_0_ü_\": []}}",
+"expected": "{\"\\n_ 😀9éY\":{\"\\t😀\\\\c0Z\\n_0_ü_\":[],\"\\n9a9 1\\\\\":null,\"9_0éb€😀 \":[],\"XZ\":1.5,\"Y_éb\\\"Y0b\\\\_\\t\":false},\"--0\\tYa1 \\\"😀b\":\"X\\t\",\"a\":null,\"ü1X0éc\\n\\\"😀😀\":[2365894603.199713,\"0a9b\",0,false,null]}"
+},
+{
+"input": "1747952525",
+"expected": "1747952525"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "1e+21",
+"expected": "1e+21"
+},
+{
+"input": "\"\\\"\\n0\\té0_\"",
+"expected": "\"\\\"\\n0\\té0_\""
+},
+{
+"input": "\"bbü\\\"-é90\"",
+"expected": "\"bbü\\\"-é90\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "\"\\t1_\\\\é😀 \"",
+"expected": "\"\\t1_\\\\é😀 \""
+},
+{
+"input": "\"\\\"9\\n _Y\\nü\"",
+"expected": "\"\\\"9\\n _Y\\nü\""
+},
+{
+"input": "{\"\\t-😀Y0\": null, \"\\\\1\\\\éX€\": true, \"😀Xc-\\\"Z€😀\": {\"\\t\\\"101ü0a \\tb\": \"19\", \" \\nacc-_\": true}}",
+"expected": "{\"\\t-😀Y0\":null,\"\\\\1\\\\éX€\":true,\"😀Xc-\\\"Z€😀\":{\"\\t\\\"101ü0a \\tb\":\"19\",\" \\nacc-_\":true}}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"k0\": 0.1, \"cZü\\n_ €c_9Z\": false}",
+"expected": "{\"cZü\\n_ €c_9Z\":false,\"k0\":0.1}"
+},
+{
+"input": "{\"1\\\\0b€\\né0€\": [[]], \"c éb\\t\\n01\": {\"€\\tY€ü\": {\"c\\\" b\": null, \"\\n€é-\": null}, \"-__\\tbZ\": true}, \"\\t-9\\n\\tcé\\n_\": true}",
+"expected": "{\"\\t-9\\n\\tcé\\n_\":true,\"1\\\\0b€\\né0€\":[[]],\"c éb\\t\\n01\":{\"-__\\tbZ\":true,\"€\\tY€ü\":{\"\\n€é-\":null,\"c\\\" b\":null}}}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"\\\"Y9\": {\"\\té\\nXaY€9\\n\": null, \"\\n\\t-😀\\\\😀YXé9a\": {\"1b\\n\\\\😀\\\\0\\t😀-\\\"\": \" X\\\\éa9ab_\", \"9bXc €XZ_a9\": 0.001, \"a\": \"-€a1é😀X 0aü\\n\"}, \"k2\": \"😀Z_€€€üZé😀\\n€\", \"Y\\n😀\": [-0.0], \"0ü99b\\néZ€0ü \": \"c-😀0a\\taYa😀\"}, \"_\": {\"é\\\\X😀éé\\\" _9\": \"_1\\\\ü\\\\XX_Zb\", \"Yc _\": 807645, \"cZ\\\\aa\\tb-ü\\\"\": {\"éübX___\": true, \"€😀X9\\n\\t\\\\éü\": null}}, \"üb😀1ü\\taü_\\n\\n\": {\"\\nZ0\\\\ \\\\é_é\": false, \"\\n1€Xb\\\"\\n_\\n\": null, \"_1 é Y \": null, \"üZ😀üb€\": true}}",
+"expected": "{\"\\\"Y9\":{\"\\té\\nXaY€9\\n\":null,\"\\n\\t-😀\\\\😀YXé9a\":{\"1b\\n\\\\😀\\\\0\\t😀-\\\"\":\" X\\\\éa9ab_\",\"9bXc €XZ_a9\":0.001,\"a\":\"-€a1é😀X 0aü\\n\"},\"0ü99b\\néZ€0ü \":\"c-😀0a\\taYa😀\",\"Y\\n😀\":[0],\"k2\":\"😀Z_€€€üZé😀\\n€\"},\"_\":{\"Yc _\":807645,\"cZ\\\\aa\\tb-ü\\\"\":{\"éübX___\":true,\"€😀X9\\n\\t\\\\éü\":null},\"é\\\\X😀éé\\\" _9\":\"_1\\\\ü\\\\XX_Zb\"},\"üb😀1ü\\taü_\\n\\n\":{\"\\n1€Xb\\\"\\n_\\n\":null,\"\\nZ0\\\\ \\\\é_é\":false,\"_1 é Y \":null,\"üZ😀üb€\":true}}"
+},
+{
+"input": "\"a\\\\😀 ZZ1😀😀\\tX\"",
+"expected": "\"a\\\\😀 ZZ1😀😀\\tX\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"😀\\\\€Ybb\\tY  _X\"",
+"expected": "\"😀\\\\€Ybb\\tY  _X\""
+},
+{
+"input": "{\"k0\": \"b0😀 \\\\a\", \"k1\": [false, 1.5, 95529, false, \"a1Y9\"], \"c😀-\\tc\": [null]}",
+"expected": "{\"c😀-\\tc\":[null],\"k0\":\"b0😀 \\\\a\",\"k1\":[false,1.5,95529,false,\"a1Y9\"]}"
+},
+{
+"input": "[null, false, {\"1\": null, \"_1\\\\9\\t\": {}}, 949779896]",
+"expected": "[null,false,{\"1\":null,\"_1\\\\9\\t\":{}},949779896]"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"€ _€0 9\\\\\"",
+"expected": "\"€ _€0 9\\\\\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"_éaZ\\\"😀-\\\\\": true, \"k1\": 831122085, \"€\\\"a Z€\": null}",
+"expected": "{\"_éaZ\\\"😀-\\\\\":true,\"k1\":831122085,\"€\\\"a Z€\":null}"
+},
+{
+"input": "[true, \"-0ü_\", false, [870552.7833449203, null], null]",
+"expected": "[true,\"-0ü_\",false,[870552.7833449203,null],null]"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "[-1.4436161075461545e-127, [0.0, \"c\\\"ZbX€\", false], null]",
+"expected": "[-1.4436161075461545e-127,[0,\"c\\\"ZbX€\",false],null]"
+},
+{
+"input": "\" Z ü\\t -Y😀X\\\\\\n\"",
+"expected": "\" Z ü\\t -Y😀X\\\\\\n\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"\\\\\": [null, false], \"k1\": null, \"Z😀\\n\\t_1\": [\"b\", null, 4.582537652643441e+159, [], \"0Y €ü X\\tX\\n\"], \"ü\\\\ ü\": false, \"k4\": null}",
+"expected": "{\"Z😀\\n\\t_1\":[\"b\",null,4.582537652643441e+159,[],\"0Y €ü X\\tX\\n\"],\"\\\\\":[null,false],\"k1\":null,\"k4\":null,\"ü\\\\ ü\":false}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"aa€\\nü\\n\": 0.0, \"0YZ1\\t\": {\"XX\\t\\\\_bécX\\\\ \": true, \"-1\\\"_😀ü\": \"a\", \"éü😀ü\\\\😀\": [305717139], \"_\\\\€Xéb\": {\"\\n\\\\\\n😀b \\\\ -1Z\": \"X_😀bZ\\n\", \"1€ \": \"€\"}}}",
+"expected": "{\"0YZ1\\t\":{\"-1\\\"_😀ü\":\"a\",\"XX\\t\\\\_bécX\\\\ \":true,\"_\\\\€Xéb\":{\"\\n\\\\\\n😀b \\\\ -1Z\":\"X_😀bZ\\n\",\"1€ \":\"€\"},\"éü😀ü\\\\😀\":[305717139]},\"aa€\\nü\\n\":0}"
+},
+{
+"input": "\"😀00ü\\tXéü\\\"Y\\n\"",
+"expected": "\"😀00ü\\tXéü\\\"Y\\n\""
+},
+{
+"input": "[-184414.56635678, \"a\\n€b0\\t\", {\"9ü_\": [\"a_\\\"\\\\aé\\\"é\", \"Xé\", true, \" a9\", \"-_€\\na\\n\"], \"X😀1\\t\\\\100_X \": {\"-__0\\\"0-a_\": \"Y€Z-\\t\\\\b😀\", \"Z€XZcc-X\\\\b😀\": false, \"\\t9Y\\\\b\": null, \"9Z\\t€-é\": null}, \"\\\\😀c-c9\\tZ😀\\n\": null, \"a€\\nü\\\\a\": null, \"9\": [null, 1606175645, \"90\\\"\\n😀0\\n-1a_😀\", \"_0\"]}, 0.0, {\"\\na😀1é0\": [true, null], \"k1\": \"é0cé\"}]",
+"expected": "[-184414.56635678,\"a\\n€b0\\t\",{\"9\":[null,1606175645,\"90\\\"\\n😀0\\n-1a_😀\",\"_0\"],\"9ü_\":[\"a_\\\"\\\\aé\\\"é\",\"Xé\",true,\" a9\",\"-_€\\na\\n\"],\"X😀1\\t\\\\100_X \":{\"\\t9Y\\\\b\":null,\"-__0\\\"0-a_\":\"Y€Z-\\t\\\\b😀\",\"9Z\\t€-é\":null,\"Z€XZcc-X\\\\b😀\":false},\"\\\\😀c-c9\\tZ😀\\n\":null,\"a€\\nü\\\\a\":null},0,{\"\\na😀1é0\":[true,null],\"k1\":\"é0cé\"}]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "99407",
+"expected": "99407"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "{\"k0\": {}, \"b_\": true, \"k2\": {\"é_\\n\\\"__bX_Xüa\": -164180226, \"0\": -567966.0955967332, \"bü_b \\\"01\": null, \"c😀-\": true, \"k4\": null}, \"_0cüa\": \"\\taX01\\\\-Za\", \" c0YéYa\": null}",
+"expected": "{\" c0YéYa\":null,\"_0cüa\":\"\\taX01\\\\-Za\",\"b_\":true,\"k0\":{},\"k2\":{\"0\":-567966.0955967332,\"bü_b \\\"01\":null,\"c😀-\":true,\"k4\":null,\"é_\\n\\\"__bX_Xüa\":-164180226}}"
+},
+{
+"input": "1.0",
+"expected": "1"
+},
+{
+"input": "{\"😀éc9\": {\"\\\"X_€-_\\\\cXY \": null, \"b-X \\tc\": null, \"€b\": []}, \"k1\": \"_bé_😀\", \"Z\": \"\\\\Y-üY\", \"k3\": [null, false, [], \"XZ\", 0.0], \"a 0éa\": [307912, \"a\", {\"\\\\😀\\nZ\": null, \"_b_1a\\\"b\\t\\\"\": false, \"ZZ\": -710771, \"\\tXY911\\\"0 90Y\": false, \" cXX1 \": 0.14285714285714285}]}",
+"expected": "{\"Z\":\"\\\\Y-üY\",\"a 0éa\":[307912,\"a\",{\"\\tXY911\\\"0 90Y\":false,\" cXX1 \":0.14285714285714285,\"ZZ\":-710771,\"\\\\😀\\nZ\":null,\"_b_1a\\\"b\\t\\\"\":false}],\"k1\":\"_bé_😀\",\"k3\":[null,false,[],\"XZ\",0],\"😀éc9\":{\"\\\"X_€-_\\\\cXY \":null,\"b-X \\tc\":null,\"€b\":[]}}"
+},
+{
+"input": "\"😀1\\\\c😀ZbY€aa😀\"",
+"expected": "\"😀1\\\\c😀ZbY€aa😀\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"Z€1b0\": false, \"\\\\-ü€ \\té_Yb_\": 1874751526, \"c\": null, \"b9ü-1éX\\nZ\": [{\"😀0€\": true}, {\"é1€1\\t\\\\😀X€\": false, \"Y-\\nZ😀_\\\"X\": null, \"9\\\\X\\\"0c€\": \" _c😀Y\\t\", \"Z€b9\\n 1ca_ €\": \"\", \"_\\\\baüé_11\": \"1\"}, [null, null]]}",
+"expected": "{\"Z€1b0\":false,\"\\\\-ü€ \\té_Yb_\":1874751526,\"b9ü-1éX\\nZ\":[{\"😀0€\":true},{\"9\\\\X\\\"0c€\":\" _c😀Y\\t\",\"Y-\\nZ😀_\\\"X\":null,\"Z€b9\\n 1ca_ €\":\"\",\"_\\\\baüé_11\":\"1\",\"é1€1\\t\\\\😀X€\":false},[null,null]],\"c\":null}"
+},
+{
+"input": "[false, null, null]",
+"expected": "[false,null,null]"
+},
+{
+"input": "[{\"1é0\\\\0a1\": true, \"1 c\": false, \"😀\\\\c\\\\ 😀€c\\t\\tZ\": null, \"ZYc\\né\": \"€\\t\\\\1\\\\ \"}, \"Z\"]",
+"expected": "[{\"1 c\":false,\"1é0\\\\0a1\":true,\"ZYc\\né\":\"€\\t\\\\1\\\\ \",\"😀\\\\c\\\\ 😀€c\\t\\tZ\":null},\"Z\"]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[false, false, 1647011740, [\"11_XaéXc9\", 1.5, null]]",
+"expected": "[false,false,1647011740,[\"11_XaéXc9\",1.5,null]]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[[], \"99é\", true]",
+"expected": "[[],\"99é\",true]"
+},
+{
+"input": "-886309",
+"expected": "-886309"
+},
+{
+"input": "{\"😀\\tü😀 Y\": [[\"--\\t1c_\\n \"], true], \"ZX\\\\\\\"€€-\": \"Yb😀\\\"ZZ\\tZ€a\\\"Y\"}",
+"expected": "{\"ZX\\\\\\\"€€-\":\"Yb😀\\\"ZZ\\tZ€a\\\"Y\",\"😀\\tü😀 Y\":[[\"--\\t1c_\\n \"],true]}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "0",
+"expected": "0"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "{\" ca9  \\\\€\\nc1😀\": true}",
+"expected": "{\" ca9  \\\\€\\nc1😀\":true}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[false]",
+"expected": "[false]"
+},
+{
+"input": "{\"\\tb\\\"1€\": [null, [], [\"\\tXü😀€😀 c€\", null, \"\", 940582.1346480823]], \"ü\\\\Ya\\n\": {\" \": -323844415}}",
+"expected": "{\"\\tb\\\"1€\":[null,[],[\"\\tXü😀€😀 c€\",null,\"\",940582.1346480823]],\"ü\\\\Ya\\n\":{\" \":-323844415}}"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "-1166757966",
+"expected": "-1166757966"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[-663122.8928012336]",
+"expected": "[-663122.8928012336]"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "1897726326",
+"expected": "1897726326"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"ü-€ b b€é\": \"\\\\a-a😀Z-\\\\\", \"k1\": \"éü€\"}",
+"expected": "{\"k1\":\"éü€\",\"ü-€ b b€é\":\"\\\\a-a😀Z-\\\\\"}"
+},
+{
+"input": "{\"Z\\\"1😀\\n-c\": {\"-bY\\ta9é \\n\": {\"\\\\ c\\\"\\\"Z9😀\": false, \"k1\": \" _\", \"é\\t\\t_\\\\1€é Y\\\\\\t\": false, \"\\\"\\né\\t\\\"\": true}, \"éZ€-a90\": [\"\\\\Xb 9 \\nb€_\", null], \"😀\": \"€X\", \" X\": [null, null, false, 1e+21, false], \"1X\\\"é_c9_-\": \"éé\"}, \"é\\\\X€😀\": true, \"Yb0\\\" 1-Yé\": false, \"-€\\\\ Zbb\\\"0YY\": \"€\"}",
+"expected": "{\"-€\\\\ Zbb\\\"0YY\":\"€\",\"Yb0\\\" 1-Yé\":false,\"Z\\\"1😀\\n-c\":{\" X\":[null,null,false,1e+21,false],\"-bY\\ta9é \\n\":{\"\\\"\\né\\t\\\"\":true,\"\\\\ c\\\"\\\"Z9😀\":false,\"k1\":\" _\",\"é\\t\\t_\\\\1€é Y\\\\\\t\":false},\"1X\\\"é_c9_-\":\"éé\",\"éZ€-a90\":[\"\\\\Xb 9 \\nb€_\",null],\"😀\":\"€X\"},\"é\\\\X€😀\":true}"
+},
+{
+"input": "\"_Zc\"",
+"expected": "\"_Zc\""
+},
+{
+"input": "1e+21",
+"expected": "1e+21"
+},
+{
+"input": "\"a\\n\"",
+"expected": "\"a\\n\""
+},
+{
+"input": "\"😀😀00c \\\\Z\"",
+"expected": "\"😀😀00c \\\\Z\""
+},
+{
+"input": "[\"😀\\nc0\\\"Zé0\\nY\\tc\", [\"é\", \"\", [\"\", false, 0.0]], \"\\tc0Xü\\\"a9éab€\", 0, 513867]",
+"expected": "[\"😀\\nc0\\\"Zé0\\nY\\tc\",[\"é\",\"\",[\"\",false,0]],\"\\tc0Xü\\\"a9éab€\",0,513867]"
+},
+{
+"input": "{\"😀Z😀\": 1.0, \"é\\\"\\tb \\\"ü_😀_b\": {}, \"k2\": 1.5, \"ZY0aZ_\": false, \"k4\": [\"X1b\\n\"]}",
+"expected": "{\"ZY0aZ_\":false,\"k2\":1.5,\"k4\":[\"X1b\\n\"],\"é\\\"\\tb \\\"ü_😀_b\":{},\"😀Z😀\":1}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"k0\": true, \"-üXXXZü_😀\\n\": 358366}",
+"expected": "{\"-üXXXZü_😀\\n\":358366,\"k0\":true}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "336743095",
+"expected": "336743095"
+},
+{
+"input": "\"c\"",
+"expected": "\"c\""
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"0_\"",
+"expected": "\"0_\""
+},
+{
+"input": "{\"\\tZ😀\": false}",
+"expected": "{\"\\tZ😀\":false}"
+},
+{
+"input": "{\"\\\\11\": null, \"\\n9a\\\\\\\\€Y1\\\"X€\\t\": null, \"_bY1cca\": null, \"0\\t \\\" \": \"Z\"}",
+"expected": "{\"\\n9a\\\\\\\\€Y1\\\"X€\\t\":null,\"0\\t \\\" \":\"Z\",\"\\\\11\":null,\"_bY1cca\":null}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "-572319399",
+"expected": "-572319399"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"c_\\t€1\\tXc aY1\"",
+"expected": "\"c_\\t€1\\tXc aY1\""
+},
+{
+"input": "-969094",
+"expected": "-969094"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"a\\\"1éXa😀--\\n\": 1e-07, \"üZ-€\": false, \"é0€Xé\": null, \"-9\": null, \" 0\": false}",
+"expected": "{\" 0\":false,\"-9\":null,\"a\\\"1éXa😀--\\n\":1e-7,\"é0€Xé\":null,\"üZ-€\":false}"
+},
+{
+"input": "[null, [false, [null, true, -1.7467415078944455e+33], true, [true, \"a\\tX1\", \"ZZXXüX b€\\\"1€\", true]], null]",
+"expected": "[null,[false,[null,true,-1.7467415078944455e+33],true,[true,\"a\\tX1\",\"ZZXXüX b€\\\"1€\",true]],null]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"9 😀cüéüb\"",
+"expected": "\"9 😀cüéüb\""
+},
+{
+"input": "\"😀90b\"",
+"expected": "\"😀90b\""
+},
+{
+"input": "{\"bc9a_Y Zé\\\\-X\": {}, \"-\\tY\": [227490677, 879249.9817923207, 1.5]}",
+"expected": "{\"-\\tY\":[227490677,879249.9817923207,1.5],\"bc9a_Y Zé\\\\-X\":{}}"
+},
+{
+"input": "\"aa 99 0 \"",
+"expected": "\"aa 99 0 \""
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "\"😀\"",
+"expected": "\"😀\""
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "\"\\t- 😀0Z ü😀aZ0\"",
+"expected": "\"\\t- 😀0Z ü😀aZ0\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"é_€ 1Z-\"",
+"expected": "\"é_€ 1Z-\""
+},
+{
+"input": "\"ü\\n\\\"Z😀c1\\nX\\\\\"",
+"expected": "\"ü\\n\\\"Z😀c1\\nX\\\\\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "-386404.1367578466",
+"expected": "-386404.1367578466"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"\\\"\": [null, [-43974, true, false], true]}",
+"expected": "{\"\\\"\":[null,[-43974,true,false],true]}"
+},
+{
+"input": "1.077883403440404e-161",
+"expected": "1.077883403440404e-161"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "-2.25",
+"expected": "-2.25"
+},
+{
+"input": "{\"\\n\\\\€999 b€\\tc\": false, \"-abüXac9-\": [[true, -1.413208806465704e-147], [false, \"91_é€€\\\"\\n\\\\_\"], \"-\", {}], \"X1a\\n€\": {\"bbc1a\": {}}, \"0\\tüa😀\\\"😀\": {}, \"\\téZ1_Y\": false}",
+"expected": "{\"\\téZ1_Y\":false,\"\\n\\\\€999 b€\\tc\":false,\"-abüXac9-\":[[true,-1.413208806465704e-147],[false,\"91_é€€\\\"\\n\\\\_\"],\"-\",{}],\"0\\tüa😀\\\"😀\":{},\"X1a\\n€\":{\"bbc1a\":{}}}"
+},
+{
+"input": "[768863, \"\", [], null, 830657.5377798383]",
+"expected": "[768863,\"\",[],null,830657.5377798383]"
+},
+{
+"input": "{\"é\\\\😀ba-1a\\\\\\\\€\\n\": {\"\\\\a\": null, \"\\\"c Zé\": 1765724246}}",
+"expected": "{\"é\\\\😀ba-1a\\\\\\\\€\\n\":{\"\\\"c Zé\":1765724246,\"\\\\a\":null}}"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "\"\\\" Xa\\n\\n9a 0\\\\a\"",
+"expected": "\"\\\" Xa\\n\\n9a 0\\\\a\""
+},
+{
+"input": "\"1a\"",
+"expected": "\"1a\""
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[-0.0]",
+"expected": "[0]"
+},
+{
+"input": "\"ü1ZcX 1\\\"-\"",
+"expected": "\"ü1ZcX 1\\\"-\""
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"\\\\\\\"éY0Xé_b00\": {\"😀\\\"ü\\t1\": [], \"é\": \"€\\t0ü\", \"\\tZ\\\" \\t_cZ😀\\\"Y\": [null, null, null, false, true]}}",
+"expected": "{\"\\\\\\\"éY0Xé_b00\":{\"\\tZ\\\" \\t_cZ😀\\\"Y\":[null,null,null,false,true],\"é\":\"€\\t0ü\",\"😀\\\"ü\\t1\":[]}}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"\\tb€b\": null, \"\\\"€-\": \"-1\\\"ü010😀é\"}",
+"expected": "{\"\\tb€b\":null,\"\\\"€-\":\"-1\\\"ü010😀é\"}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"ü\\n😀😀\"",
+"expected": "\"ü\\n😀😀\""
+},
+{
+"input": "\"é\\t9X_\"",
+"expected": "\"é\\t9X_\""
+},
+{
+"input": "{\"\\\"\\\"Zé_\": null, \"€\": \"\", \"üba\": 496904.52677936293, \"0\\\"-üéb üXZc😀\": [\"a_\\\\X\", \"\\\\1é\\t0XY\", \"é\\t 0\\n\\nZ\\\\\\t\", null]}",
+"expected": "{\"\\\"\\\"Zé_\":null,\"0\\\"-üéb üXZc😀\":[\"a_\\\\X\",\"\\\\1é\\t0XY\",\"é\\t 0\\n\\nZ\\\\\\t\",null],\"üba\":496904.52677936293,\"€\":\"\"}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "\" 1acé\\\\Y\"",
+"expected": "\" 1acé\\\\Y\""
+},
+{
+"input": "\"\\\\éc_\\nüa\"",
+"expected": "\"\\\\éc_\\nüa\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"\\\"-Z\": true, \"09\\\\\\\"\\\\\": {}, \"-X\": 0.0}",
+"expected": "{\"\\\"-Z\":true,\"-X\":0,\"09\\\\\\\"\\\\\":{}}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "{\"1- \": [[\"\\tZ üZ-9\", \"1\", null, null, \"€é€é\\tü \"], {\"1b1 XüX_\": false, \"-9XX1\": \" _üY€Xéa-\", \"\\\\9ü\": \"é\\t\", \"k3\": \"_\\t\", \"😀ü09 \": null}, 0.0, false, true], \"_\\\"b\\t€\": [\"\", \"😀\\\\bXcY0ü0\\\\\", null], \"\\\\\\tXü-\\t\\\" X😀Y\\\\\": null}",
+"expected": "{\"1- \":[[\"\\tZ üZ-9\",\"1\",null,null,\"€é€é\\tü \"],{\"-9XX1\":\" _üY€Xéa-\",\"1b1 XüX_\":false,\"\\\\9ü\":\"é\\t\",\"k3\":\"_\\t\",\"😀ü09 \":null},0,false,true],\"\\\\\\tXü-\\t\\\" X😀Y\\\\\":null,\"_\\\"b\\t€\":[\"\",\"😀\\\\bXcY0ü0\\\\\",null]}"
+},
+{
+"input": "1113922095",
+"expected": "1113922095"
+},
+{
+"input": "0.1",
+"expected": "0.1"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"ZZa0€\\t_\"",
+"expected": "\"ZZa0€\\t_\""
+},
+{
+"input": "\"_YZ\"",
+"expected": "\"_YZ\""
+},
+{
+"input": "\"09\"",
+"expected": "\"09\""
+},
+{
+"input": "-1.021375557092394e-106",
+"expected": "-1.021375557092394e-106"
+},
+{
+"input": "[{\"\\\\😀\\né1😀 €a\\t_\": false, \"1a\": {\"X\": true, \"ééü€-\\\"€- \": \"Zb€0€\"}}, \"ZéZ😀-€é1_c1ü\", false]",
+"expected": "[{\"1a\":{\"X\":true,\"ééü€-\\\"€- \":\"Zb€0€\"},\"\\\\😀\\né1😀 €a\\t_\":false},\"ZéZ😀-€é1_c1ü\",false]"
+},
+{
+"input": "[false, 4.835124500649926e+197]",
+"expected": "[false,4.835124500649926e+197]"
+},
+{
+"input": "[{\"Y😀 \": 2.805153349225282e-107, \"k1\": true}]",
+"expected": "[{\"Y😀 \":2.805153349225282e-107,\"k1\":true}]"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "\"😀0ac\"",
+"expected": "\"😀0ac\""
+},
+{
+"input": "{\"-b11Z-X\\\"0c\": {\"1😀-\": [\"é😀a_€9\\n c\"], \"k1\": {}, \"- é0cX\\t 1é\": null}, \"b0X\\n€\\n bc 😀\\\\\": false, \"b __\": null}",
+"expected": "{\"-b11Z-X\\\"0c\":{\"- é0cX\\t 1é\":null,\"1😀-\":[\"é😀a_€9\\n c\"],\"k1\":{}},\"b __\":null,\"b0X\\n€\\n bc 😀\\\\\":false}"
+},
+{
+"input": "\"ü😀€büb1\\\\100Z\"",
+"expected": "\"ü😀€büb1\\\\100Z\""
+},
+{
+"input": "\"\\\\aaX€\"",
+"expected": "\"\\\\aaX€\""
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "-563350.5465748159",
+"expected": "-563350.5465748159"
+},
+{
+"input": "[\"€\", \"\\nc-b\", 1e+21, false, 0.0]",
+"expected": "[\"€\",\"\\nc-b\",1e+21,false,0]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "[\"Ya\\n😀c-c\\\"Y\", {\"😀0\\\"üY_9é\\\"Z\": \"Y\\\\\\\\_9Y\\\"\", \"-\": 207952.76828436367, \"-Yü_\": false}]",
+"expected": "[\"Ya\\n😀c-c\\\"Y\",{\"-\":207952.76828436367,\"-Yü_\":false,\"😀0\\\"üY_9é\\\"Z\":\"Y\\\\\\\\_9Y\\\"\"}]"
+},
+{
+"input": "\"\\t0-Z\\n\"",
+"expected": "\"\\t0-Z\\n\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "-95878099",
+"expected": "-95878099"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"é bb éb\"",
+"expected": "\"é bb éb\""
+},
+{
+"input": "0.001",
+"expected": "0.001"
+},
+{
+"input": "\"X-€ \\n11c😀YXé\"",
+"expected": "\"X-€ \\n11c😀YXé\""
+},
+{
+"input": "{\"1 9c-ü😀\": [[null, \"\", \"\\\"\\n_\\\"\\n_9b-\\t\", \"üc\", \"Y\\t1\\\\Xü9 9\"], {}, 729969.3051352792, {\"\\\"\\n \": \"1_aé\\\"0\\\\1😀-\\n\", \"c€b€X\\n Y\": true, \"c0\\t \": true, \"é€\\\\\": false}, {\"1€90-€ \\t-1\\t\": false, \"€Ya\": true, \"Y-\\nc\\t9Z_€b\": null, \"ücY1b0 \\n\": null}], \"k1\": \"€\\tc\\néü\"}",
+"expected": "{\"1 9c-ü😀\":[[null,\"\",\"\\\"\\n_\\\"\\n_9b-\\t\",\"üc\",\"Y\\t1\\\\Xü9 9\"],{},729969.3051352792,{\"\\\"\\n \":\"1_aé\\\"0\\\\1😀-\\n\",\"c0\\t \":true,\"c€b€X\\n Y\":true,\"é€\\\\\":false},{\"1€90-€ \\t-1\\t\":false,\"Y-\\nc\\t9Z_€b\":null,\"ücY1b0 \\n\":null,\"€Ya\":true}],\"k1\":\"€\\tc\\néü\"}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"c9bü\"",
+"expected": "\"c9bü\""
+},
+{
+"input": "-645663",
+"expected": "-645663"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[-3.368797585073429e-234, null, true, -6627.365886593005]",
+"expected": "[-3.368797585073429e-234,null,true,-6627.365886593005]"
+},
+{
+"input": "{\"10 \": \"\\t9b\", \"Y\": {\"ZX😀üé\": true}, \"\\\" Yéé 1aé\": \"é😀\\n\", \"Xa__Xa😀😀\\t\\\" \\t\": -411025025, \"😀1X_Za\\\\Y\\\\\\\\\": false}",
+"expected": "{\"\\\" Yéé 1aé\":\"é😀\\n\",\"10 \":\"\\t9b\",\"Xa__Xa😀😀\\t\\\" \\t\":-411025025,\"Y\":{\"ZX😀üé\":true},\"😀1X_Za\\\\Y\\\\\\\\\":false}"
+},
+{
+"input": "\"€\\nZ0éé😀caa\"",
+"expected": "\"€\\nZ0éé😀caa\""
+},
+{
+"input": "{\"0😀1Z\\t\\\\😀😀b 😀\": null}",
+"expected": "{\"0😀1Z\\t\\\\😀😀b 😀\":null}"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "\"é\\\\\\\\é Z€\\\"X0\"",
+"expected": "\"é\\\\\\\\é Z€\\\"X0\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"Y\\\\c\\tc9\\n1\"",
+"expected": "\"Y\\\\c\\tc9\\n1\""
+},
+{
+"input": "889530",
+"expected": "889530"
+},
+{
+"input": "\"Yb9_ZéZaé\\\"\"",
+"expected": "\"Yb9_ZéZaé\\\"\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[false, 0.001]",
+"expected": "[false,0.001]"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "\"\\\"😀\\\\\\\"\\\\9ac1Z9X\"",
+"expected": "\"\\\"😀\\\\\\\"\\\\9ac1Z9X\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"0\\\"\\n_0ü Y\": {\"übXXéüXa€X\\t\\n\": true}, \"a\\n1cüYü- \": \"😀\\\\9ü-😀a\", \"_ X\": \"\\\\\", \"Y9Z€\\\\1Ya\\t\\t\": true}",
+"expected": "{\"0\\\"\\n_0ü Y\":{\"übXXéüXa€X\\t\\n\":true},\"Y9Z€\\\\1Ya\\t\\t\":true,\"_ X\":\"\\\\\",\"a\\n1cüYü- \":\"😀\\\\9ü-😀a\"}"
+},
+{
+"input": "-751705.9342426069",
+"expected": "-751705.9342426069"
+},
+{
+"input": "\"Y-\"",
+"expected": "\"Y-\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[null, {\"Z\\n\\n\": {\"€\": true, \"€€Y€€b\\n\\n\": true, \"k2\": null, \"\\n😀éY-Z\": 1705590751}, \"€0 \": [\"ü€\", 381821.97513650125, \"ZaaéZ a\\t\", \"0\\n€bé😀\"], \"-üZ  ac\": {\"büé-ü \\\"Xbé€\": \"-\\\\Z€9aabZ\\t😀é\", \"k1\": \"\", \"\\t€_ZX€\": null}}, null]",
+"expected": "[null,{\"-üZ  ac\":{\"\\t€_ZX€\":null,\"büé-ü \\\"Xbé€\":\"-\\\\Z€9aabZ\\t😀é\",\"k1\":\"\"},\"Z\\n\\n\":{\"\\n😀éY-Z\":1705590751,\"k2\":null,\"€\":true,\"€€Y€€b\\n\\n\":true},\"€0 \":[\"ü€\",381821.97513650125,\"ZaaéZ a\\t\",\"0\\n€bé😀\"]},null]"
+},
+{
+"input": "{\"😀0b \": false, \"0--_-_é\": {}, \"X1é\\n0bé_Y\": {\"b\\n\\t_\": []}, \"X\": null, \"YY9c1\\\" 0ü1c\": [-552690.5877852344]}",
+"expected": "{\"0--_-_é\":{},\"X\":null,\"X1é\\n0bé_Y\":{\"b\\n\\t_\":[]},\"YY9c1\\\" 0ü1c\":[-552690.5877852344],\"😀0b \":false}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "592308229",
+"expected": "592308229"
+},
+{
+"input": "\"9\\\"_€ab\"",
+"expected": "\"9\\\"_€ab\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"Y\\n1😀é \\n\": null, \"1XX\": [[], [true, \"99XY_\", \"\\t\"], false, 0.0]}",
+"expected": "{\"1XX\":[[],[true,\"99XY_\",\"\\t\"],false,0],\"Y\\n1😀é \\n\":null}"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "-37139.5161275079",
+"expected": "-37139.5161275079"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "1e+21",
+"expected": "1e+21"
+},
+{
+"input": "59914",
+"expected": "59914"
+},
+{
+"input": "473492.47277380317",
+"expected": "473492.47277380317"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"\\\"aé€1Y9\\t -\\\"0\": false}",
+"expected": "{\"\\\"aé€1Y9\\t -\\\"0\":false}"
+},
+{
+"input": "\"Z\\nY0-X\\n \"",
+"expected": "\"Z\\nY0-X\\n \""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[\"\"]",
+"expected": "[\"\"]"
+},
+{
+"input": "{\"\\\"\\n-\": true}",
+"expected": "{\"\\\"\\n-\":true}"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "[false, \" _\\\\1é\\\\€\\n-\", \"\\nX\", 188075554, false]",
+"expected": "[false,\" _\\\\1é\\\\€\\n-\",\"\\nX\",188075554,false]"
+},
+{
+"input": "124598",
+"expected": "124598"
+},
+{
+"input": "-1619769037",
+"expected": "-1619769037"
+},
+{
+"input": "{\"\\\\\\naaa0\\\\\": -578935, \"\\\\😀€\\\"😀Zb\\n😀0\": 1e-06, \"YZ0\\t0\": 0.0}",
+"expected": "{\"YZ0\\t0\":0,\"\\\\\\naaa0\\\\\":-578935,\"\\\\😀€\\\"😀Zb\\n😀0\":0.000001}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"bé€😀\\\"\"",
+"expected": "\"bé€😀\\\"\""
+},
+{
+"input": "[{\"a\": [true, \"9😀a-- b\\nb\", 0.0], \"k1\": null, \"\\n_\": \"0_é\\\"Z\", \"\\\" \": \"\"}, null]",
+"expected": "[{\"\\n_\":\"0_é\\\"Z\",\"\\\" \":\"\",\"a\":[true,\"9😀a-- b\\nb\",0],\"k1\":null},null]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"\\\\\\\"b😀\\n119cY1\": true}",
+"expected": "{\"\\\\\\\"b😀\\n119cY1\":true}"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "6.411630989750747e-160",
+"expected": "6.411630989750747e-160"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "1e+21",
+"expected": "1e+21"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "[-9.775683984066215e-167, \"aY1\\t😀X\", false, null, [[], \"_-caZéZé\\tü-\"]]",
+"expected": "[-9.775683984066215e-167,\"aY1\\t😀X\",false,null,[[],\"_-caZéZé\\tü-\"]]"
+},
+{
+"input": "\"\\t0 \\\"bY\\\"\\\\\"",
+"expected": "\"\\t0 \\\"bY\\\"\\\\\""
+},
+{
+"input": "\" a€0\\\"a\"",
+"expected": "\" a€0\\\"a\""
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "[\"_c€€\\n €\\\\ €\\\"\", false, true]",
+"expected": "[\"_c€€\\n €\\\\ €\\\"\",false,true]"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "[358334, \"Y0€c\\\"Z0-\"]",
+"expected": "[358334,\"Y0€c\\\"Z0-\"]"
+},
+{
+"input": "[\"Y0ZX😀€\\n\"]",
+"expected": "[\"Y0ZX😀€\\n\"]"
+},
+{
+"input": "{\"-X 😀ba\\t  \": {\"c\\n_é\\n😀_üéXc\": -1301945579, \"\\\\19\\nb\": null}, \"€\\t\": [false, -1.5999587832577516e-270, {\"X\\\"1Xbc\\nY\\\"\": null, \"X€ YéY-😀1\\t\": 0.0, \"k2\": \"\\\\\\nY10X-\", \"X\": null}, true, null], \" \\nb09bZ0\": []}",
+"expected": "{\" \\nb09bZ0\":[],\"-X 😀ba\\t  \":{\"\\\\19\\nb\":null,\"c\\n_é\\n😀_üéXc\":-1301945579},\"€\\t\":[false,-1.5999587832577516e-270,{\"X\":null,\"X\\\"1Xbc\\nY\\\"\":null,\"X€ YéY-😀1\\t\":0,\"k2\":\"\\\\\\nY10X-\"},true,null]}"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "[{\"€€😀X\": \"\\\"\\\\-€\\n9\\\"X 9_\\\\\"}]",
+"expected": "[{\"€€😀X\":\"\\\"\\\\-€\\n9\\\"X 9_\\\\\"}]"
+},
+{
+"input": "{\"0\": null, \"YYcXZ\\\\\\t9\": null, \"bé-Z\": true, \"€1üb-c€\\\"b\": null, \"- \\tZX1bZ\\\"__\": null}",
+"expected": "{\"- \\tZX1bZ\\\"__\":null,\"0\":null,\"YYcXZ\\\\\\t9\":null,\"bé-Z\":true,\"€1üb-c€\\\"b\":null}"
+},
+{
+"input": "[null, null, \"10\\n 1Z c9\", null]",
+"expected": "[null,null,\"10\\n 1Z c9\",null]"
+},
+{
+"input": "\"_\\n1\\nb0\\\"\"",
+"expected": "\"_\\n1\\nb0\\\"\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"k0\": null, \"191üc-\\tb\": {\"😀\\n\": \"-10😀Zc\"}}",
+"expected": "{\"191üc-\\tb\":{\"😀\\n\":\"-10😀Zc\"},\"k0\":null}"
+},
+{
+"input": "{\"😀 0-üY\": -4.153095727141423e+287, \"9b-aY_\": -1942311398}",
+"expected": "{\"9b-aY_\":-1942311398,\"😀 0-üY\":-4.153095727141423e+287}"
+},
+{
+"input": "0",
+"expected": "0"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "[false, false]",
+"expected": "[false,false]"
+},
+{
+"input": "-5.561819529196588e+40",
+"expected": "-5.561819529196588e+40"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[[null, null, \"_\\té0\\\\0€ \\n€a\"]]",
+"expected": "[[null,null,\"_\\té0\\\\0€ \\n€a\"]]"
+},
+{
+"input": "-7.928550038192765e-40",
+"expected": "-7.928550038192765e-40"
+},
+{
+"input": "\"X0€\\tb Z\"",
+"expected": "\"X0€\\tb Z\""
+},
+{
+"input": "\"😀\\t0cc\"",
+"expected": "\"😀\\t0cc\""
+},
+{
+"input": "371599",
+"expected": "371599"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "0.14285714285714285",
+"expected": "0.14285714285714285"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "\"\\\"üZZ_\\\"üY\"",
+"expected": "\"\\\"üZZ_\\\"üY\""
+},
+{
+"input": "-375588",
+"expected": "-375588"
+},
+{
+"input": "\"c\\n\\\\9\"",
+"expected": "\"c\\n\\\\9\""
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "1123850926",
+"expected": "1123850926"
+},
+{
+"input": "[[false, null]]",
+"expected": "[[false,null]]"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "[null, null, -220759.60629031702]",
+"expected": "[null,null,-220759.60629031702]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "\"9\"",
+"expected": "\"9\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"b1XZ\\n\"",
+"expected": "\"b1XZ\\n\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[false, 304040]",
+"expected": "[false,304040]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[[], [0.0, [\"Y0\\\"aüZ_-üé\", null, 1.943230172028991e+168], 0.001, true], [\"é\\nc00Xü\\tb\", {\"\\\\1 éé\": \"_\\\"_\", \"-\": false, \"€\\tüZa€\": \"b\"}, {\"aüc9b\\\"Z_\": \"\", \"\\tb9\\t\": null}, 141380], \"X99\\\"9\\\\\\tb\\\\a9\"]",
+"expected": "[[],[0,[\"Y0\\\"aüZ_-üé\",null,1.943230172028991e+168],0.001,true],[\"é\\nc00Xü\\tb\",{\"-\":false,\"\\\\1 éé\":\"_\\\"_\",\"€\\tüZa€\":\"b\"},{\"\\tb9\\t\":null,\"aüc9b\\\"Z_\":\"\"},141380],\"X99\\\"9\\\\\\tb\\\\a9\"]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "1.0",
+"expected": "1"
+},
+{
+"input": "{\"Y€\": \"-\", \"cü€X\\\"c99-_é\": [\"\\\"0X01\\tb\\\\é\", \"\"], \"baü1 b\": null, \"-XY\\tZ\\\"\": \"\", \"0\\\"- ZX-übc€\\t\": false}",
+"expected": "{\"-XY\\tZ\\\"\":\"\",\"0\\\"- ZX-übc€\\t\":false,\"Y€\":\"-\",\"baü1 b\":null,\"cü€X\\\"c99-_é\":[\"\\\"0X01\\tb\\\\é\",\"\"]}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[-668837.10615165]",
+"expected": "[-668837.10615165]"
+},
+{
+"input": "{\"_YéXX-\\tü-€\": null}",
+"expected": "{\"_YéXX-\\tü-€\":null}"
+},
+{
+"input": "{\"11 _\": 0.0}",
+"expected": "{\"11 _\":0}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "1.5",
+"expected": "1.5"
+},
+{
+"input": "\"\\t\\nZ\"",
+"expected": "\"\\t\\nZ\""
+},
+{
+"input": "\"Z€Y_ab €1\\t€Y\"",
+"expected": "\"Z€Y_ab €1\\t€Y\""
+},
+{
+"input": "{\"b😀_€ü😀91😀\\t\\té\": -36739.35673065751, \"1\\\\\\n\\\"1X\": true}",
+"expected": "{\"1\\\\\\n\\\"1X\":true,\"b😀_€ü😀91😀\\t\\té\":-36739.35673065751}"
+},
+{
+"input": "\"\\\\üccü0X1 😀\\\"\"",
+"expected": "\"\\\\üccü0X1 😀\\\"\""
+},
+{
+"input": "{\"€Y90_\": \"-ca1\", \"k1\": [[true, true], 494047, true, null, null]}",
+"expected": "{\"k1\":[[true,true],494047,true,null,null],\"€Y90_\":\"-ca1\"}"
+},
+{
+"input": "{\"XY\\\\-\\t\\\"€Y😀\": null}",
+"expected": "{\"XY\\\\-\\t\\\"€Y😀\":null}"
+},
+{
+"input": "{\"_\\\"€YZü-_ccY\": 489222213, \"11\\\"\": null, \"0Zbé\\t\": false, \"-X\": \"0-Z\\\\€0€Yb_€\\\"\", \"1Y\\tc XXaüXZ\": null}",
+"expected": "{\"-X\":\"0-Z\\\\€0€Yb_€\\\"\",\"0Zbé\\t\":false,\"11\\\"\":null,\"1Y\\tc XXaüXZ\":null,\"_\\\"€YZü-_ccY\":489222213}"
+},
+{
+"input": "[\"\", [false, null, \"\", [null, \"ü\", false, null, null], [\"00üYX\"]], null]",
+"expected": "[\"\",[false,null,\"\",[null,\"ü\",false,null,null],[\"00üYX\"]],null]"
+},
+{
+"input": "{\"Y1 a\": null, \"-Z\": {\"_0bé\\t\": -1405613591, \"\\\\YY\\\"X\": \"Y-1c\", \"XX\\\" cX-9é\": null, \"ü\": null, \"1\\\"é0-\": null}, \"\\\\€😀\\\\\\\"cY\": \"YéY€Y\\t\", \" \": null}",
+"expected": "{\" \":null,\"-Z\":{\"1\\\"é0-\":null,\"XX\\\" cX-9é\":null,\"\\\\YY\\\"X\":\"Y-1c\",\"_0bé\\t\":-1405613591,\"ü\":null},\"Y1 a\":null,\"\\\\€😀\\\\\\\"cY\":\"YéY€Y\\t\"}"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "\"üa_\"",
+"expected": "\"üa_\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[\"\", [592227, [], \"\\\\ -X1 €9a1\\\\X\"]]",
+"expected": "[\"\",[592227,[],\"\\\\ -X1 €9a1\\\\X\"]]"
+},
+{
+"input": "{\"Z1X\\\\é\\n1Y\": false, \"b€\\nécc \": [\"üaü91bü😀0\\\\X\", null, \"\\\" 0\\\\bZ\\t_😀ü1\", [], \"\\\\\"], \" a\\n\": {\"üb1\\\\é\\\"\\nZ\": false}}",
+"expected": "{\" a\\n\":{\"üb1\\\\é\\\"\\nZ\":false},\"Z1X\\\\é\\n1Y\":false,\"b€\\nécc \":[\"üaü91bü😀0\\\\X\",null,\"\\\" 0\\\\bZ\\t_😀ü1\",[],\"\\\\\"]}"
+},
+{
+"input": "-1.3767558807185427e-304",
+"expected": "-1.3767558807185427e-304"
+},
+{
+"input": "{\"9ba \\\"1a \\n😀bY\": \"-Za üa1\", \"Z\\t\\\\\\\"€\\t\\\\ü9\\\\\": [false], \"\\t_0Y\": {\"b\": {}, \"1  \\tY\": null, \"91\\\"üac\\té\\\\10Y\": [], \"1€üc\": [\"\\t\\\\09Y\", null, \"üé\"]}, \"b9b-\\t11-\\t\": {\"Xü\\n\\\\\\\"\": [true, null], \"😀Y\\\\üéZ€€\\t\": {\"😀9_ a \\tb9\\n€\": null, \"X\\\\ü\": 246684.046072501, \"19_\\t😀\": 867547, \"bü\\\\c\\\"\\\"\\\"0é_\\\\\": \"c\\\\1éZ0-ü-€\\\"\"}, \"Xa9ZZ_1\\t_é\": null}}",
+"expected": "{\"\\t_0Y\":{\"1  \\tY\":null,\"1€üc\":[\"\\t\\\\09Y\",null,\"üé\"],\"91\\\"üac\\té\\\\10Y\":[],\"b\":{}},\"9ba \\\"1a \\n😀bY\":\"-Za üa1\",\"Z\\t\\\\\\\"€\\t\\\\ü9\\\\\":[false],\"b9b-\\t11-\\t\":{\"Xa9ZZ_1\\t_é\":null,\"Xü\\n\\\\\\\"\":[true,null],\"😀Y\\\\üéZ€€\\t\":{\"19_\\t😀\":867547,\"X\\\\ü\":246684.046072501,\"bü\\\\c\\\"\\\"\\\"0é_\\\\\":\"c\\\\1éZ0-ü-€\\\"\",\"😀9_ a \\tb9\\n€\":null}}}"
+},
+{
+"input": "0.1",
+"expected": "0.1"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "-654878",
+"expected": "-654878"
+},
+{
+"input": "\"é_ZX€\\\\9-\\\\\\nac\"",
+"expected": "\"é_ZX€\\\\9-\\\\\\nac\""
+},
+{
+"input": "{\"k0\": true, \"\\\"X\\t\\tZ-aü1Yc\": [837592.5448124793]}",
+"expected": "{\"\\\"X\\t\\tZ-aü1Yc\":[837592.5448124793],\"k0\":true}"
+},
+{
+"input": "1e-06",
+"expected": "0.000001"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[{\"Y\": [false, -831197.6498625772, 1.9054517718278263e+43, true], \"_aa\": \"X0\\t-\", \"b9\": \"_cü9\\\\\\n__Y\\\\c\"}, [[null, null, false, null], {\"_1- X\\néaY\": 0.001}, null], [\"\\t\", [false, null, 0, false]], null]",
+"expected": "[{\"Y\":[false,-831197.6498625772,1.9054517718278263e+43,true],\"_aa\":\"X0\\t-\",\"b9\":\"_cü9\\\\\\n__Y\\\\c\"},[[null,null,false,null],{\"_1- X\\néaY\":0.001},null],[\"\\t\",[false,null,0,false]],null]"
+},
+{
+"input": "[[false, {\"Y\": false, \"k1\": -26572}, \" \\\"Z aYc\"]]",
+"expected": "[[false,{\"Y\":false,\"k1\":-26572},\" \\\"Z aYc\"]]"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "\"ü\\n1😀9üü\"",
+"expected": "\"ü\\n1😀9üü\""
+},
+{
+"input": "-0.0",
+"expected": "0"
+},
+{
+"input": "{\"1b0_\": 951683.7573013862, \"\\\\b1c01€Xü\\na\": [], \"_XbZ\": null, \"\\nbé\\n-\\\\0X9\": false}",
+"expected": "{\"\\nbé\\n-\\\\0X9\":false,\"1b0_\":951683.7573013862,\"\\\\b1c01€Xü\\na\":[],\"_XbZ\":null}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[false]",
+"expected": "[false]"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "\"1-b\"",
+"expected": "\"1-b\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"9ZYaé \": {\"k0\": null}}",
+"expected": "{\"9ZYaé \":{\"k0\":null}}"
+},
+{
+"input": "{\"€ 1ébY9-09ü\": true, \"1b0\\n\": -958180793, \"c1éXcZ9-😀üX\": -477398.7919854454}",
+"expected": "{\"1b0\\n\":-958180793,\"c1éXcZ9-😀üX\":-477398.7919854454,\"€ 1ébY9-09ü\":true}"
+},
+{
+"input": "{\"\\n😀ü\": {\"ü\": -1.8611556059655273e-16, \"-Y\": \"Y\", \"  \": true, \"\\\\0-\\\"😀\": 1.4818305423502975e+79}, \"Y0\\\"0\\\\\": false, \"ü991c\": false, \"0\": {\"k0\": {\"éc9b10\": null, \"k1\": 0.3333333333333333, \"üc0\": null}, \"Y-1b_Z bX   \": false, \"0\": [null, 0.14285714285714285, false]}, \"-\\t-bYa\\\\bü\": [{\"k0\": \"\\t0\\\\\"}, {\"Y€Y\\\\\": -435732, \"X€😀Ya€ \\tü\": 1710336370, \"_😀éü1😀Y\": null, \"_bü\\n\": \"\\n\"}]}",
+"expected": "{\"\\n😀ü\":{\"  \":true,\"-Y\":\"Y\",\"\\\\0-\\\"😀\":1.4818305423502975e+79,\"ü\":-1.8611556059655273e-16},\"-\\t-bYa\\\\bü\":[{\"k0\":\"\\t0\\\\\"},{\"X€😀Ya€ \\tü\":1710336370,\"Y€Y\\\\\":-435732,\"_bü\\n\":\"\\n\",\"_😀éü1😀Y\":null}],\"0\":{\"0\":[null,0.14285714285714285,false],\"Y-1b_Z bX   \":false,\"k0\":{\"k1\":0.3333333333333333,\"éc9b10\":null,\"üc0\":null}},\"Y0\\\"0\\\\\":false,\"ü991c\":false}"
+},
+{
+"input": "{\"k0\": true, \"\\n_\\\\Z0\\n😀9\": true, \"_éé_ü\\n\\\"\\nb\": [true, [true]], \"Xbéb0😀Z\": [\"X\\\"9€X_\\n_\\n9\", {\"c\": \"\\\"\\t9a\\t\\\"Z0_0\"}, 0.0], \"Züc\\\"€ZY\": null}",
+"expected": "{\"\\n_\\\\Z0\\n😀9\":true,\"Xbéb0😀Z\":[\"X\\\"9€X_\\n_\\n9\",{\"c\":\"\\\"\\t9a\\t\\\"Z0_0\"},0],\"Züc\\\"€ZY\":null,\"_éé_ü\\n\\\"\\nb\":[true,[true]],\"k0\":true}"
+},
+{
+"input": "-843882",
+"expected": "-843882"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "[[]]",
+"expected": "[[]]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "1569246327",
+"expected": "1569246327"
+},
+{
+"input": "-755894",
+"expected": "-755894"
+},
+{
+"input": "[false, false]",
+"expected": "[false,false]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"0ü\"",
+"expected": "\"0ü\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"\\\\_Y\\\" b1\\t_\\t\"",
+"expected": "\"\\\\_Y\\\" b1\\t_\\t\""
+},
+{
+"input": "{\"ü€Y1\": null, \"ü1\\\"9X\\\\ca\": false, \"YY9\\\\1😀Z\": [-538571.8989679248, false, {\"-0\\\\\\t \": null}, false, [true, null, null]], \"Y\\\\YZ9\": 74271, \"1😀X😀b\": null}",
+"expected": "{\"1😀X😀b\":null,\"YY9\\\\1😀Z\":[-538571.8989679248,false,{\"-0\\\\\\t \":null},false,[true,null,null]],\"Y\\\\YZ9\":74271,\"ü1\\\"9X\\\\ca\":false,\"ü€Y1\":null}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"ü\": false, \"\\\\\\\"Z\\t\\\\\\nY-\\\"\": null, \"\\n\\tXé\": [{\"a\": \"a\\\"-😀\", \"\\\" € \\\\😀a0é\": false, \"-😀\\\\Y_\": true, \"k3\": false}, \"\\\\Z0_ \", null], \"Z9\\t\\n Y\\n1\\\\_X\": false}",
+"expected": "{\"\\n\\tXé\":[{\"\\\" € \\\\😀a0é\":false,\"-😀\\\\Y_\":true,\"a\":\"a\\\"-😀\",\"k3\":false},\"\\\\Z0_ \",null],\"Z9\\t\\n Y\\n1\\\\_X\":false,\"\\\\\\\"Z\\t\\\\\\nY-\\\"\":null,\"ü\":false}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"\\\"0\\\"\\tY €b91€\": \"Yc😀\", \"\\\\-\": 1415295783, \"_\\nX\": 0.1, \"bZ1😀\\tZ0b \\n\": -5.9188393098895885e+146, \"\\\\Yc-0\\\"\": [false, [\"\", 814655.948209895, null, -641583], true, true, {\"\\t\\t\\nüaYZabZ😀\": false, \"-\\\\\": 699478, \"1üa9_Z\": 0.0, \"_a\\\\bXZ😀\\tc€\\\\\": \"\"}]}",
+"expected": "{\"\\\"0\\\"\\tY €b91€\":\"Yc😀\",\"\\\\-\":1415295783,\"\\\\Yc-0\\\"\":[false,[\"\",814655.948209895,null,-641583],true,true,{\"\\t\\t\\nüaYZabZ😀\":false,\"-\\\\\":699478,\"1üa9_Z\":0,\"_a\\\\bXZ😀\\tc€\\\\\":\"\"}],\"_\\nX\":0.1,\"bZ1😀\\tZ0b \\n\":-5.9188393098895885e+146}"
+},
+{
+"input": "-626466.362194235",
+"expected": "-626466.362194235"
+},
+{
+"input": "-805388",
+"expected": "-805388"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"k0\": [true, {\"9c__b\": null, \"😀\": 0.0}, 749022, [null], [\"c0 \\tb😀XcY bü\", true]], \"😀€09\": {\"1-\\t\\\\9\": \"\\\"\\\\X\\\\\\\\X9é\", \"bbü-1\\t\": {\"😀a\\\\9Y\": -2.25, \"XaXaXé b0\\t\": null}, \"1üaXb€\\\\ c0\": false, \"\\\"\\n😀ü\\\"\": null, \"-c\\t 9\": [\"-😀_a\\\"üb😀c\\\"\", \"\\n9\\\\b\", \"-é\\\\b\\n-Y-\"]}}",
+"expected": "{\"k0\":[true,{\"9c__b\":null,\"😀\":0},749022,[null],[\"c0 \\tb😀XcY bü\",true]],\"😀€09\":{\"\\\"\\n😀ü\\\"\":null,\"-c\\t 9\":[\"-😀_a\\\"üb😀c\\\"\",\"\\n9\\\\b\",\"-é\\\\b\\n-Y-\"],\"1-\\t\\\\9\":\"\\\"\\\\X\\\\\\\\X9é\",\"1üaXb€\\\\ c0\":false,\"bbü-1\\t\":{\"XaXaXé b0\\t\":null,\"😀a\\\\9Y\":-2.25}}}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"-\"",
+"expected": "\"-\""
+},
+{
+"input": "0.1",
+"expected": "0.1"
+},
+{
+"input": "{\"--😀\": null}",
+"expected": "{\"--😀\":null}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "-990328303",
+"expected": "-990328303"
+},
+{
+"input": "\"99\"",
+"expected": "\"99\""
+},
+{
+"input": "[true, {}, {\"c\\\"a0😀€cü \": \"€0 -c😀Z\\na\", \"€Z0Z0a\\\"\\tü\": [null, null], \"cé\\\\_\\n\": {\"-Y\\\"a\\\"éZ-1€€€\": null, \"\\\"Yc\\\\cZ1X\": true}, \"Ya1\\\"\\\"YY😀a\\n0ü\": false}]",
+"expected": "[true,{},{\"Ya1\\\"\\\"YY😀a\\n0ü\":false,\"c\\\"a0😀€cü \":\"€0 -c😀Z\\na\",\"cé\\\\_\\n\":{\"\\\"Yc\\\\cZ1X\":true,\"-Y\\\"a\\\"éZ-1€€€\":null},\"€Z0Z0a\\\"\\tü\":[null,null]}]"
+},
+{
+"input": "[{\"_Zé éa-\\tY\\n\": 1660300413}, \" cb\\n\", {\" üaY\\\\é€\": null}, true, []]",
+"expected": "[{\"_Zé éa-\\tY\\n\":1660300413},\" cb\\n\",{\" üaY\\\\é€\":null},true,[]]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "{\" Zü€\\nX\\\"\": \"a\", \"0 1\\\\\\n0Z\\tZ\\n\": 0.0, \"k2\": null}",
+"expected": "{\" Zü€\\nX\\\"\":\"a\",\"0 1\\\\\\n0Z\\tZ\\n\":0,\"k2\":null}"
+},
+{
+"input": "{\"a\": {\"\\nZ\": true}, \"_\\nX 😀00\": 564017, \"ü😀0\\\"\": 5.145150214754127e+193, \"ZZ€c😀-a_\": 1973912481}",
+"expected": "{\"ZZ€c😀-a_\":1973912481,\"_\\nX 😀00\":564017,\"a\":{\"\\nZ\":true},\"ü😀0\\\"\":5.145150214754127e+193}"
+},
+{
+"input": "\"0\"",
+"expected": "\"0\""
+},
+{
+"input": "{\"Y\\tY bZ \": \"_0_-\", \"\\t\\\\é😀\": [true, {\"\\tZücéb Z\": null, \"\\t10Yé\\\\\": 0.1, \" -\\nb\\n\\\"\\\"\": false}, {\"k0\": \"€ba😀X9\\\"b\", \"Z\\\"b😀0Z9\": true}]}",
+"expected": "{\"\\t\\\\é😀\":[true,{\"\\t10Yé\\\\\":0.1,\"\\tZücéb Z\":null,\" -\\nb\\n\\\"\\\"\":false},{\"Z\\\"b😀0Z9\":true,\"k0\":\"€ba😀X9\\\"b\"}],\"Y\\tY bZ \":\"_0_-\"}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[[false, {\"Xa\\na\": \"_1😀X  üb😀9\\\\\", \"€Z9 _ZY0c-X9\": false}, false]]",
+"expected": "[[false,{\"Xa\\na\":\"_1😀X  üb😀9\\\\\",\"€Z9 _ZY0c-X9\":false},false]]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "1e-06",
+"expected": "0.000001"
+},
+{
+"input": "[true, {\"9YY\": [\"éüY\"], \"ab1_bc\\\"ü\\\\11 \": [null, null], \"Xab\\\"\": true}, true]",
+"expected": "[true,{\"9YY\":[\"éüY\"],\"Xab\\\"\":true,\"ab1_bc\\\"ü\\\\11 \":[null,null]},true]"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "3.1478343473828296e+244",
+"expected": "3.1478343473828296e+244"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\" -Y\": null, \"😀\": \"-\\\"\\\\\"}",
+"expected": "{\" -Y\":null,\"😀\":\"-\\\"\\\\\"}"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"k0\": \"\\\\X\\tcü1\\t- \\\\\", \"cY\": [-1983632899, {\"😀€éé\": \"\\\"a\\naXbcé_\\t-\"}], \"Z 09X\": true, \"€\": \"\\tXYü\\\\😀😀Yé\", \"éZéé\\t\\nYüéü\": \" c\"}",
+"expected": "{\"Z 09X\":true,\"cY\":[-1983632899,{\"😀€éé\":\"\\\"a\\naXbcé_\\t-\"}],\"k0\":\"\\\\X\\tcü1\\t- \\\\\",\"éZéé\\t\\nYüéü\":\" c\",\"€\":\"\\tXYü\\\\😀😀Yé\"}"
+},
+{
+"input": "[\"ü\\\"\\n\", null, null]",
+"expected": "[\"ü\\\"\\n\",null,null]"
+},
+{
+"input": "{\"0-éZ--é9\\\" 9\": 881378167, \"_X\": null}",
+"expected": "{\"0-éZ--é9\\\" 9\":881378167,\"_X\":null}"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "[null, \"11\"]",
+"expected": "[null,\"11\"]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[1e-07, [-1.5914582258165504e+121, {\"1cYY-\": \"\\\\üc\\t😀é\"}, false], 0.0, [\"Y\", {\"😀\\\"\\\"\\naZ\\n\": 0.3333333333333333}, {\"\\tba1\\\"\\\\Yü9é\\\\a\": 1.6425019701841737e-228, \"9a1b€b9\\t😀0b\": true}]]",
+"expected": "[1e-7,[-1.5914582258165504e+121,{\"1cYY-\":\"\\\\üc\\t😀é\"},false],0,[\"Y\",{\"😀\\\"\\\"\\naZ\\n\":0.3333333333333333},{\"\\tba1\\\"\\\\Yü9é\\\\a\":1.6425019701841737e-228,\"9a1b€b9\\t😀0b\":true}]]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "243534.57345969067",
+"expected": "243534.57345969067"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "-678683.0643620968",
+"expected": "-678683.0643620968"
+},
+{
+"input": "\"é\\t€\"",
+"expected": "\"é\\t€\""
+},
+{
+"input": "\"é\\t bb\"",
+"expected": "\"é\\t bb\""
+},
+{
+"input": "{\"00_\": [{\" ü9X-Y_ü\\t1\": true, \"a\\\"-Xü\": 1e-06, \"é\\t\": null, \"\\nü 0_\\\\😀XZ\\\\\\n\": false, \"Z1\\n€\": true}, -2.25, \"X\\tüc1\\\\a\\\\1a\", {\"-\\\\\\\"0\": true}, true], \"€X_cX9\": null, \"éü\\tba0\\\"\\t€\": [{\" bY\": \"\\\"aZü€cY\", \"ü_9\\nZ\": 1e-06, \" _\\\"\": 75533317}, true, \"cY01😀\\\"\", [true, \"\", 1e+21]], \"\\\\__\": \"\\\"ü_😀0ü \", \"a\\n-1€😀9Y-\\t1\": null}",
+"expected": "{\"00_\":[{\"\\nü 0_\\\\😀XZ\\\\\\n\":false,\" ü9X-Y_ü\\t1\":true,\"Z1\\n€\":true,\"a\\\"-Xü\":0.000001,\"é\\t\":null},-2.25,\"X\\tüc1\\\\a\\\\1a\",{\"-\\\\\\\"0\":true},true],\"\\\\__\":\"\\\"ü_😀0ü \",\"a\\n-1€😀9Y-\\t1\":null,\"éü\\tba0\\\"\\t€\":[{\" _\\\"\":75533317,\" bY\":\"\\\"aZü€cY\",\"ü_9\\nZ\":0.000001},true,\"cY01😀\\\"\",[true,\"\",1e+21]],\"€X_cX9\":null}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"€\"",
+"expected": "\"€\""
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"_ü\\\\ \\t 0\": true, \"€bücc0_a11X\\\"\": \"0ü\\n€ü\\\"\\\"\", \" éY0 b0 \": \"a€😀ba😀\", \"\\\"ü€XX\": [false, null, [], {\"ZaéZ99a X1\": -657876.350907574, \"Z😀XcZZa9__\": -5.440094752173378e-285, \"0üa\": \"9\\n😀X\\nXXX\\\"Z\"}]}",
+"expected": "{\" éY0 b0 \":\"a€😀ba😀\",\"\\\"ü€XX\":[false,null,[],{\"0üa\":\"9\\n😀X\\nXXX\\\"Z\",\"ZaéZ99a X1\":-657876.350907574,\"Z😀XcZZa9__\":-5.440094752173378e-285}],\"_ü\\\\ \\t 0\":true,\"€bücc0_a11X\\\"\":\"0ü\\n€ü\\\"\\\"\"}"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "[{\"0 XZ\": {\"éé\": null, \"\\\"X9b\\\"1a€\\t-X\": \"-c--__ü\\\\1\", \" Y \\n😀ab_\": true}, \"\\\\-\\\\éXa😀€\\n€ \": {\"Yé\": 841854.2049572766, \"\\\"\\n1üa\": 8.278790886690563e-22}}, \"ü\\té\", {\"\\\\ZaX😀1üZ\": null, \"😀c-Z\": [true], \" \\tZ\\n\\nü9Z_ü\": null}, -715606.9002612247]",
+"expected": "[{\"0 XZ\":{\" Y \\n😀ab_\":true,\"\\\"X9b\\\"1a€\\t-X\":\"-c--__ü\\\\1\",\"éé\":null},\"\\\\-\\\\éXa😀€\\n€ \":{\"\\\"\\n1üa\":8.278790886690563e-22,\"Yé\":841854.2049572766}},\"ü\\té\",{\" \\tZ\\n\\nü9Z_ü\":null,\"\\\\ZaX😀1üZ\":null,\"😀c-Z\":[true]},-715606.9002612247]"
+},
+{
+"input": "[false, null, {\"Z990Za_-1ZZX\": true, \"9éZY 1\\n1\": [\"€é\", 1e-07], \" €\\t_c0 YY\\\\\": {\"1\\\\c0X-\\\\XZ\": \"1é0\", \"YX-cab9Z\\n\": null, \"é\\\\ €9\\\"béX\": null, \"\\t\\\\b1_a\": 769899}, \"9é😀0€-Xcb😀\": true}, -206493.08467712137, {\"-abaüX\": -2.25, \"__Y90X\": false, \"ac 91a9\": []}]",
+"expected": "[false,null,{\" €\\t_c0 YY\\\\\":{\"\\t\\\\b1_a\":769899,\"1\\\\c0X-\\\\XZ\":\"1é0\",\"YX-cab9Z\\n\":null,\"é\\\\ €9\\\"béX\":null},\"9éZY 1\\n1\":[\"€é\",1e-7],\"9é😀0€-Xcb😀\":true,\"Z990Za_-1ZZX\":true},-206493.08467712137,{\"-abaüX\":-2.25,\"__Y90X\":false,\"ac 91a9\":[]}]"
+},
+{
+"input": "-1566065040",
+"expected": "-1566065040"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "406850.9226956959",
+"expected": "406850.9226956959"
+},
+{
+"input": "-1934310673",
+"expected": "-1934310673"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "-927797414",
+"expected": "-927797414"
+},
+{
+"input": "{\"\\t1\": false, \"X0\\n \\t\": []}",
+"expected": "{\"\\t1\":false,\"X0\\n \\t\":[]}"
+},
+{
+"input": "-5.432511827313642e+87",
+"expected": "-5.432511827313642e+87"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[[true, true, {\"\\\"\": \"--\"}], [true], {\"ü\\n ü \\\\ Y€\": [null, null, \"Z b😀a\", null, \"c😀-0c\\t0aaXY\"], \"Yü😀€bé90a9\": [true]}]",
+"expected": "[[true,true,{\"\\\"\":\"--\"}],[true],{\"Yü😀€bé90a9\":[true],\"ü\\n ü \\\\ Y€\":[null,null,\"Z b😀a\",null,\"c😀-0c\\t0aaXY\"]}]"
+},
+{
+"input": "-672236.7743407709",
+"expected": "-672236.7743407709"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[{\"_\\t\\\"éX YX Yüa\": {\"cX1😀9Y\\\"€XX\": true, \"9ZüYé\": 1.8015510810723668e+80}}, [null, false, {\" \\té0\": 0.0, \" \\técü😀-Y\": false, \"\\t\\\"Y b\\t\\t😀0Z\": -0.0, \"\\\"é\": \"ca-€_éüZ 9-\"}, -0.0], false]",
+"expected": "[{\"_\\t\\\"éX YX Yüa\":{\"9ZüYé\":1.8015510810723668e+80,\"cX1😀9Y\\\"€XX\":true}},[null,false,{\"\\t\\\"Y b\\t\\t😀0Z\":0,\" \\té0\":0,\" \\técü😀-Y\":false,\"\\\"é\":\"ca-€_éüZ 9-\"},0],false]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[1.2571691688008973e-158, [-1.085705708683456e+290, 930988204, {\"\\\\\\t-\\tb\\nb1\": \"9Yé😀YcXY_1a9\", \"€bé\": null, \"\\nééZ\\\\\\\\ \\\"\": false}, [], true], {\" \\t\\ncX\\n\\\" Xéb9\": true, \"€Xa😀9\\\\aYüZY\": [null, false], \"ééX1b0üZ\": [0.0, false, -1867175133, 1e-07], \"\\tb9\\tc \": false, \"k4\": {\"\\\"\\nb\\\"éé😀éü_\": null, \"\\\\üZé 0_é😀9\": 385971, \"bü \": \"0\\nc_0ü9X\"}}]",
+"expected": "[1.2571691688008973e-158,[-1.085705708683456e+290,930988204,{\"\\nééZ\\\\\\\\ \\\"\":false,\"\\\\\\t-\\tb\\nb1\":\"9Yé😀YcXY_1a9\",\"€bé\":null},[],true],{\"\\tb9\\tc \":false,\" \\t\\ncX\\n\\\" Xéb9\":true,\"k4\":{\"\\\"\\nb\\\"éé😀éü_\":null,\"\\\\üZé 0_é😀9\":385971,\"bü \":\"0\\nc_0ü9X\"},\"ééX1b0üZ\":[0,false,-1867175133,1e-7],\"€Xa😀9\\\\aYüZY\":[null,false]}]"
+},
+{
+"input": "[1.0, null, 0.3333333333333333, []]",
+"expected": "[1,null,0.3333333333333333,[]]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"é9aüéé9Xc\\t€\"",
+"expected": "\"é9aüéé9Xc\\t€\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[0.1, {\"😀c\\\"\\té\": {\"X€ücbb0cüa1 \": \"\\n__ZZ0€\\n\", \"bé😀\": null}, \"01bü😀\\t\": false}, [true, [], \"\", [false, null, -1615963877]]]",
+"expected": "[0.1,{\"01bü😀\\t\":false,\"😀c\\\"\\té\":{\"X€ücbb0cüa1 \":\"\\n__ZZ0€\\n\",\"bé😀\":null}},[true,[],\"\",[false,null,-1615963877]]]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"1Y€😀büX\\\\a\"",
+"expected": "\"1Y€😀büX\\\\a\""
+},
+{
+"input": "\"Z\\t\\t\\nZé\\n\"",
+"expected": "\"Z\\t\\t\\nZé\\n\""
+},
+{
+"input": "867234",
+"expected": "867234"
+},
+{
+"input": "1e-06",
+"expected": "0.000001"
+},
+{
+"input": "{\" XY\": [], \"Z😀\": true, \"0üX-\\\"\": [[false, \"\\\\Y\\n\\n\\\\_ü\\n\", null], false], \"ü\\\\Z €\\\"é0Xbü😀\": [\"ü_0üX\"]}",
+"expected": "{\" XY\":[],\"0üX-\\\"\":[[false,\"\\\\Y\\n\\n\\\\_ü\\n\",null],false],\"Z😀\":true,\"ü\\\\Z €\\\"é0Xbü😀\":[\"ü_0üX\"]}"
+},
+{
+"input": "892538",
+"expected": "892538"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "{\"\\n\\n0\\t9c\\nX\\n\\n0\": {\"Y😀0\": []}, \"XYé\\\\a  1-\\\"b\\\"\": true, \"0😀9a\": \"YY0\\t ü\\n\", \"Y1\": -370014.23660722526}",
+"expected": "{\"\\n\\n0\\t9c\\nX\\n\\n0\":{\"Y😀0\":[]},\"0😀9a\":\"YY0\\t ü\\n\",\"XYé\\\\a  1-\\\"b\\\"\":true,\"Y1\":-370014.23660722526}"
+},
+{
+"input": "\"\\nZ\\\"\"",
+"expected": "\"\\nZ\\\"\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"c éX9aX-9\": false}",
+"expected": "{\"c éX9aX-9\":false}"
+},
+{
+"input": "{\" b€\\n\": \"\", \" \\\"Y😀\": 0.0, \"0-\\\\9aZ\\\\0Za\": false}",
+"expected": "{\" \\\"Y😀\":0,\" b€\\n\":\"\",\"0-\\\\9aZ\\\\0Za\":false}"
+},
+{
+"input": "\"éYcü19ca😀\"",
+"expected": "\"éYcü19ca😀\""
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "1.664000459564478e-87",
+"expected": "1.664000459564478e-87"
+},
+{
+"input": "[{\"😀a\\\\Yb\": true, \" c😀0€\\t€\\nYb\": 736630.2030872258}, [891354.8681972281, \"_\", {\"😀\\\\\": \"é€\\\"\", \"Xc-😀caa\\t\": 1419406160}, null], \"b😀09éc\"]",
+"expected": "[{\" c😀0€\\t€\\nYb\":736630.2030872258,\"😀a\\\\Yb\":true},[891354.8681972281,\"_\",{\"Xc-😀caa\\t\":1419406160,\"😀\\\\\":\"é€\\\"\"},null],\"b😀09éc\"]"
+},
+{
+"input": "1944653375",
+"expected": "1944653375"
+},
+{
+"input": "{\"Y0X9ZüZ\\t😀\\n_\": {\"Y€\\\\\\t-\": -331179.6996787329, \"ZXX1é9😀1€\": [null, true, -839119], \"€\": \"9Y0- b0 \\\\\\\"\", \"cb0é\\t _Z😀Za1\": true, \"€\\\"€a\": [612070, \"\", null]}, \"\\\\\": 0.1, \"€YZ9\\néY1\": true, \"9üZa\": {}}",
+"expected": "{\"9üZa\":{},\"Y0X9ZüZ\\t😀\\n_\":{\"Y€\\\\\\t-\":-331179.6996787329,\"ZXX1é9😀1€\":[null,true,-839119],\"cb0é\\t _Z😀Za1\":true,\"€\":\"9Y0- b0 \\\\\\\"\",\"€\\\"€a\":[612070,\"\",null]},\"\\\\\":0.1,\"€YZ9\\néY1\":true}"
+},
+{
+"input": "\"9Zab😀😀XX1\"",
+"expected": "\"9Zab😀😀XX1\""
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "{\"cü\": null, \"k1\": false, \"\\né-0-😀\": false, \"\\\\üY9\\tX\": null}",
+"expected": "{\"\\né-0-😀\":false,\"\\\\üY9\\tX\":null,\"cü\":null,\"k1\":false}"
+},
+{
+"input": "\"Yüc9ü\"",
+"expected": "\"Yüc9ü\""
+},
+{
+"input": "\"€__ \"",
+"expected": "\"€__ \""
+},
+{
+"input": "{\"10é €b\": true, \"\\n\": [[null, null, false], {\" 0Y\\\"üb999\": \"\\tZc\", \"9ü-\\\\ücb\": true, \"_Xc😀\": \"é0-Xc\\\"-_Z\"}]}",
+"expected": "{\"\\n\":[[null,null,false],{\" 0Y\\\"üb999\":\"\\tZc\",\"9ü-\\\\ücb\":true,\"_Xc😀\":\"é0-Xc\\\"-_Z\"}],\"10é €b\":true}"
+},
+{
+"input": "-1.7379932230458028e-217",
+"expected": "-1.7379932230458028e-217"
+},
+{
+"input": "[true, false, false, [0.0, \"- c\\\\éX\", \"€_\\\\€\\\"b\"]]",
+"expected": "[true,false,false,[0,\"- c\\\\éX\",\"€_\\\\€\\\"b\"]]"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "-7.311588087425552e+30",
+"expected": "-7.311588087425552e+30"
+},
+{
+"input": "{\"k0\": null, \"\\n\\\"bZ\\n\": {\"k0\": \"😀a😀\\\"€91 Y\", \"_0_Z€Y\\n€Y 1Y\": null}, \"1\": [-1193365763]}",
+"expected": "{\"\\n\\\"bZ\\n\":{\"_0_Z€Y\\n€Y 1Y\":null,\"k0\":\"😀a😀\\\"€91 Y\"},\"1\":[-1193365763],\"k0\":null}"
+},
+{
+"input": "\"\\\"😀 9ü\"",
+"expected": "\"\\\"😀 9ü\""
+},
+{
+"input": "[null, [true, 1e-07], null]",
+"expected": "[null,[true,1e-7],null]"
+},
+{
+"input": "768827.8462472106",
+"expected": "768827.8462472106"
+},
+{
+"input": "0.001",
+"expected": "0.001"
+},
+{
+"input": "\"c\\t😀€\\\"Y\\\"Xb\"",
+"expected": "\"c\\t😀€\\\"Y\\\"Xb\""
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "1e-07",
+"expected": "1e-7"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "622690.3151551397",
+"expected": "622690.3151551397"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"😀éé\": [false], \"Y\": true}",
+"expected": "{\"Y\":true,\"😀éé\":[false]}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "\"€c\"",
+"expected": "\"€c\""
+},
+{
+"input": "\"Xü1_-1Y\"",
+"expected": "\"Xü1_-1Y\""
+},
+{
+"input": "{\"ü91\\\"€c\\\\ 1-\": [null, [null, true, -550013941, true], [\"\"], -0.0]}",
+"expected": "{\"ü91\\\"€c\\\\ 1-\":[null,[null,true,-550013941,true],[\"\"],0]}"
+},
+{
+"input": "[null, null, [null, \"\"]]",
+"expected": "[null,null,[null,\"\"]]"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\" cbc€_aéc\"",
+"expected": "\" cbc€_aéc\""
+},
+{
+"input": "{\"€😀-0\": {}, \"ébc9\\\\aXé\\\"\": {\"Z\\t\\\"\": {}, \"cX\\nZ\\\"Xb😀\": [\"€ZéXüYb11\"], \" 😀\\n\\n\": [\"\\\\cé€X€9€\\nü\", null, false], \"\\t09\": [null, true, null, \"\", null], \"X\\tü_€\": [\"é0\", false, 453857.3648039086, null, 1e-07]}, \"Z😀\\\\é9\\n0\": true, \"céX-😀😀c0c\": null, \"0b-0c0_übbé-\": \"\"}",
+"expected": "{\"0b-0c0_übbé-\":\"\",\"Z😀\\\\é9\\n0\":true,\"céX-😀😀c0c\":null,\"ébc9\\\\aXé\\\"\":{\"\\t09\":[null,true,null,\"\",null],\" 😀\\n\\n\":[\"\\\\cé€X€9€\\nü\",null,false],\"X\\tü_€\":[\"é0\",false,453857.3648039086,null,1e-7],\"Z\\t\\\"\":{},\"cX\\nZ\\\"Xb😀\":[\"€ZéXüYb11\"]},\"€😀-0\":{}}"
+},
+{
+"input": "[[{\"X-\\\" cb\": true, \"_-b😀\": \"\\\\_é-\", \" cé\\\\\\\"\\tc\": \"a\\t_Yüé\"}], null, \"_1\\\\0c\\n\\\\\"]",
+"expected": "[[{\" cé\\\\\\\"\\tc\":\"a\\t_Yüé\",\"X-\\\" cb\":true,\"_-b😀\":\"\\\\_é-\"}],null,\"_1\\\\0c\\n\\\\\"]"
+},
+{
+"input": "[\"\", false]",
+"expected": "[\"\",false]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"0 -99Yüb0\\t\": -144683, \"1c😀ü\\\"\\nü-_YY\": -651322961}",
+"expected": "{\"0 -99Yüb0\\t\":-144683,\"1c😀ü\\\"\\nü-_YY\":-651322961}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "[{\"Y€ü_\": {\"a\\\\\": \"-ü-é€Y\\\"\\nZ\", \"€\\t\": \"ü\\\"\\\"a\", \"c_Xa\\\\Z\\na\": false, \"1-9\": 0.0, \"_éé\": \"cé\\\\-bZ\"}, \"k1\": null, \"1é😀éü\": false}]",
+"expected": "[{\"1é😀éü\":false,\"Y€ü_\":{\"1-9\":0,\"_éé\":\"cé\\\\-bZ\",\"a\\\\\":\"-ü-é€Y\\\"\\nZ\",\"c_Xa\\\\Z\\na\":false,\"€\\t\":\"ü\\\"\\\"a\"},\"k1\":null}]"
+},
+{
+"input": "[1048964575, {\"0\": 1.5, \"€-9éb-é a9 \": [true, null, \"€9-Y€0 0\", false, \"\\n-0\\nY-\"]}, false, {\"a0€--\": 4.835467512811927e+153, \"X😀\\nb😀😀 X\\t-\": [null]}, \"-Y19ba09\"]",
+"expected": "[1048964575,{\"0\":1.5,\"€-9éb-é a9 \":[true,null,\"€9-Y€0 0\",false,\"\\n-0\\nY-\"]},false,{\"X😀\\nb😀😀 X\\t-\":[null],\"a0€--\":4.835467512811927e+153},\"-Y19ba09\"]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "-1943538868",
+"expected": "-1943538868"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"Y€éa9\\\"_\\t\\t€ü\"",
+"expected": "\"Y€éa9\\\"_\\t\\t€ü\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "[[\"bYZ9é😀9X\\t\", -7.378616139039499e+181, [true]], [\"1ü01é1aX\", null, 1e+21]]",
+"expected": "[[\"bYZ9é😀9X\\t\",-7.378616139039499e+181,[true]],[\"1ü01é1aX\",null,1e+21]]"
+},
+{
+"input": "[{\"üZa€ZbaY \\\"\\tc\": -742767, \"\\\\Y1ü€\\\"9😀😀Y\": [], \"é\": {\"YY€_-_\\\\b\": null}}, true, {}, -967057.1671699845]",
+"expected": "[{\"\\\\Y1ü€\\\"9😀😀Y\":[],\"é\":{\"YY€_-_\\\\b\":null},\"üZa€ZbaY \\\"\\tc\":-742767},true,{},-967057.1671699845]"
+},
+{
+"input": "\"\\\\\\\\éZ\"",
+"expected": "\"\\\\\\\\éZ\""
+},
+{
+"input": "\"é\\n Xc_-0\"",
+"expected": "\"é\\n Xc_-0\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"\\t€\\n_9\": {\"\\\\-9\": [null, 251145932, 1234153477, false, false]}, \"9c\\t😀Y\": [\"-9\\t😀\", true, 346470, [\"\\néZ😀\\\"X0\\nc00\", -2013141044, -1619165550], []], \"k2\": null, \"\\\\X\\\"\": null}",
+"expected": "{\"\\t€\\n_9\":{\"\\\\-9\":[null,251145932,1234153477,false,false]},\"9c\\t😀Y\":[\"-9\\t😀\",true,346470,[\"\\néZ😀\\\"X0\\nc00\",-2013141044,-1619165550],[]],\"\\\\X\\\"\":null,\"k2\":null}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "[false, 8.128526888860349e+119, null, \"0\", -74291.98362491897]",
+"expected": "[false,8.128526888860349e+119,null,\"0\",-74291.98362491897]"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "\"-9\\nX9Y1\"",
+"expected": "\"-9\\nX9Y1\""
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[null]",
+"expected": "[null]"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "[true, false, true]",
+"expected": "[true,false,true]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "1e-07",
+"expected": "1e-7"
+},
+{
+"input": "[false, 8.047844163854445e+288]",
+"expected": "[false,8.047844163854445e+288]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"0\\n9-1\"",
+"expected": "\"0\\n9-1\""
+},
+{
+"input": "[null, [false, -427200.3776895574, true], \"a\\n0 \\tZ\\\"b€\"]",
+"expected": "[null,[false,-427200.3776895574,true],\"a\\n0 \\tZ\\\"b€\"]"
+},
+{
+"input": "688096.6649448171",
+"expected": "688096.6649448171"
+},
+{
+"input": "\"a\\n\\\\€b\\\"€😀€c\"",
+"expected": "\"a\\n\\\\€b\\\"€😀€c\""
+},
+{
+"input": "[null]",
+"expected": "[null]"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "332544053",
+"expected": "332544053"
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "\"\\\\\\\"\\\\\\\"\"",
+"expected": "\"\\\\\\\"\\\\\\\"\""
+},
+{
+"input": "[265991]",
+"expected": "[265991]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"_  c€\\tYéXé\": null, \"XY\\\\éü\\tc\": [0.0, [null, null, \"\\\\\\nb1Z\\né\\\\\"]], \"_-\\n_\\\\\\\"\\tüü\": null, \"€Z\": 1936930665, \"ZbZb😀cb\\nX0a1\": \" \\nX é\\n9😀b9\\n0\"}",
+"expected": "{\"XY\\\\éü\\tc\":[0,[null,null,\"\\\\\\nb1Z\\né\\\\\"]],\"ZbZb😀cb\\nX0a1\":\" \\nX é\\n9😀b9\\n0\",\"_  c€\\tYéXé\":null,\"_-\\n_\\\\\\\"\\tüü\":null,\"€Z\":1936930665}"
+},
+{
+"input": "-605959.9248143674",
+"expected": "-605959.9248143674"
+},
+{
+"input": "[[\"ü\\n\"], [[], true]]",
+"expected": "[[\"ü\\n\"],[[],true]]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"é-9😀--c9 X_\"",
+"expected": "\"é-9😀--c9 X_\""
+},
+{
+"input": "\"\\\"b b\"",
+"expected": "\"\\\"b b\""
+},
+{
+"input": "-2.408640223582805e-49",
+"expected": "-2.408640223582805e-49"
+},
+{
+"input": "{\"k0\": null, \"\\tZ\\\\X😀Y\\\\c_€\": null, \"_1-üZ\": null, \"ZY\\\\\\tYYaüaü😀\": \"😀_😀€ca\\\"Yü\\\\Z\"}",
+"expected": "{\"\\tZ\\\\X😀Y\\\\c_€\":null,\"ZY\\\\\\tYYaüaü😀\":\"😀_😀€ca\\\"Yü\\\\Z\",\"_1-üZ\":null,\"k0\":null}"
+},
+{
+"input": "[{\"k0\": 588904, \"Z_éX \\\\\\n😀ü9üZ\": \"b9b\\t😀ü😀\"}]",
+"expected": "[{\"Z_éX \\\\\\n😀ü9üZ\":\"b9b\\t😀ü😀\",\"k0\":588904}]"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "{\"a\\ta-é\": null, \"Y\\t0😀é\\t9ü \": \"Y€119_é€ üZ\", \"\\t\": 1057328533, \"-€\\n\\taX_\\\\\\t9cY\": true, \"😀Xb1ü€\": null}",
+"expected": "{\"\\t\":1057328533,\"-€\\n\\taX_\\\\\\t9cY\":true,\"Y\\t0😀é\\t9ü \":\"Y€119_é€ üZ\",\"a\\ta-é\":null,\"😀Xb1ü€\":null}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "598036",
+"expected": "598036"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[null, null, []]",
+"expected": "[null,null,[]]"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "1.5",
+"expected": "1.5"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "\"-Y_\\\\\\\"Züc\"",
+"expected": "\"-Y_\\\\\\\"Züc\""
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "1.5",
+"expected": "1.5"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "1.0",
+"expected": "1"
+},
+{
+"input": "{\"__\\\\é€\": \" Zb\\\\\\\"-\\t_\\nü😀\", \"b\\\\ \\\"😀\": null, \"😀€\": [], \"\\\\Z😀c-😀éa9\": null, \"k4\": [1469326708, {\" bYY09céüa\\t\": 1e-06, \"X\\\"Y😀9€XZYé\": 520176.6323645015, \"b9€a\\nb0-é\": null, \"€\\né \": -1855467931, \"-üb\\t\": -3.2226774975772058e-87}, 978009, null]}",
+"expected": "{\"\\\\Z😀c-😀éa9\":null,\"__\\\\é€\":\" Zb\\\\\\\"-\\t_\\nü😀\",\"b\\\\ \\\"😀\":null,\"k4\":[1469326708,{\" bYY09céüa\\t\":0.000001,\"-üb\\t\":-3.2226774975772058e-87,\"X\\\"Y😀9€XZYé\":520176.6323645015,\"b9€a\\nb0-é\":null,\"€\\né \":-1855467931},978009,null],\"😀€\":[]}"
+},
+{
+"input": "{\"\\\"€Z\": null}",
+"expected": "{\"\\\"€Z\":null}"
+},
+{
+"input": "{\"\\\\Y\": {\"éZü€1éZ\\\"\": null, \"Xaé_\": null, \" Y😀-😀X-0c9\": -2090915941, \"9_Xüa\\n\": {\"\\nac_éb\": null, \"a1\": \"1€1\\\\a0\\\\\", \"a\\\\1é0\\\\€😀\\\"Xc\": true, \"X\\nü0b\": 0.0}, \" a\": -0.0}}",
+"expected": "{\"\\\\Y\":{\" Y😀-😀X-0c9\":-2090915941,\" a\":0,\"9_Xüa\\n\":{\"\\nac_éb\":null,\"X\\nü0b\":0,\"a1\":\"1€1\\\\a0\\\\\",\"a\\\\1é0\\\\€😀\\\"Xc\":true},\"Xaé_\":null,\"éZü€1éZ\\\"\":null}}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "\"9cé\"",
+"expected": "\"9cé\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"1é\"",
+"expected": "\"1é\""
+},
+{
+"input": "[{\"X😀9Y\\n1X10\\n\": {\"éca\": \"X1\", \"€-üé€aa😀bZéb\": null, \"ü1\\néY\\n\\\\0\\\"€\": true, \"Xébü\": \"Z\", \"\\tZ\": false}, \"c_9\\n1Z\\\"X\\\\\\\\a1\": false, \"a\": 0.0}, null, [\"😀\", null, [null, null, \"\\\\€Z_19\"], false, []], [null, \"1éc\\n a€10Z1\", false, null, \"éb0\\t\"], [null, null, 0.14285714285714285]]",
+"expected": "[{\"X😀9Y\\n1X10\\n\":{\"\\tZ\":false,\"Xébü\":\"Z\",\"éca\":\"X1\",\"ü1\\néY\\n\\\\0\\\"€\":true,\"€-üé€aa😀bZéb\":null},\"a\":0,\"c_9\\n1Z\\\"X\\\\\\\\a1\":false},null,[\"😀\",null,[null,null,\"\\\\€Z_19\"],false,[]],[null,\"1éc\\n a€10Z1\",false,null,\"éb0\\t\"],[null,null,0.14285714285714285]]"
+},
+{
+"input": "\"0é😀Z€b\"",
+"expected": "\"0é😀Z€b\""
+},
+{
+"input": "[]",
+"expected": "[]"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "[1851830505, [null, \"\\n€\"], 862868.5837916792]",
+"expected": "[1851830505,[null,\"\\n€\"],862868.5837916792]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"€€X\"",
+"expected": "\"€€X\""
+},
+{
+"input": "{\"c\": 0, \"Y\": \"\\\\\", \"c1😀aX\\\"\\\"XXé\": null, \"cü€Yc\\\\é0ba\\t\": {\"\\nü\\n😀XZ\": null, \"0😀\\téa9\\tc\\\"\\t😀\": \"_\\n\", \"k2\": false}}",
+"expected": "{\"Y\":\"\\\\\",\"c\":0,\"c1😀aX\\\"\\\"XXé\":null,\"cü€Yc\\\\é0ba\\t\":{\"\\nü\\n😀XZ\":null,\"0😀\\téa9\\tc\\\"\\t😀\":\"_\\n\",\"k2\":false}}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"Ya\": true, \"üaZüé😀_\\\"\": \"😀ü X\\nYb\\\"-\"}",
+"expected": "{\"Ya\":true,\"üaZüé😀_\\\"\":\"😀ü X\\nYb\\\"-\"}"
+},
+{
+"input": "[[375790, null, null], null]",
+"expected": "[[375790,null,null],null]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"😀_\\\\bb-\": \"Z😀\\t  _😀Y\\\\\"}",
+"expected": "{\"😀_\\\\bb-\":\"Z😀\\t  _😀Y\\\\\"}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "[472805.8021238374, -1.7232812734349325e+254, [{\"1€😀\\tü\": \"\\t0üé-\\tc_😀\\\\€\", \"béY\": null, \"X\\\"\\\\übYZüa 0\": null}, {\"Z\\t1 X bé0_\\n€\": \"bü\\\\\\t\\nbY_\", \"k1\": \"€0\\n-\\\\😀-😀\"}], \"\\nZ_\\\\b😀b\"]",
+"expected": "[472805.8021238374,-1.7232812734349325e+254,[{\"1€😀\\tü\":\"\\t0üé-\\tc_😀\\\\€\",\"X\\\"\\\\übYZüa 0\":null,\"béY\":null},{\"Z\\t1 X bé0_\\n€\":\"bü\\\\\\t\\nbY_\",\"k1\":\"€0\\n-\\\\😀-😀\"}],\"\\nZ_\\\\b😀b\"]"
+},
+{
+"input": "[{\"\\\\__€9Y9abbY\\n\": [false, -903173344, 164426.6933309692]}]",
+"expected": "[{\"\\\\__€9Y9abbY\\n\":[false,-903173344,164426.6933309692]}]"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"1c1-\\ta\": \"\\t9\\té\\\"€\\\\\\\"\\\"X\", \"Z 0-\": [], \"€\": [null, null, null]}",
+"expected": "{\"1c1-\\ta\":\"\\t9\\té\\\"€\\\\\\\"\\\"X\",\"Z 0-\":[],\"€\":[null,null,null]}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "-975264.3808641852",
+"expected": "-975264.3808641852"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"YZ\\tc\": \"€😀ü  c\\ta\\\\\", \"Y9\\t9\": [\"€Zb\", [null, \"_\\\\\"]], \"-€cbé01\": 165705.2028597782, \"c1\\t-c9  X\\t€\": {}, \"€01é€Z_éZ\\\"\": \"a 0\\t-\\n\"}",
+"expected": "{\"-€cbé01\":165705.2028597782,\"Y9\\t9\":[\"€Zb\",[null,\"_\\\\\"]],\"YZ\\tc\":\"€😀ü  c\\ta\\\\\",\"c1\\t-c9  X\\t€\":{},\"€01é€Z_éZ\\\"\":\"a 0\\t-\\n\"}"
+},
+{
+"input": "\"9_c11X\\n😀\"",
+"expected": "\"9_c11X\\n😀\""
+},
+{
+"input": "\"9\\\\a91\\n\"",
+"expected": "\"9\\\\a91\\n\""
+},
+{
+"input": "{\"😀 \\t0Y-Z\\\\😀-😀\\\\\": 0.1}",
+"expected": "{\"😀 \\t0Y-Z\\\\😀-😀\\\\\":0.1}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "\"€\"",
+"expected": "\"€\""
+},
+{
+"input": "\"Yü\\\"\\tbZé\\\\\"",
+"expected": "\"Yü\\\"\\tbZé\\\\\""
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "[{}]",
+"expected": "[{}]"
+},
+{
+"input": "-1294738518",
+"expected": "-1294738518"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"ü_Y0_😀\": null}",
+"expected": "{\"ü_Y0_😀\":null}"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "\"\\\"\\\\YX\"",
+"expected": "\"\\\"\\\\YX\""
+},
+{
+"input": "[false]",
+"expected": "[false]"
+},
+{
+"input": "-846844.3087760564",
+"expected": "-846844.3087760564"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"X-\\t\\\"😀\\\\\": {\"b0-\\\\Y😀\": false, \"9-1 😀a€Z\\n😀\": 0.3333333333333333}, \"😀\\nX9 a\": [\"_😀€a_\\\\é\", 0.0, \"-😀9\\\\😀\", [true, 994908546]], \"Z9Y1\\\\\": {\"\\t\": {\"k0\": \"Z€9€ _😀\\t\\nY\"}, \"\\\"__cXb\": [true, true, \"\", 1e+21], \"😀\\\"\": -1065719678, \"_€\": {\"_\": 738359}}}",
+"expected": "{\"X-\\t\\\"😀\\\\\":{\"9-1 😀a€Z\\n😀\":0.3333333333333333,\"b0-\\\\Y😀\":false},\"Z9Y1\\\\\":{\"\\t\":{\"k0\":\"Z€9€ _😀\\t\\nY\"},\"\\\"__cXb\":[true,true,\"\",1e+21],\"_€\":{\"_\":738359},\"😀\\\"\":-1065719678},\"😀\\nX9 a\":[\"_😀€a_\\\\é\",0,\"-😀9\\\\😀\",[true,994908546]]}"
+},
+{
+"input": "\"X\\\"Y\\\\\"",
+"expected": "\"X\\\"Y\\\\\""
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"\"",
+"expected": "\"\""
+},
+{
+"input": "[[\"\", \"Xéé\\n\"], \"\", 0.0, -1114007504]",
+"expected": "[[\"\",\"Xéé\\n\"],\"\",0,-1114007504]"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "-830051.2381570138",
+"expected": "-830051.2381570138"
+},
+{
+"input": "{\"b\\tX\\\"-0\\\"X\": [true, -2.2475157308048366e-236, [true, 0.0, null, false, true], [472497, \"\\\"\\nZéb_ \", \"\", false], [true, null, true, null]]}",
+"expected": "{\"b\\tX\\\"-0\\\"X\":[true,-2.2475157308048366e-236,[true,0,null,false,true],[472497,\"\\\"\\nZéb_ \",\"\",false],[true,null,true,null]]}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"b\"",
+"expected": "\"b\""
+},
+{
+"input": "[-554445.9725584986, 1765528189, \"_Y\\tcX\\n\\\"€\\\"Z\"]",
+"expected": "[-554445.9725584986,1765528189,\"_Y\\tcX\\n\\\"€\\\"Z\"]"
+},
+{
+"input": "{\"0Zé\\\"é\": \"\", \"cc\\\"😀Y\\t😀--\\t\": null, \"\\n\\\\€c abZé\": true, \"01aX\": \"\\nYaa\", \"k4\": 2.2278277560762845e-104}",
+"expected": "{\"\\n\\\\€c abZé\":true,\"01aX\":\"\\nYaa\",\"0Zé\\\"é\":\"\",\"cc\\\"😀Y\\t😀--\\t\":null,\"k4\":2.2278277560762845e-104}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "459159535",
+"expected": "459159535"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"\\\"Y1abü\": true, \"k1\": null}",
+"expected": "{\"\\\"Y1abü\":true,\"k1\":null}"
+},
+{
+"input": "{\"k0\": {}, \"0XX😀€X\\t0é\": [\"-b\\\"-1\\n1é\", 1e-07, null, \"\\nZY\", 100142], \"1c_-😀91c-\": 636814.7435434149}",
+"expected": "{\"0XX😀€X\\t0é\":[\"-b\\\"-1\\n1é\",1e-7,null,\"\\nZY\",100142],\"1c_-😀91c-\":636814.7435434149,\"k0\":{}}"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "{\"\\taX\\tüé\\n\": false, \"\\\"_\\\\ZX\": false, \"1XbY\": []}",
+"expected": "{\"\\taX\\tüé\\n\":false,\"\\\"_\\\\ZX\":false,\"1XbY\":[]}"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "[{\"ü \\tYca é\": null, \"c\\\\Y1\\\\-\\t0\": true, \"0\\n9\": {\"\\t\": \"_11a1_😀ü\\\\_\\\"é\", \"1c\": true}}, \"€\", {\"\\\"€\": null, \"X\": [], \"€béca\\\\-€é\": {\"ü c9\": \"\\\"ü_€\\t😀Xüa\", \"_X€é  éaa0\": \"\\tY\\\\\\\"0\\n\"}, \"bb__\\t\": {\"-Ybac_\": 422090, \"-a1c \": 0, \"😀😀Xb_X\": 0, \"11 Yb\": \"Y0-\"}, \"bXc\\tYYb_€\": [3.900283065597523e-217, \"€\\nY1Z😀\"]}, [null, [true, null, false, false], null, 0, null], [[null, -1281380240], {\"Y\\\\😀\\\"_\\\\\": \"Z1-€Y_-_\", \"😀0Za\": null, \"-\": \"_0\\n€ -ü \"}, null]]",
+"expected": "[{\"0\\n9\":{\"\\t\":\"_11a1_😀ü\\\\_\\\"é\",\"1c\":true},\"c\\\\Y1\\\\-\\t0\":true,\"ü \\tYca é\":null},\"€\",{\"\\\"€\":null,\"X\":[],\"bXc\\tYYb_€\":[3.900283065597523e-217,\"€\\nY1Z😀\"],\"bb__\\t\":{\"-Ybac_\":422090,\"-a1c \":0,\"11 Yb\":\"Y0-\",\"😀😀Xb_X\":0},\"€béca\\\\-€é\":{\"_X€é  éaa0\":\"\\tY\\\\\\\"0\\n\",\"ü c9\":\"\\\"ü_€\\t😀Xüa\"}},[null,[true,null,false,false],null,0,null],[[null,-1281380240],{\"-\":\"_0\\n€ -ü \",\"Y\\\\😀\\\"_\\\\\":\"Z1-€Y_-_\",\"😀0Za\":null},null]]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "{\"_\": {\"\\n09😀\\\"\": [], \"\\\"😀Z\\t\": \"_\", \"9_ü1Y_Z1€\": -145343, \"9Z\\\"_aZ€Z1-\\\"\": {\"cX0ü9éüé\\\\91X\": null, \"9\\t\\tY\\\\Y\": false, \"YZ-Y\\\" _Z\": true, \" \": \"\", \"\\tbX 0-\\tZaY \\t\": 635030}, \"0a 😀\\t1ü\": null}, \"-€_-X0\": \" Z😀9-\\\"\\n9\", \"k2\": \"Z \\\"é\\\"\\né_éé\\t\"}",
+"expected": "{\"-€_-X0\":\" Z😀9-\\\"\\n9\",\"_\":{\"\\n09😀\\\"\":[],\"\\\"😀Z\\t\":\"_\",\"0a 😀\\t1ü\":null,\"9Z\\\"_aZ€Z1-\\\"\":{\"\\tbX 0-\\tZaY \\t\":635030,\" \":\"\",\"9\\t\\tY\\\\Y\":false,\"YZ-Y\\\" _Z\":true,\"cX0ü9éüé\\\\91X\":null},\"9_ü1Y_Z1€\":-145343},\"k2\":\"Z \\\"é\\\"\\né_éé\\t\"}"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "\"1\"",
+"expected": "\"1\""
+},
+{
+"input": "{\"0 001-\\n\": [[-569728], {\"üY😀üZXba\\té0\": -723470237, \"10 \\\\\\\\\\\\\\nX\": -275043651}, -3.5745909719478446e-143, 578429656, false], \"b😀9😀1ü-Y\": 48258.40065444796, \"\\\\ü0bébZ1\": 0.1}",
+"expected": "{\"0 001-\\n\":[[-569728],{\"10 \\\\\\\\\\\\\\nX\":-275043651,\"üY😀üZXba\\té0\":-723470237},-3.5745909719478446e-143,578429656,false],\"\\\\ü0bébZ1\":0.1,\"b😀9😀1ü-Y\":48258.40065444796}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "{}",
+"expected": "{}"
+},
+{
+"input": "{\"XX-Y\": {\"é€_ü\\\"1\": false, \"1Z_\": [1.0], \"\\\"Yü\\\"Zü\\t\": [-604079.597073768, true]}, \"\\né-é_\": \" 0\\\\_€Y_\"}",
+"expected": "{\"\\né-é_\":\" 0\\\\_€Y_\",\"XX-Y\":{\"\\\"Yü\\\"Zü\\t\":[-604079.597073768,true],\"1Z_\":[1],\"é€_ü\\\"1\":false}}"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "-627648171",
+"expected": "-627648171"
+},
+{
+"input": "[null]",
+"expected": "[null]"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "{\"a😀\": \"Z\\nü-1éY_😀\", \"-0é_0Z-\\ta\": -4.949118399923107e-117, \"0\\\\9\": [{\"00b\\n9 \": \"\\nc\", \"\\\\Zc\\\"Y1\": true}, null, [0.0, \"\", 565798112], false], \"Xc0Z-9_-X1é\": null}",
+"expected": "{\"-0é_0Z-\\ta\":-4.949118399923107e-117,\"0\\\\9\":[{\"00b\\n9 \":\"\\nc\",\"\\\\Zc\\\"Y1\":true},null,[0,\"\",565798112],false],\"Xc0Z-9_-X1é\":null,\"a😀\":\"Z\\nü-1éY_😀\"}"
+},
+{
+"input": "false",
+"expected": "false"
+},
+{
+"input": "0.0",
+"expected": "0"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "1.552685186071311e-157",
+"expected": "1.552685186071311e-157"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "1e-07",
+"expected": "1e-7"
+},
+{
+"input": "[\"éZX c91€ü\\t\", false, [[], \"ZüZ\", [null, \"Z\", -379735737, false]], \"€_éc0\\n\\n\\n\"]",
+"expected": "[\"éZX c91€ü\\t\",false,[[],\"ZüZ\",[null,\"Z\",-379735737,false]],\"€_éc0\\n\\n\\n\"]"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "null",
+"expected": "null"
+},
+{
+"input": "\"-\\n\\\"\\\\\"",
+"expected": "\"-\\n\\\"\\\\\""
+},
+{
+"input": "true",
+"expected": "true"
+},
+{
+"input": "{\"0Z-_1a😀0é\": [], \"\\\"0\\\\€1😀b\": \"_€Z😀\", \"€9cYüYXX\": false, \"09c\\\"\\\\€ü\\\\\": \"9-_\\\"\\n€1😀 1\", \"0\\t\\\\0😀\\n\": {\"\\\\ -\": null, \"€ü1cZ\\\\😀\\\\\": [null, \"üéYc1\\nb \"]}}",
+"expected": "{\"\\\"0\\\\€1😀b\":\"_€Z😀\",\"0\\t\\\\0😀\\n\":{\"\\\\ -\":null,\"€ü1cZ\\\\😀\\\\\":[null,\"üéYc1\\nb \"]},\"09c\\\"\\\\€ü\\\\\":\"9-_\\\"\\n€1😀 1\",\"0Z-_1a😀0é\":[],\"€9cYüYXX\":false}"
+}
+]
+}

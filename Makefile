@@ -22,9 +22,9 @@ MODEL_DIR ?= ml/models/lgbm-2026.11.1
 .PHONY: help env up up-infra down nuke logs ps migrate migrate-down topics \
         test test-integration lint fmt build psql redis-cli clean \
         gen-features worker parity-golden parity-small parity-run42 \
-        load-ingest lag dlq redis-flush bench-feature \
-        rules-validate rules-test rules-bench tune decide-demo dev-token \
-        openapi-gen openapi-lint load-decide load-batch pprof-eval
+        load-ingest lag dlq redis-flush bench-feature \	        rules-validate rules-test rules-bench tune decide-demo dev-token \
+	        openapi-gen openapi-lint load-decide load-batch pprof-eval \
+	        bench-explain privscan audit-verify audit-checkpoint fade-tool
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -135,6 +135,36 @@ load-decide: ## k6 constant-arrival load on /v1/decide
 load-batch: ## k6 batch smoke load on /v1/decide/batch
 	BASE_URL=$(BASE_URL) TOKEN=$$($(GO) run ./cmd/dev-token) \
 		$(K6) run bench/k6/batch.js
+
+fade-tool: ## Build the Phase 5 operator CLI (bin/fade)
+	mkdir -p bin
+	$(GO) build -trimpath -o bin/fade ./cmd/fade
+
+bench-explain: ## Benchmark explanation rendering (off the decision path)
+	$(GO) test ./internal/explain -run '^$$' -bench 'BenchmarkBuild' -benchmem -count=1
+
+# Production surface only. Test fixtures deliberately contain fake identifiers
+# to prove the scanner detects them, and model weight/text matrices are numeric
+# artefacts, so both are excluded by path rather than by disabling rules.
+PRIVSCAN_ALLOW := internal/redaction/testdata/*,internal/canonical/testdata/*,tests/golden/*,data/golden/*,*_test.go,scripts/jcs_crosscheck.py
+PRIVSCAN_PATHS := internal cmd api config docs migrations scripts rules deploy config ml/models/registry.json
+
+privscan: ## Fail if a raw personal identifier appears in production files
+	mkdir -p bin
+	$(GO) build -trimpath -o bin/privscan ./cmd/privscan
+	./bin/privscan -allow '$(PRIVSCAN_ALLOW)' $(PRIVSCAN_PATHS)
+	@echo "privscan: production surface clean"
+
+privscan-all: ## Scan everything, including intentional negative-test fixtures
+	mkdir -p bin
+	$(GO) build -trimpath -o bin/privscan ./cmd/privscan
+	./bin/privscan .
+
+audit-verify: ## Verify the audit hash chain (requires FADE_DSN)
+	./bin/fade audit verify -dsn "$(FADE_DSN)"
+
+audit-checkpoint: ## Write a signed audit checkpoint (requires FADE_DSN, AUDIT_HMAC_KEY)
+	./bin/fade audit checkpoint -dsn "$(FADE_DSN)"
 
 pprof-eval: ## CPU/memory profile of the 200-rule evaluation benchmark
 	@mkdir -p bench/results

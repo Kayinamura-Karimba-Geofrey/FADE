@@ -476,7 +476,11 @@ func TestDecisionAllocationBudget(t *testing.T) {
 		}
 	})
 	t.Logf("allocations per decision: %.0f", allocs)
-	if allocs >= 50 {
-		t.Fatalf("allocations per request %.0f >= 50", allocs)
+	// Phase 5 adds one allocation per explainable decision: the structured
+	// reason-parameter map that lets explanations localize without re-parsing
+	// prose. The envelope stays at 52 (Phase 3 was 50); anything above means a
+	// new hot-path allocation was introduced.
+	if allocs >= 52 {
+		t.Fatalf("allocations per request %.0f >= 52", allocs)
 	}
 }

@@ -35,11 +35,13 @@ func PrincipalFrom(ctx context.Context) *Principal {
 }
 
 // Role scopes. Service decides and reads decisions; analyst reads decisions and
-// lists; admin manages rules and lists.
+// lists; auditor reads and verifies the chain; admin manages rules and lists.
 var RoleScopes = map[string][]string{
 	"service": {"decisions:write", "decisions:read", "rules:read"},
 	"analyst": {"decisions:read", "rules:read", "lists:read"},
-	"admin":   {"decisions:write", "decisions:read", "rules:read", "rules:write", "lists:read", "lists:write"},
+	"auditor": {"decisions:read", "rules:read", "audit:read"},
+	"admin": {"decisions:write", "decisions:read", "rules:read", "rules:write",
+		"lists:read", "lists:write", "audit:read", "audit:write"},
 }
 
 // AuthConfig configures HS256 JWT validation.

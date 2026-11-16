@@ -8,11 +8,12 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
-	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/events"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/combiner"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/events"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/features"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/obs"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules"
@@ -369,9 +370,10 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 	if explain {
 		for i := 0; i < res.FiredCount; i++ {
 			r := res.Fired[i].Rule
+			text, params := r.Reason.RenderWithParams(&evalCtx)
 			reasons = append(reasons, Reason{
-				Source: "rule", ID: r.ID, Text: r.Reason.Render(&evalCtx),
-				Weight: r.Weight, Mode: r.Mode,
+				Source: "rule", ID: r.ID, Text: text,
+				Weight: r.Weight, Mode: r.Mode, Params: params,
 			})
 		}
 	}
@@ -379,7 +381,7 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 		for _, c := range ml.TopContributions {
 			reasons = append(reasons, Reason{
 				Source: "model", ID: c.Feature,
-				Text:   "SHAP contribution from " + c.Feature,
+				Text:    "SHAP contribution from " + c.Feature,
 				Feature: c.Feature, Value: c.Value, Contribution: c.SHAP,
 			})
 		}
@@ -390,11 +392,13 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 			risk = 85
 		}
 		reasons = append(reasons, Reason{Source: "list", ID: "LIST_BLOCK",
-			Text: "subject on BLOCK list (" + blocked.Subject + ")"})
+			Text:   "subject on BLOCK list (" + blocked.Subject + ")",
+			Params: map[string]string{"subject": blocked.Subject}})
 	} else if decision != rules.Block && allowed != nil {
 		decision = rules.Allow
 		reasons = append(reasons, Reason{Source: "list", ID: "LIST_ALLOW",
-			Text: "subject on ALLOW list (" + allowed.Subject + ")"})
+			Text:   "subject on ALLOW list (" + allowed.Subject + ")",
+			Params: map[string]string{"subject": allowed.Subject}})
 	} else if limit := p.cfg.TierLimit(int64(ev.Sender.KYCTier)); limit > 0 && ev.Amount > limit {
 		if decision.Severity() < rules.Hold.Severity() {
 			decision = rules.Hold
@@ -403,7 +407,8 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 			risk = 65
 		}
 		reasons = append(reasons, Reason{Source: "tier", ID: "TIER_LIMIT_EXCEEDED",
-			Text: "amount above the daily KYC tier limit"})
+			Text:   "amount above the daily KYC tier limit",
+			Params: map[string]string{"kyc_tier": strconv.FormatInt(int64(ev.Sender.KYCTier), 10)}})
 	}
 	p.metrics.ObserveStage("overrides", p.now().Sub(stage).Seconds())
 	p.metrics.ObserveStage("combine", p.now().Sub(stage).Seconds())
@@ -411,6 +416,11 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 	shadow := make([]string, res.ShadowCount)
 	copy(shadow, res.Shadow[:res.ShadowCount])
 	now := p.now()
+	mv := ""
+	if ml.ModelVersion != "" {
+		mv = ml.ModelVersion
+	}
+	snapshotID := snapshotIDFor(rs.Hash, mv, rs.Combiner)
 	dec := &Decision{
 		DecisionID:     NewDecisionID(now),
 		EventID:        ev.EventID,
@@ -425,11 +435,21 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 		Reasons:        reasons,
 		ShadowHits:     shadow,
 		DecidedAt:      now.UTC(),
-		AccountID:      ev.Sender.AccountID,
-		RecipientID:    ev.Recipient.AccountID,
-		Amount:         ev.Amount,
-		TxnType:        ev.TxnType,
-		EventTime:      time.UnixMilli(ev.EventTimeMS).UTC(),
+		SnapshotID:     snapshotID,
+		Provenance: Provenance{
+			RuleSetVersion:       rs.Version,
+			RuleSetHash:          rs.Hash,
+			ModelVersion:         mv,
+			CombinerConfig:       combinerConfigMap(rs.Combiner),
+			SnapshotID:           snapshotID,
+			ExplainSchemaVersion: 1,
+		},
+		ExplainSchemaVersion: 1,
+		AccountID:            ev.Sender.AccountID,
+		RecipientID:          ev.Recipient.AccountID,
+		Amount:               ev.Amount,
+		TxnType:              ev.TxnType,
+		EventTime:            time.UnixMilli(ev.EventTimeMS).UTC(),
 	}
 	if opts.IncludeFeatures {
 		vec := vector
@@ -501,8 +521,9 @@ func (p *Pipeline) degraded(ctx context.Context, ev *events.Event, cause string,
 		}
 		score += r.Weight
 		action = rules.MaxDecision(action, r.Action)
+		text, params := r.Reason.RenderWithParams(&evalCtx)
 		reasons = append(reasons, Reason{Source: "rule", ID: r.ID,
-			Text: r.Reason.Render(&evalCtx), Weight: r.Weight, Mode: r.Mode})
+			Text: text, Weight: r.Weight, Mode: r.Mode, Params: params})
 	}
 	if score > 100 {
 		score = 100
@@ -515,11 +536,13 @@ func (p *Pipeline) degraded(ctx context.Context, ev *events.Event, cause string,
 		decision = rules.Block
 		risk = 100
 		reasons = append(reasons, Reason{Source: "list", ID: "LIST_BLOCK",
-			Text: "subject on BLOCK list (" + blocked.Subject + ")"})
+			Text:   "subject on BLOCK list (" + blocked.Subject + ")",
+			Params: map[string]string{"subject": blocked.Subject}})
 	} else if decision != rules.Block && allowed != nil {
 		decision = rules.Allow
 		reasons = append(reasons, Reason{Source: "list", ID: "LIST_ALLOW",
-			Text: "subject on ALLOW list (" + allowed.Subject + ")"})
+			Text:   "subject on ALLOW list (" + allowed.Subject + ")",
+			Params: map[string]string{"subject": allowed.Subject}})
 	} else if limit := p.cfg.TierLimit(int64(ev.Sender.KYCTier)); limit > 0 && ev.Amount > limit {
 		if decision.Severity() < rules.Hold.Severity() {
 			decision = rules.Hold
@@ -528,16 +551,24 @@ func (p *Pipeline) degraded(ctx context.Context, ev *events.Event, cause string,
 			risk = 65
 		}
 		reasons = append(reasons, Reason{Source: "tier", ID: "TIER_LIMIT_EXCEEDED",
-			Text: "amount above the daily KYC tier limit"})
+			Text:   "amount above the daily KYC tier limit",
+			Params: map[string]string{"kyc_tier": strconv.FormatInt(int64(ev.Sender.KYCTier), 10)}})
 	}
 
 	now := p.now()
+	snapshotID := snapshotIDFor(rs.Hash, "", rs.Combiner)
 	dec := &Decision{
 		DecisionID: NewDecisionID(now), EventID: ev.EventID, Decision: decision,
 		RiskScore: clamp(risk), RuleScore: score, MLScore: nil, MLStatus: rules.MLNotConfigured,
 		Degraded: true, RuleSetVersion: rs.Version, ModelVersion: nil,
 		Reasons: reasons, ShadowHits: []string{}, DecidedAt: now.UTC(),
-		AccountID: ev.Sender.AccountID, RecipientID: ev.Recipient.AccountID,
+		SnapshotID: snapshotID,
+		Provenance: Provenance{
+			RuleSetVersion: rs.Version, RuleSetHash: rs.Hash,
+			SnapshotID: snapshotID, ExplainSchemaVersion: 1,
+		},
+		ExplainSchemaVersion: 1,
+		AccountID:            ev.Sender.AccountID, RecipientID: ev.Recipient.AccountID,
 		Amount: ev.Amount, TxnType: ev.TxnType, EventTime: time.UnixMilli(ev.EventTimeMS).UTC(),
 	}
 	if opts.IncludeFeatures {
@@ -591,4 +622,29 @@ func modelVersion(v string) *string {
 		return nil
 	}
 	return &v
+}
+
+// snapshotIDFor builds a content-addressed id for the immutable inputs.
+func snapshotIDFor(ruleHash, modelVersion string, c rules.Combiner) string {
+	h := sha256.New()
+	h.Write([]byte(ruleHash))
+	h.Write([]byte(modelVersion))
+	b, _ := json.Marshal(c)
+	h.Write(b)
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// combinerConfigMap serialises combiner config for provenance.
+func combinerConfigMap(c rules.Combiner) map[string]any {
+	return map[string]any{
+		"rule_weight":         c.RuleWeight,
+		"ml_weight":           c.MLWeight,
+		"step_up_threshold":   c.StepUpThreshold,
+		"hold_threshold":      c.HoldThreshold,
+		"block_threshold":     c.BlockThreshold,
+		"step_up_floor":       c.StepUpFloor,
+		"hold_floor":          c.HoldFloor,
+		"block_floor":         c.BlockFloor,
+		"allow_ml_only_block": c.AllowMLOnlyBlock,
+	}
 }

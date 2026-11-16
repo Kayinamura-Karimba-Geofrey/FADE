@@ -3,9 +3,9 @@ info:
   title: FADE Decision API
   description: |
     Synchronous, rules-only fraud decisions for mobile money transactions.
-    Phase 3 contract. Every error is RFC 7807 `application/problem+json` with a
-    stable `type` URI.
-  version: 0.4.0
+    Phase 5 contract: decisions, explanations, hash-chained audit. Every error is
+    RFC 7807 `application/problem+json` with a stable `type` URI.
+  version: 0.6.0
 servers:
   - url: http://localhost:8080
 security:
@@ -117,6 +117,103 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+  /v1/decisions/{id}/explain:
+    get:
+      operationId: explainDecision
+      summary: Explain a decision from its stored facts
+      description: |
+        Renders the structured explanation for a decision. Generation is off the
+        decision path. The `customer` audience omits rule ids, weights,
+        thresholds and provenance; `regulator` adds the feature snapshot.
+      tags: [decisions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string}
+        - name: audience
+          in: query
+          schema: {type: string, enum: [analyst, customer, regulator], default: analyst}
+        - name: lang
+          in: query
+          schema: {type: string, default: en}
+      responses:
+        '200':
+          description: Explanation
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ExplainView'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/audit:
+    get:
+      operationId: listAudit
+      summary: Page the hash-chained audit log
+      tags: [audit]
+      parameters:
+        - name: from
+          in: query
+          schema: {type: integer, minimum: 0, default: 0}
+        - name: to
+          in: query
+          schema: {type: integer, minimum: 0, default: 0}
+        - name: limit
+          in: query
+          schema: {type: integer, minimum: 1, maximum: 1000, default: 100}
+      responses:
+        '200':
+          description: Audit entries in ascending sequence order
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AuditPage'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/audit/verify:
+    get:
+      operationId: verifyAudit
+      summary: Recompute the audit hash chain
+      tags: [audit]
+      parameters:
+        - name: from
+          in: query
+          schema: {type: integer, minimum: 0, default: 0}
+        - name: to
+          in: query
+          schema: {type: integer, minimum: 0, default: 0}
+      responses:
+        '200':
+          description: Chain verified
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AuditVerifyResult'}
+        '409':
+          description: Chain broken
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AuditVerifyResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /v1/audit/checkpoint:
+    post:
+      operationId: checkpointAudit
+      summary: Write an audit verification checkpoint
+      tags: [audit]
+      responses:
+        '201':
+          description: Checkpoint
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AuditCheckpoint'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '503': {$ref: '#/components/responses/Unavailable'}
   /v1/decisions:
     get:
       operationId: listDecisions
@@ -759,3 +856,166 @@ components:
         rules:
           type: array
           items: {$ref: '#/components/schemas/RuleMetric'}
+    ExplainReason:
+      type: object
+      required: [source, text]
+      properties:
+        source: {type: string}
+        id: {type: string}
+        text: {type: string}
+        weight: {type: integer}
+        mode: {type: string}
+        feature: {type: string}
+        value: {type: number}
+        contribution: {type: number}
+    ExplainFactor:
+      type: object
+      required: [name, source, contribution, direction]
+      properties:
+        name: {type: string}
+        source: {type: string}
+        contribution: {type: number}
+        direction: {type: string, enum: [increases_risk, decreases_risk, neutral]}
+        detail: {type: string}
+    ExplainCounterfactual:
+      type: object
+      required: [field, current, suggested, delta, resulting_decision, explanation]
+      properties:
+        field: {type: string}
+        current: {type: number}
+        suggested: {type: number}
+        delta: {type: number}
+        resulting_decision: {type: string, enum: [ALLOW, STEP_UP, HOLD, BLOCK]}
+        explanation: {type: string}
+    ExplainProvenance:
+      type: object
+      required: [rule_set_version, rule_set_hash, explain_schema_version]
+      properties:
+        rule_set_version: {type: integer}
+        rule_set_hash: {type: string}
+        model_version: {type: string}
+        snapshot_id: {type: string}
+        combiner:
+          type: object
+          additionalProperties: true
+        explain_schema_version: {type: integer}
+    ExplainFeature:
+      type: object
+      required: [name, value]
+      properties:
+        name: {type: string}
+        value: {}
+    # A customer view deliberately omits event_id, scores, decision_hash,
+    # provenance, features and factors; those fields are therefore optional here.
+    ExplainView:
+      type: object
+      required: [decision_id, decision, summary, audience, language, reasons,
+                 explain_schema_version, generated_at]
+      properties:
+        decision_id: {type: string}
+        event_id: {type: string}
+        decision: {type: string, enum: [ALLOW, STEP_UP, HOLD, BLOCK]}
+        risk_score: {type: integer, minimum: 0, maximum: 100}
+        rule_score: {type: integer, minimum: 0, maximum: 100}
+        ml_score: {type: integer, nullable: true}
+        summary: {type: string}
+        audience: {type: string, enum: [analyst, customer, regulator]}
+        language: {type: string}
+        language_needs_review:
+          type: boolean
+          description: True when the message catalog is machine-drafted (fr, rw).
+        primary_factor:
+          type: string
+          description: Name of the highest-contribution factor (analyst/regulator only).
+        reasons:
+          type: array
+          items: {$ref: '#/components/schemas/ExplainReason'}
+        factors:
+          type: array
+          items: {$ref: '#/components/schemas/ExplainFactor'}
+        counterfactuals:
+          type: array
+          items: {$ref: '#/components/schemas/ExplainCounterfactual'}
+        provenance: {$ref: '#/components/schemas/ExplainProvenance'}
+        features:
+          type: array
+          items: {$ref: '#/components/schemas/ExplainFeature'}
+        decision_hash: {type: string}
+        explain_schema_version: {type: integer}
+        generated_at: {type: string, format: date-time}
+    AuditRow:
+      type: object
+      required: [actor, action, object_type, object_id, prev_hash, at]
+      properties:
+        actor: {type: string}
+        action: {type: string}
+        object_type: {type: string}
+        object_id: {type: string}
+        before: {}
+        after: {}
+        prev_hash: {type: string}
+        at: {type: string}
+    AuditEntry:
+      type: object
+      required: [seq, prev_hash, hash, row]
+      properties:
+        seq: {type: integer}
+        prev_hash: {type: string}
+        row: {$ref: '#/components/schemas/AuditRow'}
+        hash: {type: string}
+    AuditPage:
+      type: object
+      required: [entries, count]
+      properties:
+        entries:
+          type: array
+          items: {$ref: '#/components/schemas/AuditEntry'}
+        count: {type: integer}
+    AuditCheckpoint:
+      type: object
+      required: [schema_version, chain, seq, hash, row_count, created_at, digest]
+      properties:
+        schema_version: {type: integer}
+        chain: {type: string}
+        seq: {type: integer}
+        hash: {type: string}
+        row_count: {type: integer}
+        created_at: {type: string}
+        digest: {type: string, description: HMAC-SHA256 over the canonical checkpoint}
+    AuditCheckpointCheck:
+      type: object
+      required: [path, seq, hash, row_count, ok]
+      properties:
+        path: {type: string}
+        seq: {type: integer}
+        hash: {type: string}
+        row_count: {type: integer}
+        ok: {type: boolean}
+        detail: {type: string}
+    AuditBreak:
+      type: object
+      required: [seq, kind, detail]
+      properties:
+        seq: {type: integer}
+        expected: {type: string}
+        actual: {type: string}
+        kind: {type: string}
+        detail: {type: string}
+    AuditVerifyResult:
+      type: object
+      required: [from_seq, to_seq, checked, ok, seconds, rows_per_sec]
+      properties:
+        from_seq: {type: integer}
+        to_seq: {type: integer}
+        checked: {type: integer}
+        ok: {type: boolean}
+        legacy_prelude: {type: boolean}
+        first_break: {$ref: '#/components/schemas/AuditBreak'}
+        context:
+          type: array
+          items: {$ref: '#/components/schemas/AuditEntry'}
+        checkpoints:
+          type: array
+          items: {$ref: '#/components/schemas/AuditCheckpointCheck'}
+        seconds: {type: number}
+        rows_per_sec: {type: number}

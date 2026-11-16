@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/audit"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/obs"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/pipeline"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules"
@@ -39,16 +40,21 @@ type Check struct {
 
 // Deps are the router dependencies.
 type Deps struct {
-	Logger     *slog.Logger
-	Metrics    *obs.Metrics
-	Pipeline   *pipeline.Pipeline
-	Rules      *rules.Manager
-	Auth       *Auth
-	Limiter    *RateLimiter
-	Auditor    Auditor
-	Checks     []Check
-	Version    string
-	CORSOrigin string
+	Logger   *slog.Logger
+	Metrics  *obs.Metrics
+	Pipeline *pipeline.Pipeline
+	Rules    *rules.Manager
+	Auth     *Auth
+	Limiter  *RateLimiter
+	Auditor  Auditor
+	Audit    audit.Store
+	// AuditHMACKey signs checkpoints. Without it the checkpoint endpoint is
+	// unavailable rather than writing an unsigned checkpoint.
+	AuditHMACKey       []byte
+	AuditCheckpointDir string
+	Checks             []Check
+	Version            string
+	CORSOrigin         string
 }
 
 // Server holds the handler dependencies.
@@ -102,7 +108,12 @@ func NewRouter(d Deps) http.Handler {
 		r.With(s.deps.Auth.Require("decisions:write")).Post("/v1/decide/batch", s.decideBatch)
 		r.With(s.deps.Auth.Require("decisions:read")).Get("/v1/decisions", s.listDecisions)
 		r.With(s.deps.Auth.Require("decisions:read")).Get("/v1/decisions/{id}", s.getDecision)
+		r.With(s.deps.Auth.Require("decisions:read")).Get("/v1/decisions/{id}/explain", s.Explain)
 		r.With(s.deps.Auth.Require("decisions:read")).Get("/v1/metrics/rules", s.ruleMetrics)
+
+		r.With(s.deps.Auth.Require("audit:read")).Get("/v1/audit", s.ListAudit)
+		r.With(s.deps.Auth.Require("audit:read")).Get("/v1/audit/verify", s.VerifyAudit)
+		r.With(s.deps.Auth.Require("audit:write")).Post("/v1/audit/checkpoint", s.CheckpointAudit)
 
 		r.With(s.deps.Auth.Require("rules:write")).Post("/v1/rules/reload", s.reloadRules)
 		r.With(s.deps.Auth.Require("rules:read")).Get("/v1/rules/active", s.activeRules)

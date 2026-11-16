@@ -14,6 +14,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/api"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/audit"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/features"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/obs"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/pipeline"
@@ -24,7 +25,7 @@ import (
 
 const shutdownTimeout = 15 * time.Second
 
-var version = "0.4.0"
+var version = "0.6.0"
 
 func main() {
 	if err := run(); err != nil {
@@ -146,10 +147,21 @@ func run() error {
 	if pool != nil {
 		checks = append(checks, api.Check{Name: "postgres", Pinger: pool})
 	}
+	auditor := &api.PostgresAuditor{Pool: pool}
+	var auditStore audit.Store
+	if pool != nil {
+		pgAudit := audit.NewPostgresStore(pool)
+		if err := pgAudit.EnsureSchema(ctx); err != nil {
+			logger.Warn("audit schema ensure failed", "error", err)
+		} else {
+			auditStore = pgAudit
+		}
+	}
 	router := api.NewRouter(api.Deps{
 		Logger: logger, Metrics: metrics, Pipeline: p, Rules: manager,
 		Auth: auth, Limiter: api.NewRateLimiter(cfg.RateLimits),
-		Auditor: &api.PostgresAuditor{Pool: pool}, Checks: checks,
+		Auditor: auditor, Audit: auditStore, Checks: checks,
+		AuditHMACKey: []byte(cfg.AuditHMACKey), AuditCheckpointDir: cfg.AuditCheckpointDir,
 		Version: version, CORSOrigin: cfg.CORSOrigin,
 	})
 

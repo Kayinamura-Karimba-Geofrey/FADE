@@ -14,26 +14,28 @@ import (
 
 // config is the decision-api process configuration.
 type appConfig struct {
-	HTTPAddr      string
-	LogLevel      string
-	PostgresDSN   string
-	RedisAddr     string
-	RedisPassword string
-	RedisDB       int
-	RulesDir      string
-	SpoolDir      string
-	JWTSecret     string
-	JWTIssuer     string
-	CORSOrigin    string
-	KafkaBrokers  []string
-	DecisionTopic string
-	FeaturePath   string
-	MLScorerURL   string
-	OTLPEndpoint  string
-	Version       string
-	Features      config.Features
-	Pipeline      pipeline.Config
-	RateLimits    map[string]api.RateLimit
+	HTTPAddr           string
+	LogLevel           string
+	PostgresDSN        string
+	RedisAddr          string
+	RedisPassword      string
+	RedisDB            int
+	RulesDir           string
+	SpoolDir           string
+	JWTSecret          string
+	JWTIssuer          string
+	CORSOrigin         string
+	AuditHMACKey       string
+	AuditCheckpointDir string
+	KafkaBrokers       []string
+	DecisionTopic      string
+	FeaturePath        string
+	MLScorerURL        string
+	OTLPEndpoint       string
+	Version            string
+	Features           config.Features
+	Pipeline           pipeline.Config
+	RateLimits         map[string]api.RateLimit
 }
 
 func env(key, fallback string) string {
@@ -83,24 +85,26 @@ func loadConfig() (appConfig, error) {
 	}
 
 	cfg := appConfig{
-		HTTPAddr:      env("HTTP_ADDR", ":8080"),
-		LogLevel:      env("LOG_LEVEL", "info"),
-		PostgresDSN:   dsn,
-		RedisAddr:     env("REDIS_ADDR", "redis:6379"),
-		RedisPassword: env("REDIS_PASSWORD", ""),
-		RedisDB:       envInt("REDIS_DB", 0),
-		RulesDir:      env("RULES_DIR", "rules"),
-		SpoolDir:      env("SPOOL_DIR", "./spool"),
-		JWTSecret:     env("JWT_SECRET", ""),
-		JWTIssuer:     env("JWT_ISSUER", ""),
-		CORSOrigin:    env("CORS_ORIGIN", "http://localhost:3000"),
-		KafkaBrokers:  split(env("KAFKA_BROKERS", "")),
-		DecisionTopic: env("DECISION_TOPIC", "txn.decisions"),
-		FeaturePath:   featurePath,
-		MLScorerURL:   env("ML_SCORER_URL", ""),
-		OTLPEndpoint:  env("OTEL_EXPORTER_OTLP_ENDPOINT", ""),
-		Version:       env("FADE_VERSION", "0.4.0"),
-		Features:      featuresCfg,
+		HTTPAddr:           env("HTTP_ADDR", ":8080"),
+		LogLevel:           env("LOG_LEVEL", "info"),
+		PostgresDSN:        dsn,
+		RedisAddr:          env("REDIS_ADDR", "redis:6379"),
+		RedisPassword:      env("REDIS_PASSWORD", ""),
+		RedisDB:            envInt("REDIS_DB", 0),
+		RulesDir:           env("RULES_DIR", "rules"),
+		SpoolDir:           env("SPOOL_DIR", "./spool"),
+		JWTSecret:          env("JWT_SECRET", ""),
+		JWTIssuer:          env("JWT_ISSUER", ""),
+		CORSOrigin:         env("CORS_ORIGIN", "http://localhost:3000"),
+		AuditHMACKey:       env("AUDIT_HMAC_KEY", ""),
+		AuditCheckpointDir: env("AUDIT_CHECKPOINT_DIR", "audit/checkpoints"),
+		KafkaBrokers:       split(env("KAFKA_BROKERS", "")),
+		DecisionTopic:      env("DECISION_TOPIC", "txn.decisions"),
+		FeaturePath:        featurePath,
+		MLScorerURL:        env("ML_SCORER_URL", ""),
+		OTLPEndpoint:       env("OTEL_EXPORTER_OTLP_ENDPOINT", ""),
+		Version:            env("FADE_VERSION", "0.6.0"),
+		Features:           featuresCfg,
 	}
 	pcfg := pipeline.DefaultConfig()
 	pcfg.RequestBudget = envDuration("REQUEST_BUDGET", pcfg.RequestBudget)

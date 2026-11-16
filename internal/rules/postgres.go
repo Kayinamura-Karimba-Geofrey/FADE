@@ -14,6 +14,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/audit"
 )
 
 // PersistHooks expose persistence health to metrics without importing obs.
@@ -98,7 +100,8 @@ CREATE TABLE IF NOT EXISTS audit_log (
     prev_hash TEXT,
     hash TEXT NOT NULL,
     at TIMESTAMPTZ NOT NULL DEFAULT now()
-);`
+);
+ALTER TABLE audit_log ADD COLUMN IF NOT EXISTS seq BIGSERIAL;`
 	_, err := p.pool.Exec(ctx, ddl)
 	if err != nil {
 		return fmt.Errorf("ensure rule tables: %w", err)
@@ -196,13 +199,13 @@ func (p *PostgresPersister) write(op activation) error {
 	}
 
 	var prevHash string
-	err = tx.QueryRow(ctx, `SELECT COALESCE(hash,'') FROM audit_log ORDER BY id DESC LIMIT 1`).Scan(&prevHash)
+	err = tx.QueryRow(ctx, `SELECT COALESCE(hash,'') FROM audit_log ORDER BY seq DESC NULLS LAST, id DESC LIMIT 1`).Scan(&prevHash)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return err
 	}
-	row := NewAuditRow(op.Actor, "rules.activate", "rule_set", fmt.Sprintf("%s/%d", op.Name, op.Version),
+	row := audit.NewRow(op.Actor, "rules.activate", "rule_set", fmt.Sprintf("%s/%d", op.Name, op.Version),
 		before, canon, time.Now())
-	chained, err := ChainHash(prevHash, row)
+	chained, err := audit.ChainHash(prevHash, row)
 	if err != nil {
 		return err
 	}

@@ -34,9 +34,13 @@ func (s *PostgresStore) EnsureSchema(ctx context.Context) error {
 ALTER TABLE list_entries ADD COLUMN IF NOT EXISTS created_by TEXT;
 ALTER TABLE list_entries ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now();
 ALTER TABLE decisions ADD COLUMN IF NOT EXISTS shadow_hits JSONB NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE decisions ADD COLUMN IF NOT EXISTS snapshot_id TEXT;
+ALTER TABLE decisions ADD COLUMN IF NOT EXISTS provenance JSONB NOT NULL DEFAULT '{}'::jsonb;
+ALTER TABLE decisions ADD COLUMN IF NOT EXISTS explain_schema_version INT NOT NULL DEFAULT 1;
 CREATE INDEX IF NOT EXISTS decisions_account_decided_idx ON decisions (account_id, decided_at DESC);
 CREATE INDEX IF NOT EXISTS decisions_decision_decided_idx ON decisions (decision, decided_at DESC);
-CREATE INDEX IF NOT EXISTS decisions_event_idx ON decisions (event_id);`
+CREATE INDEX IF NOT EXISTS decisions_event_idx ON decisions (event_id);
+CREATE INDEX IF NOT EXISTS decisions_snapshot_idx ON decisions (snapshot_id);`
 	_, err := s.pool.Exec(ctx, ddl)
 	return err
 }
@@ -56,8 +60,9 @@ func (s *PostgresStore) WriteDecisions(ctx context.Context, batch []*StoredDecis
 	const q = `INSERT INTO decisions
 	  (id, event_id, account_id, recipient_id, amount, txn_type, decision,
 	   risk_score, rule_score, ml_score, ml_status, rule_set_version, model_version,
-	   reasons, features, shadow_hits, latency_us, event_time, decided_at)
-	  VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
+	   reasons, features, shadow_hits, snapshot_id, provenance, explain_schema_version,
+	   latency_us, event_time, decided_at)
+	  VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
 	  ON CONFLICT DO NOTHING`
 	for _, rec := range batch {
 		d := rec.Decision
@@ -73,11 +78,24 @@ func (s *PostgresStore) WriteDecisions(ctx context.Context, batch []*StoredDecis
 		if err != nil {
 			return err
 		}
+		prov, err := json.Marshal(d.Provenance)
+		if err != nil {
+			return err
+		}
+		snap := d.SnapshotID
+		if snap == "" {
+			snap = d.Provenance.SnapshotID
+		}
+		esv := d.ExplainSchemaVersion
+		if esv == 0 {
+			esv = 1
+		}
 		pgBatch.Queue(q,
 			d.DecisionID, d.EventID, rec.AccountID, nullString(rec.RecipientID),
 			rec.Amount, rec.TxnType, string(d.Decision), d.RiskScore, d.RuleScore,
 			d.MLScore, d.MLStatus, d.RuleSetVersion, d.ModelVersion,
-			reasons, feat, shadow, rec.LatencyUS, rec.EventTime, d.DecidedAt)
+			reasons, feat, shadow, snap, prov, esv,
+			rec.LatencyUS, rec.EventTime, d.DecidedAt)
 	}
 	br := tx.SendBatch(ctx, pgBatch)
 	for range batch {
@@ -101,18 +119,22 @@ func nullString(s string) *string {
 
 const decisionColumns = `id, event_id, account_id, recipient_id, amount, txn_type,
  decision, risk_score, rule_score, ml_score, ml_status, rule_set_version, model_version,
- reasons, features, shadow_hits, latency_us, event_time, decided_at`
+ reasons, features, shadow_hits, snapshot_id, provenance, explain_schema_version,
+ latency_us, event_time, decided_at`
 
 func scanDecision(row pgx.Row) (*StoredDecision, error) {
 	var rec StoredDecision
 	var d Decision
-	var reasons, feats, shadow []byte
+	var reasons, feats, shadow, prov []byte
 	var recipient, modelVersion *string
 	var mlScore *int
 	var decisionText string
+	var snapshotID *string
+	var explainSchema int
 	err := row.Scan(&d.DecisionID, &d.EventID, &rec.AccountID, &recipient, &rec.Amount,
 		&rec.TxnType, &decisionText, &d.RiskScore, &d.RuleScore, &mlScore, &d.MLStatus,
-		&d.RuleSetVersion, &modelVersion, &reasons, &feats, &shadow, &rec.LatencyUS, &rec.EventTime, &d.DecidedAt)
+		&d.RuleSetVersion, &modelVersion, &reasons, &feats, &shadow, &snapshotID, &prov,
+		&explainSchema, &rec.LatencyUS, &rec.EventTime, &d.DecidedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -134,6 +156,18 @@ func scanDecision(row pgx.Row) (*StoredDecision, error) {
 		if err := json.Unmarshal(shadow, &d.ShadowHits); err != nil {
 			return nil, err
 		}
+	}
+	if snapshotID != nil {
+		d.SnapshotID = *snapshotID
+	}
+	if len(prov) > 0 && string(prov) != "null" {
+		if err := json.Unmarshal(prov, &d.Provenance); err != nil {
+			return nil, err
+		}
+	}
+	d.ExplainSchemaVersion = explainSchema
+	if d.ExplainSchemaVersion == 0 {
+		d.ExplainSchemaVersion = 1
 	}
 	d.AccountID = rec.AccountID
 	d.RecipientID = rec.RecipientID

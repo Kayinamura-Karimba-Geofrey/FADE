@@ -21,20 +21,27 @@ type Metrics struct {
 	HTTPInflight prometheus.Gauge
 	Up           *prometheus.GaugeVec
 
-	Decisions         *prometheus.CounterVec
-	RuleHits          *prometheus.CounterVec
-	DecisionLatency   *prometheus.HistogramVec
-	Shed              prometheus.Counter
-	RulesReload       *prometheus.CounterVec
-	RulesRollback     prometheus.Counter
-	RuleSetVersion    prometheus.Gauge
-	PersistQueueDepth prometheus.Gauge
-	SpoolBytes        prometheus.Gauge
-	PersistBatches    *prometheus.CounterVec
-	IdempotentReplays prometheus.Counter
-	FailPolicy        *prometheus.CounterVec
-	MLBreakerState    prometheus.Gauge
-	MLBreakerTransitions prometheus.Counter
+	Decisions                *prometheus.CounterVec
+	RuleHits                 *prometheus.CounterVec
+	DecisionLatency          *prometheus.HistogramVec
+	Shed                     prometheus.Counter
+	RulesReload              *prometheus.CounterVec
+	RulesRollback            prometheus.Counter
+	RuleSetVersion           prometheus.Gauge
+	PersistQueueDepth        prometheus.Gauge
+	SpoolBytes               prometheus.Gauge
+	PersistBatches           *prometheus.CounterVec
+	IdempotentReplays        prometheus.Counter
+	FailPolicy               *prometheus.CounterVec
+	MLBreakerState           prometheus.Gauge
+	MLBreakerTransitions     prometheus.Counter
+	Explains                 *prometheus.CounterVec
+	ExplainLatency           *prometheus.HistogramVec
+	AuditVerify              *prometheus.CounterVec
+	AuditAppends             *prometheus.CounterVec
+	AuditCheckpointTimestamp prometheus.Gauge
+	RetentionActions         *prometheus.CounterVec
+	PrivacyFindings          *prometheus.CounterVec
 }
 
 // NewMetrics creates a fresh registry pre-populated with the FADE collectors.
@@ -116,6 +123,35 @@ func NewMetrics(service string) *Metrics {
 			Name: "fade_ml_breaker_transitions_total",
 			Help: "Circuit breaker state transitions.",
 		}),
+		Explains: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "fade_explain_total",
+			Help: "Explanation renders by audience and result.",
+		}, []string{"audience", "result"}),
+		ExplainLatency: prometheus.NewHistogramVec(prometheus.HistogramOpts{
+			Name:    "fade_explain_latency_seconds",
+			Help:    "Explanation build latency (off the decision path).",
+			Buckets: StageBuckets,
+		}, []string{"audience"}),
+		AuditVerify: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "fade_audit_verify_total",
+			Help: "Audit chain verification runs by result.",
+		}, []string{"result"}),
+		AuditAppends: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "fade_audit_appends_total",
+			Help: "Audit rows appended by result.",
+		}, []string{"result"}),
+		AuditCheckpointTimestamp: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "fade_audit_checkpoint_timestamp_seconds",
+			Help: "Unix time of the last successful signed audit checkpoint.",
+		}),
+		RetentionActions: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "fade_retention_actions_total",
+			Help: "Retention partition actions by kind and result.",
+		}, []string{"kind", "result"}),
+		PrivacyFindings: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "fade_privacy_findings_total",
+			Help: "Privacy guard findings by kind.",
+		}, []string{"kind"}),
 	}
 	reg.MustRegister(
 		collectors.NewGoCollector(),
@@ -126,6 +162,9 @@ func NewMetrics(service string) *Metrics {
 		m.PersistQueueDepth, m.SpoolBytes, m.PersistBatches,
 		m.IdempotentReplays, m.FailPolicy,
 		m.MLBreakerState, m.MLBreakerTransitions,
+		m.Explains, m.ExplainLatency, m.AuditVerify, m.AuditAppends,
+		m.AuditCheckpointTimestamp,
+		m.RetentionActions, m.PrivacyFindings,
 	)
 	m.Up.WithLabelValues(service).Set(1)
 	return m

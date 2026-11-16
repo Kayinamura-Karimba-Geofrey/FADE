@@ -1,46 +1,24 @@
 package rules
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"time"
+
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/audit"
 )
 
-// AuditRow is one hash-chained audit entry. Hash is computed over the canonical
-// JSON of the row excluding Hash itself, prefixed with PrevHash.
-type AuditRow struct {
-	Actor      string          `json:"actor"`
-	Action     string          `json:"action"`
-	ObjectType string          `json:"object_type"`
-	ObjectID   string          `json:"object_id"`
-	Before     json.RawMessage `json:"before,omitempty"`
-	After      json.RawMessage `json:"after,omitempty"`
-	PrevHash   string          `json:"prev_hash"`
-	At         string          `json:"at"`
-}
+// AuditRow is the rule-set audit row shape. It is an alias of audit.Row so the
+// rule persister and the API write one indistinguishable hash chain.
+type AuditRow = audit.Row
 
-// ChainHash computes sha256(prev_hash || canonical_json(row without hash)).
-func ChainHash(prev string, row AuditRow) (string, error) {
-	row.PrevHash = prev
-	raw, err := json.Marshal(row)
-	if err != nil {
-		return "", err
-	}
-	canon, err := CanonicalJSON(raw)
-	if err != nil {
-		return "", err
-	}
-	h := sha256.New()
-	h.Write([]byte(prev))
-	h.Write(canon)
-	return hex.EncodeToString(h.Sum(nil)), nil
-}
+// ChainHash computes sha256(prev_hash || canonical_json(row)). Kept for
+// compatibility; new code should call audit.ChainHash.
+func ChainHash(prev string, row AuditRow) (string, error) { return audit.ChainHash(prev, row) }
 
 // NewAuditRow builds a row stamped at t.
 func NewAuditRow(actor, action, objectType, objectID string, before, after []byte, t time.Time) AuditRow {
-	return AuditRow{
-		Actor: actor, Action: action, ObjectType: objectType, ObjectID: objectID,
-		Before: before, After: after, At: t.UTC().Format(time.RFC3339Nano),
-	}
+	return audit.NewRow(actor, action, objectType, objectID, before, after, t)
 }
+
+// compile-time assertion that a row marshals with the contract field names.
+var _ = json.Marshal

@@ -196,7 +196,9 @@ fade/
 - [x] **Phase 3 - Rules engine: COMPLETE** - hot-reloadable rule sets,
       versions, audit logging, synchronous rules-only decision API
 - [ ] Phase 4 - ML scoring: training pipeline, LightGBM + SHAP explanations
-- [ ] Phase 5 - Decision pipeline: combiner, thresholds, `txn.decisions`
+- [x] **Phase 5 - Explainability & audit: COMPLETE** - structured reasons,
+      deterministic reproduction, hash-chained append-only audit log, signed
+      checkpoints, retention partitioning
 - [ ] Phase 6 - Case management: cases, labels, analyst dashboard workflows
 - [ ] Phase 7 - Replay & feedback: shadow evaluation, replay jobs, label loop
 - [ ] Phase 8 - Hardening: k6 load tests, tuning, runbooks, release
@@ -204,5 +206,7 @@ fade/
 ## Documentation
 
 See [docs/README.md](docs/README.md) for the documentation index,
-[docs/phase-0.md](docs/phase-0.md) for Phase 0 and
-[docs/phase-3.md](docs/phase-3.md) for the rules engine and decision API.
+[docs/phase-0.md](docs/phase-0.md) for Phase 0,
+[docs/phase-3.md](docs/phase-3.md) for the rules engine and decision API,
+[docs/explainability.md](docs/explainability.md) for explanations and
+[docs/audit.md](docs/audit.md) for the tamper-evident audit log.

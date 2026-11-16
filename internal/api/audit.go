@@ -6,10 +6,10 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/audit"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/redaction"
 )
 
 // Auditor records administrative actions.
@@ -29,13 +29,22 @@ func (n NoopAuditor) Record(_ context.Context, actor, action, objectType, object
 	return nil
 }
 
-// PostgresAuditor appends to the hash-chained audit_log table in one
-// transaction.
+// PostgresAuditor appends to the hash-chained audit_log table through the shared
+// audit store, so rule activation and administrative actions share one chain.
 type PostgresAuditor struct{ Pool *pgxpool.Pool }
+
+// Store returns the audit store, or nil without a pool.
+func (a *PostgresAuditor) Store() audit.Store {
+	if a == nil || a.Pool == nil {
+		return nil
+	}
+	return audit.NewPostgresStore(a.Pool)
+}
 
 // Record implements Auditor.
 func (a *PostgresAuditor) Record(ctx context.Context, actor, action, objectType, objectID string, before, after any) error {
-	if a == nil || a.Pool == nil {
+	store := a.Store()
+	if store == nil {
 		return nil
 	}
 	beforeRaw, err := marshalOrNil(before)
@@ -46,34 +55,22 @@ func (a *PostgresAuditor) Record(ctx context.Context, actor, action, objectType,
 	if err != nil {
 		return err
 	}
-	tx, err := a.Pool.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer func() { _ = tx.Rollback(ctx) }()
-	var prev string
-	err = tx.QueryRow(ctx, `SELECT COALESCE(hash,'') FROM audit_log ORDER BY id DESC LIMIT 1`).Scan(&prev)
-	if err != nil && err != pgx.ErrNoRows {
-		return err
-	}
-	row := rules.NewAuditRow(actor, action, objectType, objectID, beforeRaw, afterRaw, time.Now())
-	hash, err := rules.ChainHash(prev, row)
-	if err != nil {
-		return err
-	}
-	if _, err := tx.Exec(ctx, `INSERT INTO audit_log
-		(actor, action, object_type, object_id, before, after, prev_hash, hash, at)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-		row.Actor, row.Action, row.ObjectType, row.ObjectID, row.Before, row.After,
-		prev, hash, row.At); err != nil {
-		return err
-	}
-	return tx.Commit(ctx)
+	row := audit.NewRow(actor, action, objectType, objectID, beforeRaw, afterRaw, time.Now())
+	_, err = store.Append(ctx, row)
+	return err
 }
 
 func marshalOrNil(v any) ([]byte, error) {
 	if v == nil {
 		return nil, nil
 	}
-	return json.Marshal(v)
+	raw, err := json.Marshal(v)
+	if err != nil {
+		return nil, err
+	}
+	// An audit payload must never carry a raw personal identifier.
+	if err := redaction.CheckJSON(json.RawMessage(raw)); err != nil {
+		return nil, err
+	}
+	return raw, nil
 }

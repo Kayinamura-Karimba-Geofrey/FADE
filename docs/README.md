@@ -13,8 +13,10 @@ the quick start, ports, make targets and the phase roadmap.
 | [explainability.md](explainability.md) | Explanation facts, audiences, languages, counterfactuals, latency |
 | [audit.md](audit.md) | Hash chain, genesis, checkpoints, tamper tests, retention, runbook |
 | phase-5.md | Phase 5 delivery and exit-check results |
-| phase-6.md | Case management and dashboard _(planned)_ |
-| phase-7.md | Replay, shadow evaluation and feedback loop _(planned)_ |
+| [replay.md](replay.md) | Phase 6 (replay, shadow evaluation, regression gate) |
+| [replay-regression-changelog.md](replay-regression-changelog.md) | Replay gate decisions and regression history |
+| [cases.md](cases.md) | Phase 7 case lifecycle, priority, SLA, four-eyes and labels |
+| [dashboard.md](dashboard.md) | Phase 7 analyst dashboard: BFF auth, queue, case detail, metrics |
 | phase-8.md | Hardening, load testing and runbooks _(planned)_ |
 
 Conventions:

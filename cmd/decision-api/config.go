@@ -36,6 +36,10 @@ type appConfig struct {
 	Features           config.Features
 	Pipeline           pipeline.Config
 	RateLimits         map[string]api.RateLimit
+	CasesConfig        string
+	PseudonymKey       string
+	TokenAccessTTL     time.Duration
+	TokenRefreshTTL    time.Duration
 }
 
 func env(key, fallback string) string {
@@ -103,8 +107,12 @@ func loadConfig() (appConfig, error) {
 		FeaturePath:        featurePath,
 		MLScorerURL:        env("ML_SCORER_URL", ""),
 		OTLPEndpoint:       env("OTEL_EXPORTER_OTLP_ENDPOINT", ""),
-		Version:            env("FADE_VERSION", "0.6.0"),
+		Version:            env("FADE_VERSION", "0.7.0"),
 		Features:           featuresCfg,
+		CasesConfig:        env("CASES_CONFIG", "config/cases.yaml"),
+		PseudonymKey:       env("FADE_PSEUDONYM_KEY", ""),
+		TokenAccessTTL:     envDuration("TOKEN_ACCESS_TTL", 15*time.Minute),
+		TokenRefreshTTL:    envDuration("TOKEN_REFRESH_TTL", 12*time.Hour),
 	}
 	pcfg := pipeline.DefaultConfig()
 	pcfg.RequestBudget = envDuration("REQUEST_BUDGET", pcfg.RequestBudget)

@@ -64,6 +64,10 @@ test: ## Run Go tests (-race) and pytest
 	$(GO) test ./... -race
 	$(UV) run pytest
 
+cases-test: ## Run the case, auth and case-worker tests (integration tests use testcontainers)
+	$(GO) test ./internal/cases/ ./internal/auth/ ./cmd/case-worker/ -race
+	$(GO) test ./internal/api/ -run 'TestCaseAPI|TestOpenAPIContract' -race
+
 ml-train: ## Train the Phase 4 model on DATA (default: run42)
 	$(PY) -m ml.train build-table --data-dir data/$(DATA)
 	$(PY) -m ml.train train --data-dir data/$(DATA) --time-budget $(TIME_BUDGET)
@@ -88,6 +92,15 @@ fmt: ## Format all code (gofmt, ruff format, prettier)
 build: ## Build all artifacts (Go binaries, dashboard)
 	$(GO) build ./...
 	cd dashboard && npm run build
+
+dash-dev: ## Run the dashboard dev server
+	cd dashboard && npm run dev
+
+dash-build: ## Build the dashboard
+	cd dashboard && npm run build
+
+dash-test: ## Run dashboard tests
+	cd dashboard && npm run test
 
 psql: ## Open a psql shell in Postgres
 	$(COMPOSE) --profile infra exec postgres sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'

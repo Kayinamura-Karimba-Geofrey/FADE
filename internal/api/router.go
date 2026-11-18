@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/audit"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/cases"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/obs"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/pipeline"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/replay/gate"
@@ -63,11 +64,23 @@ type Deps struct {
 	Checks            []Check
 	Version           string
 	CORSOrigin        string
+	// Phase 7 case management. Cases is nil on deployments without Postgres;
+	// the case endpoints then return 503 rather than pretending to work.
+	Cases *cases.Store
+	// Users backs password login and the user admin API.
+	Users *UserStore
+	// TokenIssuer signs access tokens. Defaults to Auth.
+	TokenIssuer     *Auth
+	TokenAccessTTL  time.Duration
+	TokenRefreshTTL time.Duration
+	// PseudonymKey keys the analyst-visible identifier pseudonyms.
+	PseudonymKey string
 }
 
 // Server holds the handler dependencies.
 type Server struct {
-	deps Deps
+	deps     Deps
+	throttle *loginThrottle
 }
 
 // NewServer builds a Server.
@@ -87,7 +100,10 @@ func NewServer(d Deps) *Server {
 	if d.Version == "" {
 		d.Version = "dev"
 	}
-	return &Server{deps: d}
+	if d.TokenIssuer == nil {
+		d.TokenIssuer = d.Auth
+	}
+	return &Server{deps: d, throttle: newLoginThrottle(10, 5*time.Minute)}
 }
 
 // NewRouter assembles the chi router.
@@ -108,9 +124,20 @@ func NewRouter(d Deps) http.Handler {
 	r.Get("/metrics", d.Metrics.Handler().ServeHTTP)
 	r.Get("/version", s.version)
 
+	// Credential exchange is unauthenticated by design; the dashboard BFF calls
+	// these and keeps the tokens in httpOnly cookies.
+	r.Post("/v1/auth/login", s.login)
+	r.Post("/v1/auth/refresh", s.refresh)
+
 	r.Group(func(r chi.Router) {
 		r.Use(s.deps.Auth.Authenticate)
 		r.Use(s.deps.Limiter.Middleware)
+
+		// These depend on the principal, so they must live inside the
+		// authenticated group.
+		r.With(s.deps.Auth.Require("cases:read")).Post("/v1/auth/logout", s.logout)
+		r.With(s.deps.Auth.Require("cases:read")).Get("/v1/auth/me", s.me)
+		r.With(s.deps.Auth.Require("cases:read")).Post("/v1/auth/mfa", s.enableMFA)
 
 		r.With(s.deps.Auth.Require("decisions:write")).Post("/v1/decide", s.decide)
 		r.With(s.deps.Auth.Require("decisions:write")).Post("/v1/decide/batch", s.decideBatch)
@@ -140,10 +167,41 @@ func NewRouter(d Deps) http.Handler {
 		r.With(s.deps.Auth.Require("rules:read")).Get("/v1/rules/versions", s.ruleVersions)
 		r.With(s.deps.Auth.Require("rules:write")).Put("/v1/rules/{id}", s.putRule)
 		r.With(s.deps.Auth.Require("rules:write")).Post("/v1/rules/validate", s.validateRules)
+		r.With(s.deps.Auth.Require("rules:write")).Post("/v1/rules/dry-run", s.dryRunRules)
 
 		r.With(s.deps.Auth.Require("lists:read")).Get("/v1/lists", s.listLists)
 		r.With(s.deps.Auth.Require("lists:write")).Post("/v1/lists", s.addList)
 		r.With(s.deps.Auth.Require("lists:write")).Delete("/v1/lists/{id}", s.deleteList)
+
+		// Phase 7 case queue and analyst workflow.
+		r.With(s.deps.Auth.Require("cases:read")).Get("/v1/cases", s.listCases)
+		r.With(s.deps.Auth.Require("cases:read")).Get("/v1/events/stream", s.eventStream)
+		r.With(s.deps.Auth.Require("cases:read")).Get("/v1/cases/metrics", s.caseMetrics)
+		r.With(s.deps.Auth.Require("cases:read")).Get("/v1/cases/metrics/labels", s.caseLabelAgreement)
+		r.With(s.deps.Auth.Require("cases:read")).Get("/v1/cases/{id}", s.getCase)
+		r.With(s.deps.Auth.Require("cases:read")).Get("/v1/cases/{id}/graph", s.caseGraph)
+		r.With(s.deps.Auth.Require("cases:read")).Get("/v1/qa/summary", s.qaSummary)
+		r.With(s.deps.Auth.Require("cases:read")).Get("/v1/accounts/{id}/timeline", s.accountTimeline)
+		r.With(s.deps.Auth.Require("cases:read")).Get("/v1/accounts/{id}/summary", s.accountSummary)
+		r.With(s.deps.Auth.Require("cases:create")).Post("/v1/cases", s.createManualCase)
+		r.With(s.deps.Auth.Require("cases:create")).Post("/v1/decisions/{id}/step-up-result", s.stepUpResult)
+		r.With(s.deps.Auth.Require("cases:write")).Post("/v1/cases/next", s.claimNextCase)
+		r.With(s.deps.Auth.Require("cases:write")).Post("/v1/cases/{id}/claim", s.claimCase)
+		r.With(s.deps.Auth.Require("cases:write")).Post("/v1/cases/{id}/release", s.releaseCase)
+		r.With(s.deps.Auth.Require("cases:write")).Post("/v1/cases/{id}/escalate", s.escalateCase)
+		r.With(s.deps.Auth.Require("cases:note")).Post("/v1/cases/{id}/notes", s.addCaseNote)
+		r.With(s.deps.Auth.Require("cases:resolve")).Post("/v1/cases/{id}/resolve", s.resolveCase)
+		r.With(s.deps.Auth.Require("cases:assign")).Post("/v1/cases/{id}/assign", s.assignCase)
+		r.With(s.deps.Auth.Require("cases:approve")).Post("/v1/cases/{id}/approve", s.approveCase)
+		r.With(s.deps.Auth.Require("cases:approve")).Post("/v1/cases/{id}/reject-approval", s.rejectApprovalCase)
+		r.With(s.deps.Auth.Require("cases:reopen")).Post("/v1/cases/{id}/reopen", s.reopenCase)
+		r.With(s.deps.Auth.Require("cases:resolve")).Post("/v1/cases/{id}/second-review", s.secondReview)
+
+		// Analyst administration.
+		r.With(s.deps.Auth.Require("users:read")).Get("/v1/users", s.listUsers)
+		r.With(s.deps.Auth.Require("users:write")).Post("/v1/users", s.createUser)
+		r.With(s.deps.Auth.Require("users:write")).Put("/v1/users/{id}/role", s.setUserRole)
+		r.With(s.deps.Auth.Require("users:write")).Put("/v1/users/{id}/password", s.setUserPassword)
 	})
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {

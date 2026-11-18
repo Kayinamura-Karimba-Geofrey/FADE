@@ -34,15 +34,23 @@ func PrincipalFrom(ctx context.Context) *Principal {
 	return p
 }
 
-// Role scopes. Service decides and reads decisions; analyst reads decisions and
-// lists; auditor reads and verifies the chain; admin manages rules and lists.
+// Role scopes. Service decides and reads decisions; analyst works the case
+// queue; lead assigns, approves and reopens; auditor reads and verifies the
+// chain; admin manages rules, lists and users.
 var RoleScopes = map[string][]string{
-	"service": {"decisions:write", "decisions:read", "rules:read"},
-	"analyst": {"decisions:read", "rules:read", "lists:read", "replay:read"},
-	"auditor": {"decisions:read", "rules:read", "audit:read", "replay:read"},
+	"service": {"decisions:write", "decisions:read", "rules:read", "cases:create"},
+	"analyst": {"decisions:read", "rules:read", "lists:read", "replay:read",
+		"cases:read", "cases:write", "cases:note", "cases:resolve"},
+	"lead": {"decisions:read", "rules:read", "lists:read", "replay:read", "audit:read",
+		"cases:read", "cases:write", "cases:note", "cases:resolve", "cases:assign",
+		"cases:approve", "cases:reopen", "cases:create"},
+	"auditor": {"decisions:read", "rules:read", "audit:read", "replay:read",
+		"cases:read"},
 	"admin": {"decisions:write", "decisions:read", "rules:read", "rules:write",
 		"lists:read", "lists:write", "audit:read", "audit:write",
-		"replay:read", "replay:write"},
+		"replay:read", "replay:write", "cases:read", "cases:write", "cases:note",
+		"cases:resolve", "cases:assign", "cases:approve", "cases:reopen",
+		"cases:create", "users:read", "users:write"},
 }
 
 // AuthConfig configures HS256 JWT validation.

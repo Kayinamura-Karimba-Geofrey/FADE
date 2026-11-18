@@ -5,7 +5,7 @@ info:
     Synchronous, rules-only fraud decisions for mobile money transactions.
     Phase 5 contract: decisions, explanations, hash-chained audit. Every error is
     RFC 7807 `application/problem+json` with a stable `type` URI.
-  version: 0.6.0
+  version: 0.7.0
 servers:
   - url: http://localhost:8080
 security:
@@ -594,6 +594,417 @@ paths:
       responses:
         '200': {description: Datasets, content: {application/json: {schema: {type: object, additionalProperties: true}}}}
 
+  /v1/auth/login:
+    post:
+      operationId: login
+      summary: Exchange analyst credentials for tokens (used by the dashboard BFF)
+      tags: [auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/LoginRequest'}
+      responses:
+        '200':
+          description: Session tokens
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Session'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '423': {description: Account locked after repeated failures}
+        '429': {description: Throttled}
+  /v1/auth/refresh:
+    post:
+      operationId: refreshSession
+      summary: Rotate a refresh token
+      tags: [auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [refresh_token], properties: {refresh_token: {type: string}}}
+      responses:
+        '200':
+          description: New session tokens
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Session'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /v1/auth/logout:
+    post:
+      operationId: logout
+      summary: Revoke a refresh token
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, properties: {refresh_token: {type: string}}}
+      responses:
+        '204': {description: Revoked}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /v1/auth/me:
+    get:
+      operationId: me
+      summary: Current analyst profile and scopes
+      tags: [auth]
+      responses:
+        '200':
+          description: Profile
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AnalystProfile'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /v1/auth/mfa:
+    post:
+      operationId: enableMFA
+      summary: Enrol the caller in TOTP MFA
+      tags: [auth]
+      responses:
+        '200':
+          description: One-time enrolment URL
+          content:
+            application/json:
+              schema: {type: object, required: [otpauth_url], properties: {otpauth_url: {type: string}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /v1/cases:
+    get:
+      operationId: listCases
+      summary: Review queue ordered by priority then age
+      tags: [cases]
+      parameters:
+        - {name: status, in: query, schema: {type: string}, description: Comma-separated statuses}
+        - {name: assignee, in: query, schema: {type: string}}
+        - {name: unassigned, in: query, schema: {type: boolean}}
+        - {name: source, in: query, schema: {type: string, enum: [DECISION, STEP_UP_FAILED, QA_SAMPLE, MANUAL]}}
+        - {name: decision_class, in: query, schema: {type: string, enum: [HOLD, BLOCK, STEP_UP]}}
+        - {name: min_priority, in: query, schema: {type: integer, minimum: 0, maximum: 100}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 200, default: 50}}
+        - {name: offset, in: query, schema: {type: integer, minimum: 0}}
+      responses:
+        '200':
+          description: Case page
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CasePage'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '503': {description: Case store unavailable}
+    post:
+      operationId: createCase
+      summary: Open an analyst case (audited, idempotent)
+      tags: [cases]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CaseCreate'}
+      responses:
+        '201':
+          description: Created case
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CaseEnvelope'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /v1/cases/metrics:
+    get:
+      operationId: caseMetrics
+      summary: Queue health counters
+      tags: [cases]
+      responses:
+        '200':
+          description: Metrics
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CaseMetrics'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /v1/cases/metrics/labels:
+    get:
+      operationId: caseLabelAgreement
+      summary: Inter-rater agreement from blind second reviews
+      tags: [cases]
+      responses:
+        '200':
+          description: Agreement statistics
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/LabelAgreement'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /v1/cases/{id}:
+    get:
+      operationId: getCase
+      summary: Case detail with the append-only timeline
+      tags: [cases]
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+      responses:
+        '200':
+          description: Case and timeline
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CaseDetail'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /v1/cases/{id}/claim:
+    post:
+      operationId: claimCase
+      summary: Claim an open case
+      tags: [cases]
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '200':
+          description: Claimed case
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CaseEnvelope'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {description: Version conflict or illegal transition}
+  /v1/cases/{id}/assign:
+    post:
+      operationId: assignCase
+      summary: Assign a case to another analyst (lead or admin)
+      tags: [cases]
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [assignee], properties: {assignee: {type: string}, version: {type: integer}}}
+      responses:
+        '200':
+          description: Assigned case
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CaseEnvelope'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '409': {description: Version conflict}
+  /v1/cases/{id}/release:
+    post:
+      operationId: releaseCase
+      summary: Return a case to the shared queue
+      tags: [cases]
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '200':
+          description: Released case
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CaseEnvelope'}
+        '409': {description: Version conflict}
+  /v1/cases/{id}/escalate:
+    post:
+      operationId: escalateCase
+      summary: Escalate a case to a lead
+      tags: [cases]
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [reason], properties: {reason: {type: string}, version: {type: integer}}}
+      responses:
+        '200':
+          description: Escalated case
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CaseEnvelope'}
+        '409': {description: Version conflict or illegal transition}
+  /v1/cases/{id}/resolve:
+    post:
+      operationId: resolveCase
+      summary: Record a verdict; sensitive verdicts wait for a second reviewer
+      tags: [cases]
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CaseResolution'}
+      responses:
+        '200':
+          description: Resolved (or pending approval) case
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CaseEnvelope'}
+        '422': {description: Missing follow-up or redacted content}
+        '409': {description: Version conflict or illegal transition}
+  /v1/cases/{id}/approve:
+    post:
+      operationId: approveCase
+      summary: Approve a pending four-eyes resolution (different reviewer)
+      tags: [cases]
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '200':
+          description: Approved case
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CaseEnvelope'}
+        '403': {description: Self approval rejected}
+  /v1/cases/{id}/reopen:
+    post:
+      operationId: reopenCase
+      summary: Reopen a resolved case within the window (lead or admin)
+      tags: [cases]
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [reason], properties: {reason: {type: string}, version: {type: integer}}}
+      responses:
+        '200':
+          description: Reopened case
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CaseEnvelope'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '409': {description: Window closed or illegal transition}
+  /v1/cases/{id}/notes:
+    post:
+      operationId: addCaseNote
+      summary: Add a redaction-checked note
+      tags: [cases]
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [text], properties: {text: {type: string, maxLength: 2000}}}
+      responses:
+        '200':
+          description: Recorded note event
+          content:
+            application/json:
+              schema: {type: object, properties: {event: {$ref: '#/components/schemas/CaseEvent'}}}
+        '422': {description: Sensitive content or note too long}
+  /v1/cases/{id}/second-review:
+    post:
+      operationId: secondReview
+      summary: Submit a blind second opinion for label-quality metrics
+      tags: [cases]
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [outcome], properties: {outcome: {type: string, enum: [FRAUD, LEGIT, INCONCLUSIVE]}}}
+      responses:
+        '200':
+          description: Recorded
+          content:
+            application/json:
+              schema: {type: object, properties: {recorded: {type: boolean}}}
+  /v1/decisions/{id}/step-up-result:
+    post:
+      operationId: stepUpResult
+      summary: Report a step-up challenge result; a failure opens a case
+      tags: [cases]
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [passed], properties: {passed: {type: boolean}}}
+      responses:
+        '201':
+          description: Case opened for the failed challenge
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CaseEnvelope'}
+        '204': {description: Challenge passed, no case}
+        '404': {description: Unknown decision}
+  /v1/users:
+    get:
+      operationId: listUsers
+      summary: List analyst accounts (admin)
+      tags: [users]
+      responses:
+        '200':
+          description: Accounts
+          content:
+            application/json:
+              schema: {type: object, required: [users], properties: {users: {type: array, items: {$ref: '#/components/schemas/AnalystProfile'}}}}
+        '403': {$ref: '#/components/responses/Forbidden'}
+    post:
+      operationId: createUser
+      summary: Create an analyst account (admin, audited)
+      tags: [users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/UserCreate'}
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AnalystProfile'}
+        '409': {description: Username exists}
+  /v1/users/{id}/role:
+    put:
+      operationId: setUserRole
+      summary: Change a role and revoke the account's sessions (admin, audited)
+      tags: [users]
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [role], properties: {role: {type: string, enum: [service, analyst, lead, admin, auditor]}}}
+      responses:
+        '200':
+          description: Updated account
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AnalystProfile'}
+  /v1/users/{id}/password:
+    put:
+      operationId: setUserPassword
+      summary: Reset a password and revoke sessions (admin, audited)
+      tags: [users]
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [password], properties: {password: {type: string, minLength: 12}}}
+      responses:
+        '204': {description: Updated}
+
 components:
   securitySchemes:
     bearerAuth:
@@ -605,6 +1016,16 @@ components:
       name: Idempotency-Key
       in: header
       schema: {type: string, maxLength: 128}
+    CaseId:
+      name: id
+      in: path
+      required: true
+      schema: {type: integer, format: int64}
+    IfMatch:
+      name: If-Match
+      in: header
+      description: Case version for optimistic concurrency
+      schema: {type: string}
   responses:
     Problem:
       description: Problem details
@@ -1242,3 +1663,142 @@ components:
         rules_hash: {type: string}
         model_version: {type: string}
         checks: {type: array, items: {$ref: '#/components/schemas/GateCheck'}}
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: {type: string}
+        password: {type: string, format: password}
+        code: {type: string, description: TOTP code when MFA is enrolled}
+    Session:
+      type: object
+      required: [access_token, refresh_token, token_type, expires_in, user]
+      properties:
+        access_token: {type: string}
+        refresh_token: {type: string}
+        token_type: {type: string, enum: [Bearer]}
+        expires_in: {type: integer}
+        user: {$ref: '#/components/schemas/AnalystProfile'}
+        scopes: {type: array, items: {type: string}}
+    AnalystProfile:
+      type: object
+      required: [id, username, display_name, role, active]
+      properties:
+        id: {type: string}
+        username: {type: string}
+        display_name: {type: string}
+        role: {type: string, enum: [service, analyst, lead, admin, auditor]}
+        active: {type: boolean}
+        mfa_enabled: {type: boolean}
+        last_login_at: {type: string, format: date-time, nullable: true}
+        scopes: {type: array, items: {type: string}}
+    UserCreate:
+      type: object
+      required: [username, role, password]
+      properties:
+        username: {type: string}
+        display_name: {type: string}
+        role: {type: string, enum: [analyst, lead, auditor, admin]}
+        password: {type: string, minLength: 12}
+    Case:
+      type: object
+      required: [id, source, priority, status, version, opened_at, account_ref, decision_ref]
+      properties:
+        id: {type: integer, format: int64}
+        source: {type: string, enum: [DECISION, STEP_UP_FAILED, QA_SAMPLE, MANUAL]}
+        decision_class: {type: string, nullable: true}
+        account_ref: {type: string, description: Keyed pseudonym; never a raw account id}
+        decision_ref: {type: string, description: Keyed pseudonym; never a raw decision id}
+        linked_refs: {type: array, items: {type: string}}
+        risk_score: {type: integer}
+        amount_total: {type: integer, format: int64}
+        priority: {type: integer, minimum: 0, maximum: 100}
+        status: {type: string, enum: [OPEN, IN_REVIEW, ESCALATED, RESOLVED, REOPENED]}
+        assignee: {type: string, nullable: true}
+        outcome: {type: string, enum: [FRAUD, LEGIT, INCONCLUSIVE], nullable: true}
+        reason_code: {type: string, nullable: true}
+        outcome_confidence: {type: string, nullable: true}
+        pending_approval: {type: boolean}
+        approved_by: {type: string, nullable: true}
+        follow_up_at: {type: string, format: date-time, nullable: true}
+        claimed_at: {type: string, format: date-time, nullable: true}
+        last_activity_at: {type: string, format: date-time, nullable: true}
+        repeat_account: {type: boolean}
+        escalated: {type: boolean}
+        sla_due_at: {type: string, format: date-time, nullable: true}
+        sla_paused_at: {type: string, format: date-time, nullable: true}
+        sla_state: {type: string, enum: [ok, breached, paused, met, none]}
+        age_minutes: {type: integer}
+        version: {type: integer}
+        opened_at: {type: string, format: date-time}
+        resolved_at: {type: string, format: date-time, nullable: true}
+        second_review_of: {type: integer, format: int64, nullable: true}
+    CaseEnvelope:
+      type: object
+      required: [case]
+      properties:
+        case: {$ref: '#/components/schemas/Case'}
+    CaseEvent:
+      type: object
+      required: [id, case_id, at, actor, actor_role, type, payload]
+      properties:
+        id: {type: integer, format: int64}
+        case_id: {type: integer, format: int64}
+        at: {type: string, format: date-time}
+        actor: {type: string}
+        actor_role: {type: string}
+        type: {type: string}
+        payload: {type: object, additionalProperties: true}
+    CasePage:
+      type: object
+      required: [cases, total]
+      properties:
+        cases: {type: array, items: {$ref: '#/components/schemas/Case'}}
+        total: {type: integer}
+    CaseDetail:
+      type: object
+      required: [case, timeline]
+      properties:
+        case: {$ref: '#/components/schemas/Case'}
+        timeline: {type: array, items: {$ref: '#/components/schemas/CaseEvent'}}
+    CaseCreate:
+      type: object
+      required: [account_id]
+      properties:
+        account_id: {type: string}
+        decision_ref: {type: string}
+        decision_class: {type: string, enum: [HOLD, BLOCK, STEP_UP]}
+        risk_score: {type: integer, minimum: 0, maximum: 100}
+        amount_total: {type: integer, format: int64, minimum: 0}
+        reasons: {type: array, items: {type: string}}
+    CaseResolution:
+      type: object
+      required: [outcome, reason_code]
+      properties:
+        outcome: {type: string, enum: [FRAUD, LEGIT, INCONCLUSIVE]}
+        reason_code: {type: string}
+        confidence: {type: string, enum: [HIGH, MEDIUM, LOW]}
+        follow_up_at: {type: string, format: date-time}
+        propagate_linked:
+          type: boolean
+          description: Also label the linked decisions of the same account. A propagated label never overwrites an existing human label.
+        version: {type: integer}
+    CaseMetrics:
+      type: object
+      properties:
+        open: {type: integer}
+        in_review: {type: integer}
+        escalated: {type: integer}
+        pending_approval: {type: integer}
+        breached: {type: integer}
+        resolved_today: {type: integer}
+        median_resolution_minutes: {type: number}
+        by_outcome: {type: object, additionalProperties: {type: integer}}
+        by_reason: {type: object, additionalProperties: {type: integer}}
+    LabelAgreement:
+      type: object
+      properties:
+        samples: {type: integer}
+        observed_agreement: {type: number}
+        kappa: {type: number, nullable: true}

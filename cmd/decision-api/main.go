@@ -15,6 +15,7 @@ import (
 
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/api"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/audit"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/cases"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/features"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/obs"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/pipeline"
@@ -26,7 +27,7 @@ import (
 
 const shutdownTimeout = 15 * time.Second
 
-var version = "0.6.0"
+var version = "0.7.0"
 
 func main() {
 	if err := run(); err != nil {
@@ -156,6 +157,29 @@ func run() error {
 	if !auth.Enabled() {
 		logger.Warn("JWT_SECRET is empty; authentication is DISABLED (development only)")
 	}
+
+	// Phase 7: analyst accounts and the case queue. Both need Postgres, so they
+	// stay unavailable (503) rather than half-working when the pool is missing.
+	var users *api.UserStore
+	var caseStore *cases.Store
+	if pool != nil {
+		caseCfg, err := cases.LoadConfig(cfg.CasesConfig)
+		if err != nil {
+			return err
+		}
+		caseStore = cases.NewStore(pool, caseCfg)
+		users = api.NewUserStore(pool)
+		if cfg.PseudonymKey == "" {
+			logger.Warn("FADE_PSEUDONYM_KEY is empty; analyst references are unkeyed digests (development only)")
+		}
+		if password := os.Getenv("BOOTSTRAP_ADMIN_PASSWORD"); password != "" {
+			if u, created, err := users.BootstrapAdmin(ctx, password); err != nil {
+				logger.Warn("bootstrap admin failed", "error", err)
+			} else if created {
+				logger.Warn("bootstrap admin created", "username", u.Username)
+			}
+		}
+	}
 	checks := []api.Check{{Name: "redis", Pinger: store.RedisPinger{Client: rdb}}}
 	if pool != nil {
 		checks = append(checks, api.Check{Name: "postgres", Pinger: pool})
@@ -177,6 +201,9 @@ func run() error {
 		AuditHMACKey: []byte(cfg.AuditHMACKey), AuditCheckpointDir: cfg.AuditCheckpointDir,
 		Version: version, CORSOrigin: cfg.CORSOrigin,
 		BreakGlassEnabled: breakGlassEnabled, Gate: guard,
+		Cases: caseStore, Users: users, TokenIssuer: auth,
+		TokenAccessTTL: cfg.TokenAccessTTL, TokenRefreshTTL: cfg.TokenRefreshTTL,
+		PseudonymKey: cfg.PseudonymKey,
 	})
 
 	srv := &http.Server{

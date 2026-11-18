@@ -163,6 +163,8 @@ services:
       # `make up` always materialises .env from .env.example first.
       - path: ../.env
         required: false
+    environment:
+      CASES_CONFIG: /etc/fade/cases.yaml
     ports:
       - "8080:8080"
     healthcheck:
@@ -210,6 +212,31 @@ services:
       timeout: 3s
       retries: 12
       start_period: 10s
+
+  # ------------------------------------------------------------ case-worker
+  case-worker:
+    image: fade-case-worker:0.7.0
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.case-worker
+    restart: unless-stopped
+    profiles: [app]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    env_file:
+      - path: ../.env
+        required: false
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-fade}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-fade}?sslmode=disable
+      KAFKA_BROKERS: redpanda:9092
+      CASES_CONFIG: /etc/fade/cases.yaml
+      CASE_POLL_INTERVAL: 2s
+      CASE_SLA_SWEEP_INTERVAL: 30s
+      OUTBOX_RELAY_INTERVAL: 1s
+      LOG_LEVEL: info
 
   # ------------------------------------------------------------- ml-scorer
   ml-scorer:

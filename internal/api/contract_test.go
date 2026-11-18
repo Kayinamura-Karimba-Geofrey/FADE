@@ -67,12 +67,19 @@ func validateExchange(t *testing.T, route routers.Router, method, path string, b
 
 func TestOpenAPIContractDecide(t *testing.T) {
 	doc, router := loadSpec(t)
-	if doc.Info.Version != "0.6.0" {
+	if doc.Info.Version != "0.7.0" {
 		t.Fatalf("spec version=%q", doc.Info.Version)
 	}
 	for _, path := range []string{"/v1/decide", "/v1/decide/batch", "/v1/decisions", "/v1/decisions/{id}",
 		"/v1/rules/reload", "/v1/rules/active", "/v1/rules/versions", "/v1/rules/{id}", "/v1/rules/validate",
-		"/v1/lists", "/v1/lists/{id}", "/v1/metrics/rules", "/healthz", "/readyz", "/version", "/metrics"} {
+		"/v1/lists", "/v1/lists/{id}", "/v1/metrics/rules", "/healthz", "/readyz", "/version", "/metrics",
+		// Phase 7: analyst auth and case management.
+		"/v1/auth/login", "/v1/auth/refresh", "/v1/auth/logout", "/v1/auth/me",
+		"/v1/cases", "/v1/cases/{id}", "/v1/cases/{id}/claim", "/v1/cases/{id}/assign",
+		"/v1/cases/{id}/release", "/v1/cases/{id}/escalate", "/v1/cases/{id}/resolve",
+		"/v1/cases/{id}/approve", "/v1/cases/{id}/reopen", "/v1/cases/{id}/notes",
+		"/v1/cases/metrics", "/v1/cases/metrics/labels", "/v1/users", "/v1/users/{id}/role",
+		"/v1/decisions/{id}/step-up-result"} {
 		if doc.Paths.Find(path) == nil {
 			t.Fatalf("spec is missing %s", path)
 		}

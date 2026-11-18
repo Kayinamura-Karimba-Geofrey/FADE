@@ -13,6 +13,69 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// Defines values for AnalystProfileRole.
+const (
+	AnalystProfileRoleAdmin   AnalystProfileRole = "admin"
+	AnalystProfileRoleAnalyst AnalystProfileRole = "analyst"
+	AnalystProfileRoleAuditor AnalystProfileRole = "auditor"
+	AnalystProfileRoleLead    AnalystProfileRole = "lead"
+	AnalystProfileRoleService AnalystProfileRole = "service"
+)
+
+// Defines values for CaseOutcome.
+const (
+	CaseOutcomeFRAUD        CaseOutcome = "FRAUD"
+	CaseOutcomeINCONCLUSIVE CaseOutcome = "INCONCLUSIVE"
+	CaseOutcomeLEGIT        CaseOutcome = "LEGIT"
+)
+
+// Defines values for CaseSlaState.
+const (
+	CaseSlaStateBreached CaseSlaState = "breached"
+	CaseSlaStateMet      CaseSlaState = "met"
+	CaseSlaStateNone     CaseSlaState = "none"
+	CaseSlaStateOk       CaseSlaState = "ok"
+	CaseSlaStatePaused   CaseSlaState = "paused"
+)
+
+// Defines values for CaseSource.
+const (
+	CaseSourceDECISION     CaseSource = "DECISION"
+	CaseSourceMANUAL       CaseSource = "MANUAL"
+	CaseSourceQASAMPLE     CaseSource = "QA_SAMPLE"
+	CaseSourceSTEPUPFAILED CaseSource = "STEP_UP_FAILED"
+)
+
+// Defines values for CaseStatus.
+const (
+	ESCALATED CaseStatus = "ESCALATED"
+	INREVIEW  CaseStatus = "IN_REVIEW"
+	OPEN      CaseStatus = "OPEN"
+	REOPENED  CaseStatus = "REOPENED"
+	RESOLVED  CaseStatus = "RESOLVED"
+)
+
+// Defines values for CaseCreateDecisionClass.
+const (
+	CaseCreateDecisionClassBLOCK  CaseCreateDecisionClass = "BLOCK"
+	CaseCreateDecisionClassHOLD   CaseCreateDecisionClass = "HOLD"
+	CaseCreateDecisionClassSTEPUP CaseCreateDecisionClass = "STEP_UP"
+)
+
+// Defines values for CaseResolutionConfidence.
+const (
+	HIGH   CaseResolutionConfidence = "HIGH"
+	LOW    CaseResolutionConfidence = "LOW"
+	MEDIUM CaseResolutionConfidence = "MEDIUM"
+)
+
+// Defines values for CaseResolutionOutcome.
+const (
+	CaseResolutionOutcomeFRAUD        CaseResolutionOutcome = "FRAUD"
+	CaseResolutionOutcomeINCONCLUSIVE CaseResolutionOutcome = "INCONCLUSIVE"
+	CaseResolutionOutcomeLEGIT        CaseResolutionOutcome = "LEGIT"
+)
+
 // Defines values for ConditionOp.
 const (
 	ConditionOpEmpty            ConditionOp = "!="
@@ -65,6 +128,36 @@ const (
 	EventTxnTypeP2PSEND      EventTxnType = "P2P_SEND"
 )
 
+// Defines values for ExplainCounterfactualResultingDecision.
+const (
+	ExplainCounterfactualResultingDecisionALLOW  ExplainCounterfactualResultingDecision = "ALLOW"
+	ExplainCounterfactualResultingDecisionBLOCK  ExplainCounterfactualResultingDecision = "BLOCK"
+	ExplainCounterfactualResultingDecisionHOLD   ExplainCounterfactualResultingDecision = "HOLD"
+	ExplainCounterfactualResultingDecisionSTEPUP ExplainCounterfactualResultingDecision = "STEP_UP"
+)
+
+// Defines values for ExplainFactorDirection.
+const (
+	DecreasesRisk ExplainFactorDirection = "decreases_risk"
+	IncreasesRisk ExplainFactorDirection = "increases_risk"
+	Neutral       ExplainFactorDirection = "neutral"
+)
+
+// Defines values for ExplainViewAudience.
+const (
+	ExplainViewAudienceAnalyst   ExplainViewAudience = "analyst"
+	ExplainViewAudienceCustomer  ExplainViewAudience = "customer"
+	ExplainViewAudienceRegulator ExplainViewAudience = "regulator"
+)
+
+// Defines values for ExplainViewDecision.
+const (
+	ExplainViewDecisionALLOW  ExplainViewDecision = "ALLOW"
+	ExplainViewDecisionBLOCK  ExplainViewDecision = "BLOCK"
+	ExplainViewDecisionHOLD   ExplainViewDecision = "HOLD"
+	ExplainViewDecisionSTEPUP ExplainViewDecision = "STEP_UP"
+)
+
 // Defines values for HealthStatus.
 const (
 	HealthStatusDegraded    HealthStatus = "degraded"
@@ -113,6 +206,27 @@ const (
 	ReasonSourceTier       ReasonSource = "tier"
 )
 
+// Defines values for ReplayCreateMode.
+const (
+	Full     ReplayCreateMode = "full"
+	Snapshot ReplayCreateMode = "snapshot"
+	StoredMl ReplayCreateMode = "stored-ml"
+)
+
+// Defines values for ReplayCreateStatePolicy.
+const (
+	Ignore ReplayCreateStatePolicy = "ignore"
+)
+
+// Defines values for ReplayJobStatus.
+const (
+	CANCELLED ReplayJobStatus = "CANCELLED"
+	DONE      ReplayJobStatus = "DONE"
+	FAILED    ReplayJobStatus = "FAILED"
+	QUEUED    ReplayJobStatus = "QUEUED"
+	RUNNING   ReplayJobStatus = "RUNNING"
+)
+
 // Defines values for RuleAction.
 const (
 	RuleActionALLOW  RuleAction = "ALLOW"
@@ -152,6 +266,41 @@ const (
 	RuleSnapshotSourcePostgres RuleSnapshotSource = "postgres"
 )
 
+// Defines values for SessionTokenType.
+const (
+	Bearer SessionTokenType = "Bearer"
+)
+
+// Defines values for UserCreateRole.
+const (
+	UserCreateRoleAdmin   UserCreateRole = "admin"
+	UserCreateRoleAnalyst UserCreateRole = "analyst"
+	UserCreateRoleAuditor UserCreateRole = "auditor"
+	UserCreateRoleLead    UserCreateRole = "lead"
+)
+
+// Defines values for ListCasesParamsSource.
+const (
+	ListCasesParamsSourceDECISION     ListCasesParamsSource = "DECISION"
+	ListCasesParamsSourceMANUAL       ListCasesParamsSource = "MANUAL"
+	ListCasesParamsSourceQASAMPLE     ListCasesParamsSource = "QA_SAMPLE"
+	ListCasesParamsSourceSTEPUPFAILED ListCasesParamsSource = "STEP_UP_FAILED"
+)
+
+// Defines values for ListCasesParamsDecisionClass.
+const (
+	ListCasesParamsDecisionClassBLOCK  ListCasesParamsDecisionClass = "BLOCK"
+	ListCasesParamsDecisionClassHOLD   ListCasesParamsDecisionClass = "HOLD"
+	ListCasesParamsDecisionClassSTEPUP ListCasesParamsDecisionClass = "STEP_UP"
+)
+
+// Defines values for SecondReviewJSONBodyOutcome.
+const (
+	FRAUD        SecondReviewJSONBodyOutcome = "FRAUD"
+	INCONCLUSIVE SecondReviewJSONBodyOutcome = "INCONCLUSIVE"
+	LEGIT        SecondReviewJSONBodyOutcome = "LEGIT"
+)
+
 // Defines values for DecideParamsInclude.
 const (
 	DecideParamsIncludeExplain  DecideParamsInclude = "explain"
@@ -176,6 +325,13 @@ const (
 	GetDecisionParamsIncludeFeatures GetDecisionParamsInclude = "features"
 )
 
+// Defines values for ExplainDecisionParamsAudience.
+const (
+	ExplainDecisionParamsAudienceAnalyst   ExplainDecisionParamsAudience = "analyst"
+	ExplainDecisionParamsAudienceCustomer  ExplainDecisionParamsAudience = "customer"
+	ExplainDecisionParamsAudienceRegulator ExplainDecisionParamsAudience = "regulator"
+)
+
 // Defines values for ListEntriesParamsListType.
 const (
 	ListEntriesParamsListTypeALLOW ListEntriesParamsListType = "ALLOW"
@@ -189,10 +345,106 @@ const (
 	MSISDN  ListEntriesParamsSubject = "MSISDN"
 )
 
+// Defines values for SetUserRoleJSONBodyRole.
+const (
+	Admin   SetUserRoleJSONBodyRole = "admin"
+	Analyst SetUserRoleJSONBodyRole = "analyst"
+	Auditor SetUserRoleJSONBodyRole = "auditor"
+	Lead    SetUserRoleJSONBodyRole = "lead"
+	Service SetUserRoleJSONBodyRole = "service"
+)
+
 // ActiveRuleSet defines model for ActiveRuleSet.
 type ActiveRuleSet struct {
 	RuleSet  RuleSet      `json:"rule_set"`
 	Snapshot RuleSnapshot `json:"snapshot"`
+}
+
+// AnalystProfile defines model for AnalystProfile.
+type AnalystProfile struct {
+	Active      bool               `json:"active"`
+	DisplayName string             `json:"display_name"`
+	Id          string             `json:"id"`
+	LastLoginAt *time.Time         `json:"last_login_at"`
+	MfaEnabled  *bool              `json:"mfa_enabled,omitempty"`
+	Role        AnalystProfileRole `json:"role"`
+	Scopes      *[]string          `json:"scopes,omitempty"`
+	Username    string             `json:"username"`
+}
+
+// AnalystProfileRole defines model for AnalystProfile.Role.
+type AnalystProfileRole string
+
+// AuditBreak defines model for AuditBreak.
+type AuditBreak struct {
+	Actual   *string `json:"actual,omitempty"`
+	Detail   string  `json:"detail"`
+	Expected *string `json:"expected,omitempty"`
+	Kind     string  `json:"kind"`
+	Seq      int     `json:"seq"`
+}
+
+// AuditCheckpoint defines model for AuditCheckpoint.
+type AuditCheckpoint struct {
+	Chain     string `json:"chain"`
+	CreatedAt string `json:"created_at"`
+
+	// Digest HMAC-SHA256 over the canonical checkpoint
+	Digest        string `json:"digest"`
+	Hash          string `json:"hash"`
+	RowCount      int    `json:"row_count"`
+	SchemaVersion int    `json:"schema_version"`
+	Seq           int    `json:"seq"`
+}
+
+// AuditCheckpointCheck defines model for AuditCheckpointCheck.
+type AuditCheckpointCheck struct {
+	Detail   *string `json:"detail,omitempty"`
+	Hash     string  `json:"hash"`
+	Ok       bool    `json:"ok"`
+	Path     string  `json:"path"`
+	RowCount int     `json:"row_count"`
+	Seq      int     `json:"seq"`
+}
+
+// AuditEntry defines model for AuditEntry.
+type AuditEntry struct {
+	Hash     string   `json:"hash"`
+	PrevHash string   `json:"prev_hash"`
+	Row      AuditRow `json:"row"`
+	Seq      int      `json:"seq"`
+}
+
+// AuditPage defines model for AuditPage.
+type AuditPage struct {
+	Count   int          `json:"count"`
+	Entries []AuditEntry `json:"entries"`
+}
+
+// AuditRow defines model for AuditRow.
+type AuditRow struct {
+	Action     string       `json:"action"`
+	Actor      string       `json:"actor"`
+	After      *interface{} `json:"after,omitempty"`
+	At         string       `json:"at"`
+	Before     *interface{} `json:"before,omitempty"`
+	ObjectId   string       `json:"object_id"`
+	ObjectType string       `json:"object_type"`
+	PrevHash   string       `json:"prev_hash"`
+}
+
+// AuditVerifyResult defines model for AuditVerifyResult.
+type AuditVerifyResult struct {
+	Checked       int                     `json:"checked"`
+	Checkpoints   *[]AuditCheckpointCheck `json:"checkpoints,omitempty"`
+	Context       *[]AuditEntry           `json:"context,omitempty"`
+	FirstBreak    *AuditBreak             `json:"first_break,omitempty"`
+	FromSeq       int                     `json:"from_seq"`
+	LegacyPrelude *bool                   `json:"legacy_prelude,omitempty"`
+	Ok            bool                    `json:"ok"`
+	RowsPerSec    float32                 `json:"rows_per_sec"`
+	Seconds       float32                 `json:"seconds"`
+	ToSeq         int                     `json:"to_seq"`
 }
 
 // BatchItem defines model for BatchItem.
@@ -214,6 +466,126 @@ type BatchResponse struct {
 	Results   []BatchItem `json:"results"`
 	Succeeded *int        `json:"succeeded,omitempty"`
 }
+
+// Case defines model for Case.
+type Case struct {
+	// AccountRef Keyed pseudonym; never a raw account id
+	AccountRef    string     `json:"account_ref"`
+	AgeMinutes    *int       `json:"age_minutes,omitempty"`
+	AmountTotal   *int64     `json:"amount_total,omitempty"`
+	ApprovedBy    *string    `json:"approved_by"`
+	Assignee      *string    `json:"assignee"`
+	ClaimedAt     *time.Time `json:"claimed_at"`
+	DecisionClass *string    `json:"decision_class"`
+
+	// DecisionRef Keyed pseudonym; never a raw decision id
+	DecisionRef       string        `json:"decision_ref"`
+	Escalated         *bool         `json:"escalated,omitempty"`
+	FollowUpAt        *time.Time    `json:"follow_up_at"`
+	Id                int64         `json:"id"`
+	LastActivityAt    *time.Time    `json:"last_activity_at"`
+	LinkedRefs        *[]string     `json:"linked_refs,omitempty"`
+	OpenedAt          time.Time     `json:"opened_at"`
+	Outcome           *CaseOutcome  `json:"outcome"`
+	OutcomeConfidence *string       `json:"outcome_confidence"`
+	PendingApproval   *bool         `json:"pending_approval,omitempty"`
+	Priority          int           `json:"priority"`
+	ReasonCode        *string       `json:"reason_code"`
+	RepeatAccount     *bool         `json:"repeat_account,omitempty"`
+	ResolvedAt        *time.Time    `json:"resolved_at"`
+	RiskScore         *int          `json:"risk_score,omitempty"`
+	SecondReviewOf    *int64        `json:"second_review_of"`
+	SlaDueAt          *time.Time    `json:"sla_due_at"`
+	SlaPausedAt       *time.Time    `json:"sla_paused_at"`
+	SlaState          *CaseSlaState `json:"sla_state,omitempty"`
+	Source            CaseSource    `json:"source"`
+	Status            CaseStatus    `json:"status"`
+	Version           int           `json:"version"`
+}
+
+// CaseOutcome defines model for Case.Outcome.
+type CaseOutcome string
+
+// CaseSlaState defines model for Case.SlaState.
+type CaseSlaState string
+
+// CaseSource defines model for Case.Source.
+type CaseSource string
+
+// CaseStatus defines model for Case.Status.
+type CaseStatus string
+
+// CaseCreate defines model for CaseCreate.
+type CaseCreate struct {
+	AccountId     string                   `json:"account_id"`
+	AmountTotal   *int64                   `json:"amount_total,omitempty"`
+	DecisionClass *CaseCreateDecisionClass `json:"decision_class,omitempty"`
+	DecisionRef   *string                  `json:"decision_ref,omitempty"`
+	Reasons       *[]string                `json:"reasons,omitempty"`
+	RiskScore     *int                     `json:"risk_score,omitempty"`
+}
+
+// CaseCreateDecisionClass defines model for CaseCreate.DecisionClass.
+type CaseCreateDecisionClass string
+
+// CaseDetail defines model for CaseDetail.
+type CaseDetail struct {
+	Case     Case        `json:"case"`
+	Timeline []CaseEvent `json:"timeline"`
+}
+
+// CaseEnvelope defines model for CaseEnvelope.
+type CaseEnvelope struct {
+	Case Case `json:"case"`
+}
+
+// CaseEvent defines model for CaseEvent.
+type CaseEvent struct {
+	Actor     string                 `json:"actor"`
+	ActorRole string                 `json:"actor_role"`
+	At        time.Time              `json:"at"`
+	CaseId    int64                  `json:"case_id"`
+	Id        int64                  `json:"id"`
+	Payload   map[string]interface{} `json:"payload"`
+	Type      string                 `json:"type"`
+}
+
+// CaseMetrics defines model for CaseMetrics.
+type CaseMetrics struct {
+	Breached                *int            `json:"breached,omitempty"`
+	ByOutcome               *map[string]int `json:"by_outcome,omitempty"`
+	ByReason                *map[string]int `json:"by_reason,omitempty"`
+	Escalated               *int            `json:"escalated,omitempty"`
+	InReview                *int            `json:"in_review,omitempty"`
+	MedianResolutionMinutes *float32        `json:"median_resolution_minutes,omitempty"`
+	Open                    *int            `json:"open,omitempty"`
+	PendingApproval         *int            `json:"pending_approval,omitempty"`
+	ResolvedToday           *int            `json:"resolved_today,omitempty"`
+}
+
+// CasePage defines model for CasePage.
+type CasePage struct {
+	Cases []Case `json:"cases"`
+	Total int    `json:"total"`
+}
+
+// CaseResolution defines model for CaseResolution.
+type CaseResolution struct {
+	Confidence *CaseResolutionConfidence `json:"confidence,omitempty"`
+	FollowUpAt *time.Time                `json:"follow_up_at,omitempty"`
+	Outcome    CaseResolutionOutcome     `json:"outcome"`
+
+	// PropagateLinked Also label the linked decisions of the same account. A propagated label never overwrites an existing human label.
+	PropagateLinked *bool  `json:"propagate_linked,omitempty"`
+	ReasonCode      string `json:"reason_code"`
+	Version         *int   `json:"version,omitempty"`
+}
+
+// CaseResolutionConfidence defines model for CaseResolution.Confidence.
+type CaseResolutionConfidence string
+
+// CaseResolutionOutcome defines model for CaseResolution.Outcome.
+type CaseResolutionOutcome string
 
 // CombinerConfig defines model for CombinerConfig.
 type CombinerConfig struct {
@@ -290,6 +662,92 @@ type EventCurrency string
 // EventTxnType defines model for Event.TxnType.
 type EventTxnType string
 
+// ExplainCounterfactual defines model for ExplainCounterfactual.
+type ExplainCounterfactual struct {
+	Current           float32                                `json:"current"`
+	Delta             float32                                `json:"delta"`
+	Explanation       string                                 `json:"explanation"`
+	Field             string                                 `json:"field"`
+	ResultingDecision ExplainCounterfactualResultingDecision `json:"resulting_decision"`
+	Suggested         float32                                `json:"suggested"`
+}
+
+// ExplainCounterfactualResultingDecision defines model for ExplainCounterfactual.ResultingDecision.
+type ExplainCounterfactualResultingDecision string
+
+// ExplainFactor defines model for ExplainFactor.
+type ExplainFactor struct {
+	Contribution float32                `json:"contribution"`
+	Detail       *string                `json:"detail,omitempty"`
+	Direction    ExplainFactorDirection `json:"direction"`
+	Name         string                 `json:"name"`
+	Source       string                 `json:"source"`
+}
+
+// ExplainFactorDirection defines model for ExplainFactor.Direction.
+type ExplainFactorDirection string
+
+// ExplainFeature defines model for ExplainFeature.
+type ExplainFeature struct {
+	Name  string      `json:"name"`
+	Value interface{} `json:"value"`
+}
+
+// ExplainProvenance defines model for ExplainProvenance.
+type ExplainProvenance struct {
+	Combiner             *map[string]interface{} `json:"combiner,omitempty"`
+	ExplainSchemaVersion int                     `json:"explain_schema_version"`
+	ModelVersion         *string                 `json:"model_version,omitempty"`
+	RuleSetHash          string                  `json:"rule_set_hash"`
+	RuleSetVersion       int                     `json:"rule_set_version"`
+	SnapshotId           *string                 `json:"snapshot_id,omitempty"`
+}
+
+// ExplainReason defines model for ExplainReason.
+type ExplainReason struct {
+	Contribution *float32 `json:"contribution,omitempty"`
+	Feature      *string  `json:"feature,omitempty"`
+	Id           *string  `json:"id,omitempty"`
+	Mode         *string  `json:"mode,omitempty"`
+	Source       string   `json:"source"`
+	Text         string   `json:"text"`
+	Value        *float32 `json:"value,omitempty"`
+	Weight       *int     `json:"weight,omitempty"`
+}
+
+// ExplainView defines model for ExplainView.
+type ExplainView struct {
+	Audience             ExplainViewAudience      `json:"audience"`
+	Counterfactuals      *[]ExplainCounterfactual `json:"counterfactuals,omitempty"`
+	Decision             ExplainViewDecision      `json:"decision"`
+	DecisionHash         *string                  `json:"decision_hash,omitempty"`
+	DecisionId           string                   `json:"decision_id"`
+	EventId              *string                  `json:"event_id,omitempty"`
+	ExplainSchemaVersion int                      `json:"explain_schema_version"`
+	Factors              *[]ExplainFactor         `json:"factors,omitempty"`
+	Features             *[]ExplainFeature        `json:"features,omitempty"`
+	GeneratedAt          time.Time                `json:"generated_at"`
+	Language             string                   `json:"language"`
+
+	// LanguageNeedsReview True when the message catalog is machine-drafted (fr, rw).
+	LanguageNeedsReview *bool `json:"language_needs_review,omitempty"`
+	MlScore             *int  `json:"ml_score"`
+
+	// PrimaryFactor Name of the highest-contribution factor (analyst/regulator only).
+	PrimaryFactor *string            `json:"primary_factor,omitempty"`
+	Provenance    *ExplainProvenance `json:"provenance,omitempty"`
+	Reasons       []ExplainReason    `json:"reasons"`
+	RiskScore     *int               `json:"risk_score,omitempty"`
+	RuleScore     *int               `json:"rule_score,omitempty"`
+	Summary       string             `json:"summary"`
+}
+
+// ExplainViewAudience defines model for ExplainView.Audience.
+type ExplainViewAudience string
+
+// ExplainViewDecision defines model for ExplainView.Decision.
+type ExplainViewDecision string
+
 // FeatureVector defines model for FeatureVector.
 type FeatureVector struct {
 	EventId              string                 `json:"event_id"`
@@ -310,6 +768,26 @@ type Floors struct {
 	STEPUP *int `json:"STEP_UP,omitempty"`
 }
 
+// GateCheck defines model for GateCheck.
+type GateCheck struct {
+	Detail    *string `json:"detail,omitempty"`
+	Measured  float32 `json:"measured"`
+	Name      string  `json:"name"`
+	Passed    bool    `json:"passed"`
+	Threshold float32 `json:"threshold"`
+}
+
+// GateResult defines model for GateResult.
+type GateResult struct {
+	Candidate    string      `json:"candidate"`
+	Checks       []GateCheck `json:"checks"`
+	ConfigHash   *string     `json:"config_hash,omitempty"`
+	JobId        int         `json:"job_id"`
+	ModelVersion *string     `json:"model_version,omitempty"`
+	Passed       bool        `json:"passed"`
+	RulesHash    *string     `json:"rules_hash,omitempty"`
+}
+
 // Geo defines model for Geo.
 type Geo struct {
 	CellId string  `json:"cell_id"`
@@ -327,6 +805,13 @@ type Health struct {
 
 // HealthStatus defines model for Health.Status.
 type HealthStatus string
+
+// LabelAgreement defines model for LabelAgreement.
+type LabelAgreement struct {
+	Kappa             *float32 `json:"kappa"`
+	ObservedAgreement *float32 `json:"observed_agreement,omitempty"`
+	Samples           *int     `json:"samples,omitempty"`
+}
 
 // ListEntry defines model for ListEntry.
 type ListEntry struct {
@@ -365,6 +850,14 @@ type ListEntryInputSubject string
 type ListEntryPage struct {
 	Count   *int        `json:"count,omitempty"`
 	Entries []ListEntry `json:"entries"`
+}
+
+// LoginRequest defines model for LoginRequest.
+type LoginRequest struct {
+	// Code TOTP code when MFA is enrolled
+	Code     *string `json:"code,omitempty"`
+	Password string  `json:"password"`
+	Username string  `json:"username"`
 }
 
 // Problem defines model for Problem.
@@ -410,6 +903,78 @@ type ReloadResult struct {
 	PreviousVersion *int     `json:"previous_version,omitempty"`
 	Rules           int      `json:"rules"`
 	Version         int      `json:"version"`
+}
+
+// ReplayAccepted defines model for ReplayAccepted.
+type ReplayAccepted struct {
+	JobId  int    `json:"job_id"`
+	Status string `json:"status"`
+}
+
+// ReplayConfigRef defines model for ReplayConfigRef.
+type ReplayConfigRef struct {
+	Combiner *map[string]interface{} `json:"combiner,omitempty"`
+	Label    string                  `json:"label"`
+	Model    *string                 `json:"model,omitempty"`
+	Rules    *string                 `json:"rules,omitempty"`
+}
+
+// ReplayCreate defines model for ReplayCreate.
+type ReplayCreate struct {
+	Baseline   ReplayConfigRef   `json:"baseline"`
+	Candidates []ReplayConfigRef `json:"candidates"`
+	Dataset    string            `json:"dataset"`
+	From       *time.Time        `json:"from,omitempty"`
+	Mode       *ReplayCreateMode `json:"mode,omitempty"`
+	Name       *string           `json:"name,omitempty"`
+	Options    *struct {
+		Ablate          *bool    `json:"ablate,omitempty"`
+		AllowMlDegraded *bool    `json:"allow_ml_degraded,omitempty"`
+		Sample          *float32 `json:"sample,omitempty"`
+		WithExplain     *bool    `json:"with_explain,omitempty"`
+	} `json:"options,omitempty"`
+	Seed        *int                     `json:"seed,omitempty"`
+	StatePolicy *ReplayCreateStatePolicy `json:"state_policy,omitempty"`
+	To          *time.Time               `json:"to,omitempty"`
+	WarmupDays  *int                     `json:"warmup_days,omitempty"`
+}
+
+// ReplayCreateMode defines model for ReplayCreate.Mode.
+type ReplayCreateMode string
+
+// ReplayCreateStatePolicy defines model for ReplayCreate.StatePolicy.
+type ReplayCreateStatePolicy string
+
+// ReplayDelta defines model for ReplayDelta.
+type ReplayDelta struct {
+	Amount          int     `json:"amount"`
+	BaselineReason  *string `json:"baseline_reason,omitempty"`
+	CandidateReason *string `json:"candidate_reason,omitempty"`
+	EventId         string  `json:"event_id"`
+	From            string  `json:"from"`
+	Label           string  `json:"label"`
+	Scenario        *string `json:"scenario,omitempty"`
+	To              string  `json:"to"`
+}
+
+// ReplayJob defines model for ReplayJob.
+type ReplayJob struct {
+	Dataset  string                    `json:"dataset"`
+	Error    *string                   `json:"error,omitempty"`
+	JobId    int                       `json:"job_id"`
+	Mode     *string                   `json:"mode,omitempty"`
+	Name     *string                   `json:"name,omitempty"`
+	Progress *float32                  `json:"progress,omitempty"`
+	Results  *[]map[string]interface{} `json:"results,omitempty"`
+	Status   ReplayJobStatus           `json:"status"`
+}
+
+// ReplayJobStatus defines model for ReplayJob.Status.
+type ReplayJobStatus string
+
+// ReplayJobList defines model for ReplayJobList.
+type ReplayJobList struct {
+	Jobs []ReplayJob `json:"jobs"`
 }
 
 // Rule defines model for Rule.
@@ -504,6 +1069,19 @@ type Sender struct {
 	SimSerialHash  string `json:"sim_serial_hash"`
 }
 
+// Session defines model for Session.
+type Session struct {
+	AccessToken  string           `json:"access_token"`
+	ExpiresIn    int              `json:"expires_in"`
+	RefreshToken string           `json:"refresh_token"`
+	Scopes       *[]string        `json:"scopes,omitempty"`
+	TokenType    SessionTokenType `json:"token_type"`
+	User         AnalystProfile   `json:"user"`
+}
+
+// SessionTokenType defines model for Session.TokenType.
+type SessionTokenType string
+
 // Thresholds defines model for Thresholds.
 type Thresholds struct {
 	Block  int `json:"block"`
@@ -511,14 +1089,39 @@ type Thresholds struct {
 	StepUp int `json:"step_up"`
 }
 
+// UserCreate defines model for UserCreate.
+type UserCreate struct {
+	DisplayName *string        `json:"display_name,omitempty"`
+	Password    string         `json:"password"`
+	Role        UserCreateRole `json:"role"`
+	Username    string         `json:"username"`
+}
+
+// UserCreateRole defines model for UserCreate.Role.
+type UserCreateRole string
+
 // ValidateResult defines model for ValidateResult.
 type ValidateResult struct {
 	Snapshot RuleSnapshot `json:"snapshot"`
 	Valid    bool         `json:"valid"`
 }
 
+// VersionInfo defines model for VersionInfo.
+type VersionInfo struct {
+	Api            string `json:"api"`
+	RuleSetVersion int    `json:"rule_set_version"`
+	Service        string `json:"service"`
+	Version        string `json:"version"`
+}
+
+// CaseId defines model for CaseId.
+type CaseId = int64
+
 // IdempotencyKey defines model for IdempotencyKey.
 type IdempotencyKey = string
+
+// IfMatch defines model for IfMatch.
+type IfMatch = string
 
 // BadRequest defines model for BadRequest.
 type BadRequest = Problem
@@ -543,6 +1146,138 @@ type Unavailable = Problem
 
 // Unprocessable defines model for Unprocessable.
 type Unprocessable = Problem
+
+// ListAuditParams defines parameters for ListAudit.
+type ListAuditParams struct {
+	From  *int `form:"from,omitempty" json:"from,omitempty"`
+	To    *int `form:"to,omitempty" json:"to,omitempty"`
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// VerifyAuditParams defines parameters for VerifyAudit.
+type VerifyAuditParams struct {
+	From *int `form:"from,omitempty" json:"from,omitempty"`
+	To   *int `form:"to,omitempty" json:"to,omitempty"`
+}
+
+// LogoutJSONBody defines parameters for Logout.
+type LogoutJSONBody struct {
+	RefreshToken *string `json:"refresh_token,omitempty"`
+}
+
+// RefreshSessionJSONBody defines parameters for RefreshSession.
+type RefreshSessionJSONBody struct {
+	RefreshToken string `json:"refresh_token"`
+}
+
+// ListCasesParams defines parameters for ListCases.
+type ListCasesParams struct {
+	// Status Comma-separated statuses
+	Status        *string                       `form:"status,omitempty" json:"status,omitempty"`
+	Assignee      *string                       `form:"assignee,omitempty" json:"assignee,omitempty"`
+	Unassigned    *bool                         `form:"unassigned,omitempty" json:"unassigned,omitempty"`
+	Source        *ListCasesParamsSource        `form:"source,omitempty" json:"source,omitempty"`
+	DecisionClass *ListCasesParamsDecisionClass `form:"decision_class,omitempty" json:"decision_class,omitempty"`
+	MinPriority   *int                          `form:"min_priority,omitempty" json:"min_priority,omitempty"`
+	Limit         *int                          `form:"limit,omitempty" json:"limit,omitempty"`
+	Offset        *int                          `form:"offset,omitempty" json:"offset,omitempty"`
+}
+
+// ListCasesParamsSource defines parameters for ListCases.
+type ListCasesParamsSource string
+
+// ListCasesParamsDecisionClass defines parameters for ListCases.
+type ListCasesParamsDecisionClass string
+
+// CreateCaseParams defines parameters for CreateCase.
+type CreateCaseParams struct {
+	IdempotencyKey *IdempotencyKey `json:"Idempotency-Key,omitempty"`
+}
+
+// ApproveCaseParams defines parameters for ApproveCase.
+type ApproveCaseParams struct {
+	IdempotencyKey *IdempotencyKey `json:"Idempotency-Key,omitempty"`
+
+	// IfMatch Case version for optimistic concurrency
+	IfMatch *IfMatch `json:"If-Match,omitempty"`
+}
+
+// AssignCaseJSONBody defines parameters for AssignCase.
+type AssignCaseJSONBody struct {
+	Assignee string `json:"assignee"`
+	Version  *int   `json:"version,omitempty"`
+}
+
+// AssignCaseParams defines parameters for AssignCase.
+type AssignCaseParams struct {
+	IdempotencyKey *IdempotencyKey `json:"Idempotency-Key,omitempty"`
+}
+
+// ClaimCaseParams defines parameters for ClaimCase.
+type ClaimCaseParams struct {
+	IdempotencyKey *IdempotencyKey `json:"Idempotency-Key,omitempty"`
+
+	// IfMatch Case version for optimistic concurrency
+	IfMatch *IfMatch `json:"If-Match,omitempty"`
+}
+
+// EscalateCaseJSONBody defines parameters for EscalateCase.
+type EscalateCaseJSONBody struct {
+	Reason  string `json:"reason"`
+	Version *int   `json:"version,omitempty"`
+}
+
+// EscalateCaseParams defines parameters for EscalateCase.
+type EscalateCaseParams struct {
+	IdempotencyKey *IdempotencyKey `json:"Idempotency-Key,omitempty"`
+}
+
+// AddCaseNoteJSONBody defines parameters for AddCaseNote.
+type AddCaseNoteJSONBody struct {
+	Text string `json:"text"`
+}
+
+// AddCaseNoteParams defines parameters for AddCaseNote.
+type AddCaseNoteParams struct {
+	IdempotencyKey *IdempotencyKey `json:"Idempotency-Key,omitempty"`
+}
+
+// ReleaseCaseParams defines parameters for ReleaseCase.
+type ReleaseCaseParams struct {
+	IdempotencyKey *IdempotencyKey `json:"Idempotency-Key,omitempty"`
+
+	// IfMatch Case version for optimistic concurrency
+	IfMatch *IfMatch `json:"If-Match,omitempty"`
+}
+
+// ReopenCaseJSONBody defines parameters for ReopenCase.
+type ReopenCaseJSONBody struct {
+	Reason  string `json:"reason"`
+	Version *int   `json:"version,omitempty"`
+}
+
+// ReopenCaseParams defines parameters for ReopenCase.
+type ReopenCaseParams struct {
+	IdempotencyKey *IdempotencyKey `json:"Idempotency-Key,omitempty"`
+}
+
+// ResolveCaseParams defines parameters for ResolveCase.
+type ResolveCaseParams struct {
+	IdempotencyKey *IdempotencyKey `json:"Idempotency-Key,omitempty"`
+}
+
+// SecondReviewJSONBody defines parameters for SecondReview.
+type SecondReviewJSONBody struct {
+	Outcome SecondReviewJSONBodyOutcome `json:"outcome"`
+}
+
+// SecondReviewParams defines parameters for SecondReview.
+type SecondReviewParams struct {
+	IdempotencyKey *IdempotencyKey `json:"Idempotency-Key,omitempty"`
+}
+
+// SecondReviewJSONBodyOutcome defines parameters for SecondReview.
+type SecondReviewJSONBodyOutcome string
 
 // DecideParams defines parameters for Decide.
 type DecideParams struct {
@@ -579,6 +1314,25 @@ type GetDecisionParams struct {
 // GetDecisionParamsInclude defines parameters for GetDecision.
 type GetDecisionParamsInclude string
 
+// ExplainDecisionParams defines parameters for ExplainDecision.
+type ExplainDecisionParams struct {
+	Audience *ExplainDecisionParamsAudience `form:"audience,omitempty" json:"audience,omitempty"`
+	Lang     *string                        `form:"lang,omitempty" json:"lang,omitempty"`
+}
+
+// ExplainDecisionParamsAudience defines parameters for ExplainDecision.
+type ExplainDecisionParamsAudience string
+
+// StepUpResultJSONBody defines parameters for StepUpResult.
+type StepUpResultJSONBody struct {
+	Passed bool `json:"passed"`
+}
+
+// StepUpResultParams defines parameters for StepUpResult.
+type StepUpResultParams struct {
+	IdempotencyKey *IdempotencyKey `json:"Idempotency-Key,omitempty"`
+}
+
 // ListEntriesParams defines parameters for ListEntries.
 type ListEntriesParams struct {
 	ListType *ListEntriesParamsListType `form:"list_type,omitempty" json:"list_type,omitempty"`
@@ -598,20 +1352,112 @@ type RuleMetricsParams struct {
 	Window *string `form:"window,omitempty" json:"window,omitempty"`
 }
 
+// GetV1ReplayParams defines parameters for GetV1Replay.
+type GetV1ReplayParams struct {
+	Status  *string `form:"status,omitempty" json:"status,omitempty"`
+	Dataset *string `form:"dataset,omitempty" json:"dataset,omitempty"`
+	Limit   *int    `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// GetV1ReplayIdDeltasParams defines parameters for GetV1ReplayIdDeltas.
+type GetV1ReplayIdDeltasParams struct {
+	Candidate *string `form:"candidate,omitempty" json:"candidate,omitempty"`
+	ClassFrom *string `form:"class_from,omitempty" json:"class_from,omitempty"`
+	ClassTo   *string `form:"class_to,omitempty" json:"class_to,omitempty"`
+	Cursor    *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+	Limit     *int    `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// PostV1ReplayIdGateJSONBody defines parameters for PostV1ReplayIdGate.
+type PostV1ReplayIdGateJSONBody struct {
+	Candidate string `json:"candidate"`
+}
+
+// GetV1ReplayIdRulesParams defines parameters for GetV1ReplayIdRules.
+type GetV1ReplayIdRulesParams struct {
+	Candidate *string `form:"candidate,omitempty" json:"candidate,omitempty"`
+}
+
+// GetV1ReplayIdSweepParams defines parameters for GetV1ReplayIdSweep.
+type GetV1ReplayIdSweepParams struct {
+	Candidate *string `form:"candidate,omitempty" json:"candidate,omitempty"`
+}
+
+// SetUserPasswordJSONBody defines parameters for SetUserPassword.
+type SetUserPasswordJSONBody struct {
+	Password string `json:"password"`
+}
+
+// SetUserRoleJSONBody defines parameters for SetUserRole.
+type SetUserRoleJSONBody struct {
+	Role SetUserRoleJSONBodyRole `json:"role"`
+}
+
+// SetUserRoleJSONBodyRole defines parameters for SetUserRole.
+type SetUserRoleJSONBodyRole string
+
+// LoginJSONRequestBody defines body for Login for application/json ContentType.
+type LoginJSONRequestBody = LoginRequest
+
+// LogoutJSONRequestBody defines body for Logout for application/json ContentType.
+type LogoutJSONRequestBody LogoutJSONBody
+
+// RefreshSessionJSONRequestBody defines body for RefreshSession for application/json ContentType.
+type RefreshSessionJSONRequestBody RefreshSessionJSONBody
+
+// CreateCaseJSONRequestBody defines body for CreateCase for application/json ContentType.
+type CreateCaseJSONRequestBody = CaseCreate
+
+// AssignCaseJSONRequestBody defines body for AssignCase for application/json ContentType.
+type AssignCaseJSONRequestBody AssignCaseJSONBody
+
+// EscalateCaseJSONRequestBody defines body for EscalateCase for application/json ContentType.
+type EscalateCaseJSONRequestBody EscalateCaseJSONBody
+
+// AddCaseNoteJSONRequestBody defines body for AddCaseNote for application/json ContentType.
+type AddCaseNoteJSONRequestBody AddCaseNoteJSONBody
+
+// ReopenCaseJSONRequestBody defines body for ReopenCase for application/json ContentType.
+type ReopenCaseJSONRequestBody ReopenCaseJSONBody
+
+// ResolveCaseJSONRequestBody defines body for ResolveCase for application/json ContentType.
+type ResolveCaseJSONRequestBody = CaseResolution
+
+// SecondReviewJSONRequestBody defines body for SecondReview for application/json ContentType.
+type SecondReviewJSONRequestBody SecondReviewJSONBody
+
 // DecideJSONRequestBody defines body for Decide for application/json ContentType.
 type DecideJSONRequestBody = Event
 
 // DecideBatchJSONRequestBody defines body for DecideBatch for application/json ContentType.
 type DecideBatchJSONRequestBody = BatchRequest
 
+// StepUpResultJSONRequestBody defines body for StepUpResult for application/json ContentType.
+type StepUpResultJSONRequestBody StepUpResultJSONBody
+
 // AddListEntryJSONRequestBody defines body for AddListEntry for application/json ContentType.
 type AddListEntryJSONRequestBody = ListEntryInput
+
+// PostV1ReplayJSONRequestBody defines body for PostV1Replay for application/json ContentType.
+type PostV1ReplayJSONRequestBody = ReplayCreate
+
+// PostV1ReplayIdGateJSONRequestBody defines body for PostV1ReplayIdGate for application/json ContentType.
+type PostV1ReplayIdGateJSONRequestBody PostV1ReplayIdGateJSONBody
 
 // ValidateRulesJSONRequestBody defines body for ValidateRules for application/json ContentType.
 type ValidateRulesJSONRequestBody = RuleSet
 
 // PutRuleJSONRequestBody defines body for PutRule for application/json ContentType.
 type PutRuleJSONRequestBody = Rule
+
+// CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
+type CreateUserJSONRequestBody = UserCreate
+
+// SetUserPasswordJSONRequestBody defines body for SetUserPassword for application/json ContentType.
+type SetUserPasswordJSONRequestBody SetUserPasswordJSONBody
+
+// SetUserRoleJSONRequestBody defines body for SetUserRole for application/json ContentType.
+type SetUserRoleJSONRequestBody SetUserRoleJSONBody
 
 // Getter for additional properties for FeatureVector. Returns the specified
 // element and whether it was found

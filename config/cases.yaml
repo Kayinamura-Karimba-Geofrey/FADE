@@ -1,0 +1,41 @@
+# FADE Phase 7 case-management policy.
+# Loaded by the decision-api (case endpoints) and the case-worker (triage).
+
+# priority = risk_score + min(amount_cap, amount / amount_divisor)
+#            + repeat_account_bonus + block_bonus
+#            + min(linked_decision_cap, linked_count * linked_decision_bonus)
+# clamped to 0..100.
+priority:
+  repeat_account_bonus: 10
+  block_bonus: 15
+  linked_decision_bonus: 5
+  linked_decision_cap: 20
+  amount_divisor: 100000
+  amount_cap: 20
+
+# SLA clock starts at case creation and pauses while a case is INCONCLUSIVE.
+sla:
+  block_minutes: 30
+  hold_minutes: 15
+  step_up_failed_minutes: 15
+  qa_sample_hours: 24
+
+# A decision for an account that already has an open case inside the window
+# joins that case as a linked decision instead of opening a duplicate.
+grouping:
+  window_minutes: 60
+
+# A second, different reviewer is required for these resolutions.
+four_eyes:
+  enabled: true
+  amount_threshold: 5000000
+  block_overturn_requires_approval: true
+
+# Share of ALLOW decisions sampled for QA labelling (0 disables).
+qa_sample_rate: 0.005
+note_max_chars: 2000
+# Labels are disaggregated for evaluation only after this many hours.
+label_mature_hours: 168
+# escalate: an overdue case is escalated on the next sweep; notify: the case is
+# flagged but left for an analyst; none: the SLA sweep does nothing.
+breach_policy: escalate

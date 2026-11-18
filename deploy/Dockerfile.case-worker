@@ -1,0 +1,30 @@
+# FADE case-worker image (Phase 7 decision-to-case triage and SLA clock).
+FROM golang:1.23.4-alpine3.20 AS builder
+
+ENV CGO_ENABLED=0 \
+    GOOS=linux \
+    GOTOOLCHAIN=local \
+    GOPROXY=https://proxy.golang.org,direct
+
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+
+ARG VERSION=0.7.0
+RUN go build -trimpath \
+    -ldflags "-s -w -X main.version=${VERSION}" \
+    -o /out/case-worker ./cmd/case-worker
+
+# --------------------------------------------------------------- runtime
+FROM alpine:3.20.6
+
+RUN apk add --no-cache ca-certificates \
+    && adduser -D -u 10001 fade
+
+COPY --from=builder /out/case-worker /usr/local/bin/case-worker
+COPY --from=builder /src/config/cases.yaml /etc/fade/cases.yaml
+
+USER fade
+
+ENTRYPOINT ["/usr/local/bin/case-worker"]

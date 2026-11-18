@@ -463,6 +463,11 @@ func TestShedAtSemaphoreLimit(t *testing.T) {
 }
 
 func TestDecisionAllocationBudget(t *testing.T) {
+	if raceEnabled {
+		// The race detector's bookkeeping inflates the allocation count, so the
+		// budget is only meaningful without it.
+		t.Skip("allocation budgets are measured without -race")
+	}
 	m := loadManager(t, rulesTemplate, 1)
 	ff := &fakeFeatures{vec: features.FeatureVector{Velocity10m: 12}, status: features.StatusOK}
 	p, _ := newPipeline(t, m, ff, nil, NewMemoryIdempotency(), DefaultConfig())

@@ -5,6 +5,7 @@ package pipeline
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/events"
@@ -54,6 +55,10 @@ type Decision struct {
 	// Replay is surfaced as the Idempotent-Replay response header.
 	Replay bool `json:"idempotent_replay,omitempty"`
 
+	// InputEvent is the raw validated event, persisted so snapshot replay can
+	// reconstruct rule context. It is never part of the public contract.
+	InputEvent json.RawMessage `json:"-"`
+
 	// Internal context (not part of the JSON contract).
 	AccountID   string    `json:"-"`
 	RecipientID string    `json:"-"`
@@ -79,6 +84,10 @@ type Options struct {
 	IncludeExplain  bool
 	FailPolicyApply bool
 	RequestID       string
+
+	// MLOverride supplies a precomputed model result. Replay uses it so one
+	// model evaluation per (event, model version) is shared by every config.
+	MLOverride *rules.MLResult
 }
 
 // Config holds pipeline knobs.

@@ -55,10 +55,21 @@ type Store struct {
 	dayKeys       sync.Map // UTC day number -> []string, oldest first
 	hourKeys      sync.Map // UTC hour number -> []string, oldest first
 	location      *time.Location
+	prefix        string
 }
 
 // NewStore constructs a store. The caller owns the Redis client.
 func NewStore(client redis.Cmdable, cfg config.Features, lateTolerance, dedupeTTL time.Duration, hooks Hooks) *Store {
+	return NewStoreWithNamespace(client, cfg, lateTolerance, dedupeTTL, hooks, "")
+}
+
+// NewStoreWithNamespace constructs a store whose every Redis key is prefixed.
+// Replay uses a per-job namespace ("rp:{job_id}:") so it can never read or
+// write production feature state. An empty namespace is the production store.
+func NewStoreWithNamespace(client redis.Cmdable, cfg config.Features, lateTolerance, dedupeTTL time.Duration, hooks Hooks, namespace string) *Store {
+	if namespace != "" && !validNamespace(namespace) {
+		panic("features: invalid namespace " + namespace)
+	}
 	return &Store{
 		redis:         client,
 		cfg:           cfg,
@@ -67,7 +78,26 @@ func NewStore(client redis.Cmdable, cfg config.Features, lateTolerance, dedupeTT
 		script:        redis.NewScript(featureLua),
 		hooks:         hooks,
 		location:      cfg.Location(),
+		prefix:        namespace,
 	}
+}
+
+// Namespace returns the key prefix (empty for production).
+func (s *Store) Namespace() string { return s.prefix }
+
+func (s *Store) key(base string) string { return s.prefix + base }
+
+func validNamespace(ns string) bool {
+	if len(ns) > 180 {
+		return false
+	}
+	for _, c := range ns {
+		if !(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' ||
+			c == ':' || c == '{' || c == '}' || c == '_' || c == '-' || c == '.') {
+			return false
+		}
+	}
+	return ns[len(ns)-1] == ':'
 }
 
 // Raw is the flat aggregate result returned by the Lua script.
@@ -322,6 +352,7 @@ func (s *Store) scriptInput(ev *events.Event) []byte {
 		DeviceRetentionMS:       int64(cfg.Retention.DeviceTTLS) * 1000,
 		EdgeRetentionMS:         int64(cfg.Retention.EdgeTTLS) * 1000,
 		RecipSendersRetentionMS: int64(cfg.Retention.DeviceTTLS) * 1000,
+		Namespace:               s.prefix,
 	}
 	payload, err := json.Marshal(p)
 	if err != nil {
@@ -375,6 +406,7 @@ type scriptPayload struct {
 	DeviceRetentionMS       int64    `json:"device_retention_ms"`
 	EdgeRetentionMS         int64    `json:"edge_retention_ms"`
 	RecipSendersRetentionMS int64    `json:"recip_senders_retention_ms"`
+	Namespace               string   `json:"namespace,omitempty"`
 }
 
 func (s *Store) dayKeysFor(eventTime time.Time, days int) []string {

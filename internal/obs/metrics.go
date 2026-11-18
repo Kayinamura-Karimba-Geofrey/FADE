@@ -42,6 +42,17 @@ type Metrics struct {
 	AuditCheckpointTimestamp prometheus.Gauge
 	RetentionActions         *prometheus.CounterVec
 	PrivacyFindings          *prometheus.CounterVec
+
+	ReplayJobs                *prometheus.CounterVec
+	ReplayEvents              *prometheus.CounterVec
+	ReplayThroughput          prometheus.Gauge
+	ReplayDuration            prometheus.Histogram
+	ReplayQueueDepth          prometheus.Gauge
+	ReplayJobAge              prometheus.Gauge
+	ReplayMLBatch             *prometheus.HistogramVec
+	ReplayResume              prometheus.Counter
+	GateTotal                 *prometheus.CounterVec
+	ReplayIsolationViolations prometheus.Counter
 }
 
 // NewMetrics creates a fresh registry pre-populated with the FADE collectors.
@@ -152,6 +163,39 @@ func NewMetrics(service string) *Metrics {
 			Name: "fade_privacy_findings_total",
 			Help: "Privacy guard findings by kind.",
 		}, []string{"kind"}),
+		ReplayJobs: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "fade_replay_jobs_total", Help: "Replay jobs by terminal status.",
+		}, []string{"status"}),
+		ReplayEvents: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "fade_replay_events_total", Help: "Replay events processed by mode.",
+		}, []string{"mode"}),
+		ReplayThroughput: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "fade_replay_throughput_events_per_second", Help: "Last job throughput.",
+		}),
+		ReplayDuration: prometheus.NewHistogram(prometheus.HistogramOpts{
+			Name: "fade_replay_duration_seconds", Help: "Replay wall time.",
+			Buckets: []float64{1, 5, 30, 60, 300, 900, 3600, 14400},
+		}),
+		ReplayQueueDepth: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "fade_replay_queue_depth", Help: "Queued replay jobs.",
+		}),
+		ReplayJobAge: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "fade_replay_job_age_seconds", Help: "Age of the oldest running job.",
+		}),
+		ReplayMLBatch: prometheus.NewHistogramVec(prometheus.HistogramOpts{
+			Name: "fade_replay_ml_batch_seconds", Help: "Batch scoring latency.",
+			Buckets: []float64{0.01, 0.05, 0.1, 0.25, 0.5, 1, 2, 5},
+		}, []string{"result"}),
+		ReplayResume: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "fade_replay_resume_total", Help: "Replay resume attempts.",
+		}),
+		GateTotal: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "fade_gate_total", Help: "Promotion gate decisions.",
+		}, []string{"result"}),
+		ReplayIsolationViolations: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "fade_replay_isolation_violations_total",
+			Help: "Replay writes attempted outside the job namespace (must stay 0).",
+		}),
 	}
 	reg.MustRegister(
 		collectors.NewGoCollector(),
@@ -165,6 +209,9 @@ func NewMetrics(service string) *Metrics {
 		m.Explains, m.ExplainLatency, m.AuditVerify, m.AuditAppends,
 		m.AuditCheckpointTimestamp,
 		m.RetentionActions, m.PrivacyFindings,
+		m.ReplayJobs, m.ReplayEvents, m.ReplayThroughput, m.ReplayDuration,
+		m.ReplayQueueDepth, m.ReplayJobAge, m.ReplayMLBatch, m.ReplayResume,
+		m.GateTotal, m.ReplayIsolationViolations,
 	)
 	m.Up.WithLabelValues(service).Set(1)
 	return m

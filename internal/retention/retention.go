@@ -11,8 +11,8 @@ import (
 
 // Policy is one retention rule.
 type Policy struct {
-	Table     string `json:"table"`
-	RetainDays int   `json:"retain_days"`
+	Table      string `json:"table"`
+	RetainDays int    `json:"retain_days"`
 	// MonthsAhead is how many future monthly partitions to keep created.
 	MonthsAhead int `json:"months_ahead"`
 }
@@ -43,17 +43,17 @@ type ActionKind string
 // Action kinds.
 const (
 	CreatePartition ActionKind = "CREATE_PARTITION"
-	DropPartition    ActionKind = "DROP_PARTITION"
+	DropPartition   ActionKind = "DROP_PARTITION"
 )
 
 // Action is one planned or applied operation.
 type Action struct {
-	Kind     ActionKind `json:"kind"`
-	Table    string     `json:"table"`
-	Partition string    `json:"partition"`
-	From     time.Time  `json:"from"`
-	To       time.Time  `json:"to"`
-	SQL      string     `json:"sql"`
+	Kind      ActionKind `json:"kind"`
+	Table     string     `json:"table"`
+	Partition string     `json:"partition"`
+	From      time.Time  `json:"from"`
+	To        time.Time  `json:"to"`
+	SQL       string     `json:"sql"`
 }
 
 // Month is the first instant of the calendar month containing t.
@@ -105,7 +105,7 @@ func Plan(p Policy, now time.Time) ([]Action, error) {
 		drop = append(drop, Action{
 			Kind: DropPartition, Table: p.Table, Partition: name,
 			From: m, To: m.AddDate(0, 1, 0),
-			SQL:  fmt.Sprintf("DROP TABLE IF EXISTS %s;", name),
+			SQL: fmt.Sprintf("DROP TABLE IF EXISTS %s;", name),
 		})
 	}
 	return append(drop, create...), nil

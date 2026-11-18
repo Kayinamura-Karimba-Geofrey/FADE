@@ -21,7 +21,7 @@ func (s *Store) cycleLength(ctx context.Context, from, to string, eventMS int64,
 	useCache := !late && cfg.CacheTTLS > 0
 	var cacheKey string
 	if useCache {
-		cacheKey = cycleCacheKey(from, to)
+		cacheKey = s.key(cycleCacheKey(from, to))
 		cached, err := s.redis.Get(ctx, cacheKey).Int()
 		switch {
 		case err == nil:
@@ -46,7 +46,7 @@ func (s *Store) cycleLength(ctx context.Context, from, to string, eventMS int64,
 		cmds := make([]*redis.StringSliceCmd, len(frontier))
 		zr := &redis.ZRangeBy{Min: "(" + minScore, Max: maxScore, Offset: 0, Count: int64(cfg.MaxNeighbors)}
 		if len(frontier) == 1 {
-			edges, err := s.redis.ZRangeByScore(ctx, outEdgesKey(frontier[0]), zr).Result()
+			edges, err := s.redis.ZRangeByScore(ctx, s.key(outEdgesKey(frontier[0])), zr).Result()
 			if err != nil {
 				return 0, fmt.Errorf("cycle edges %s: %w", frontier[0], err)
 			}
@@ -54,7 +54,7 @@ func (s *Store) cycleLength(ctx context.Context, from, to string, eventMS int64,
 		} else {
 			_, err := s.redis.Pipelined(ctx, func(p redis.Pipeliner) error {
 				for i, node := range frontier {
-					cmds[i] = p.ZRangeByScore(ctx, outEdgesKey(node), zr)
+					cmds[i] = p.ZRangeByScore(ctx, s.key(outEdgesKey(node)), zr)
 				}
 				return nil
 			})

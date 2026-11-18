@@ -18,15 +18,15 @@ type Overrides struct {
 
 // Config is the fusion configuration.
 type Config struct {
-	RuleWeight        float64
-	MLWeight          float64
-	StepUpThreshold   int
-	HoldThreshold     int
-	BlockThreshold    int
-	StepUpFloor       int
-	HoldFloor         int
-	BlockFloor        int
-	AllowMLOnlyBlock  bool
+	RuleWeight       float64
+	MLWeight         float64
+	StepUpThreshold  int
+	HoldThreshold    int
+	BlockThreshold   int
+	StepUpFloor      int
+	HoldFloor        int
+	BlockFloor       int
+	AllowMLOnlyBlock bool
 }
 
 // FromRuleSet builds a Config from a compiled rule set.

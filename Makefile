@@ -228,3 +228,44 @@ clean: ## Remove local build artifacts
 	rm -rf dashboard/.next dashboard/out coverage.out coverage.html
 	find . -type d -name __pycache__ -not -path './.venv/*' -exec rm -rf {} + 2>/dev/null || true
 	rm -rf .pytest_cache .ruff_cache .mypy_cache
+
+# ---------------------------------------------------------------- Phase 6 replay
+
+.PHONY: dataset-register replay replay-golden replay-regression replay-regression-update \
+        gate tune replay-compare replay-worker replay-clean
+
+dataset-register: ## Verify and register a dataset (DATASET=data/run42)
+	$(GO) run ./cmd/dataset-register -dataset $(DATASET)
+
+replay: ## Run a replay (DATASET, BASELINE, CANDIDATE=label=ref)
+	$(GO) run ./cmd/fade replay run --dataset $(DATASET) \
+		--baseline '$(BASELINE)' --candidate '$(CANDIDATE)' \
+		--job $${JOB:-0} --out $${OUT:-} --seed $${SEED:-11}
+
+replay-golden: ## Replay the frozen golden dataset
+	$(GO) run ./cmd/fade replay run --dataset data/golden \
+		--baseline file:rules/prod.json --candidate neutral=file:rules/prod.json \
+		--job 9001 --out /tmp/fade-replay-golden --seed 11
+
+replay-regression: ## CI: compare frozen replay expectations
+	./scripts/replay-regression.sh
+
+replay-regression-update: ## Regenerate expectations (REASON required)
+	UPDATE=1 REASON='$(REASON)' ./scripts/replay-regression.sh
+
+gate: ## Evaluate a gate result (REPORT, CANDIDATE)
+	$(GO) run ./cmd/fade gate --report '$(REPORT)' --candidate '$(CANDIDATE)' \
+		--out $${OUT:-gate.json}
+
+tune: ## Tune thresholds from a stored report (REPORT, CANDIDATE)
+	$(GO) run ./cmd/fade replay tune '$(JOB)' --candidate '$(CANDIDATE)' \
+		--objective '$${OBJECTIVE:-net_benefit}'
+
+replay-compare: ## Compare two replay jobs (A, B)
+	$(GO) run ./cmd/fade replay compare $(A) $(B)
+
+replay-worker: ## Run the replay worker
+	$(GO) run ./cmd/replay-worker
+
+replay-clean: ## Delete replay artifacts older than DAYS (default 30)
+	find replay/jobs -mindepth 1 -maxdepth 1 -type d -mtime +$${DAYS:-30} -exec rm -rf {} +

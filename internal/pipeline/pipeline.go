@@ -262,18 +262,26 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 	default:
 		return nil, &Error{Kind: KindInternal, Status: 500, Message: "unknown feature status"}
 	}
-	vector.TxnTypeCode = int64(scoring.EncodeTxnType(ev.TxnType))
-	vector.ChannelCode = int64(scoring.EncodeChannel(ev.Channel))
+	dec := p.evaluate(ctx, ev, vector, opts)
+	if raw, merr := json.Marshal(ev); merr == nil {
+		dec.InputEvent = raw
+	}
+	complete(dec)
+	p.sink.Enqueue(dec.ToStored())
+	return dec, nil
+}
 
+// evaluate runs rules, ML combine and overrides for one already-computed
+// feature vector. It is shared by the live Decide path and by replay, so a
+// replay can never drift from production decisioning.
+func (p *Pipeline) evaluate(ctx context.Context, ev *events.Event, vector features.FeatureVector, opts Options) *Decision {
 	rs := p.currentRuleSet()
 	if rs.Empty {
 		dec := p.degraded(ctx, ev, CauseNoRuleSet, opts, rs)
 		if opts.IncludeFeatures {
 			dec.Features = &vector
 		}
-		complete(dec)
-		p.sink.Enqueue(dec.ToStored())
-		return dec, nil
+		return dec
 	}
 
 	// Start ML prediction in parallel with rule evaluation.
@@ -290,7 +298,7 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 	}
 
 	// ----------------------------------------------------------------- rules
-	stage = p.now()
+	stage := p.now()
 	evalCtx := rules.EvalContextFor(&vector, ev.Amount, ev.Fee, ev.TxnType, ev.Channel,
 		int64(ev.Sender.KYCTier), ev.Sender.BalanceBefore)
 	res := p.pool.Get().(*rules.Result)
@@ -303,15 +311,16 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 	if evalErr != nil {
 		p.logger.Error("rule evaluation panicked", "event_id", ev.EventID, "rule_set", rs.Version)
 		dec := p.degraded(ctx, ev, CauseRulePanic, opts, rs)
-		complete(dec)
-		p.sink.Enqueue(dec.ToStored())
-		return dec, nil
+		return dec
 	}
 
 	// ------------------------------------------------------------- combine
 	mlStage := p.now()
 	ml := rules.MLResult{Status: rules.MLNotConfigured}
-	if p.scorer != nil {
+	if opts.MLOverride != nil {
+		ml = *opts.MLOverride
+		ml.ExplainSkipped = true
+	} else if p.scorer != nil {
 		select {
 		case out := <-mlCh:
 			if out.err == nil {
@@ -455,9 +464,16 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 		vec := vector
 		dec.Features = &vec
 	}
-	complete(dec)
-	p.sink.Enqueue(dec.ToStored())
-	return dec, nil
+	return dec
+}
+
+// DecideWithFeatures evaluates one event with a precomputed feature vector.
+// Replay uses it to compute features once per event and share them across all
+// configs. It never reads or writes idempotency state and never persists.
+func (p *Pipeline) DecideWithFeatures(ctx context.Context, ev *events.Event, vector features.FeatureVector, opts Options) *Decision {
+	vector.TxnTypeCode = int64(scoring.EncodeTxnType(ev.TxnType))
+	vector.ChannelCode = int64(scoring.EncodeChannel(ev.Channel))
+	return p.evaluate(ctx, ev, vector, opts)
 }
 
 func (p *Pipeline) currentRuleSet() *rules.RuleSet {

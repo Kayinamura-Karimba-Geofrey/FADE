@@ -38,10 +38,11 @@ func PrincipalFrom(ctx context.Context) *Principal {
 // lists; auditor reads and verifies the chain; admin manages rules and lists.
 var RoleScopes = map[string][]string{
 	"service": {"decisions:write", "decisions:read", "rules:read"},
-	"analyst": {"decisions:read", "rules:read", "lists:read"},
-	"auditor": {"decisions:read", "rules:read", "audit:read"},
+	"analyst": {"decisions:read", "rules:read", "lists:read", "replay:read"},
+	"auditor": {"decisions:read", "rules:read", "audit:read", "replay:read"},
 	"admin": {"decisions:write", "decisions:read", "rules:read", "rules:write",
-		"lists:read", "lists:write", "audit:read", "audit:write"},
+		"lists:read", "lists:write", "audit:read", "audit:write",
+		"replay:read", "replay:write"},
 }
 
 // AuthConfig configures HS256 JWT validation.

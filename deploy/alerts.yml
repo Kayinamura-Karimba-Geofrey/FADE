@@ -111,3 +111,25 @@ groups:
         annotations:
           summary: Explanation privacy guard withheld a response
           description: An explanation contained a raw personal identifier and was blocked. Treat as a potential data leak.
+
+  - name: fade-replay
+    rules:
+      - alert: ReplayJobStuck
+        expr: fade_replay_job_age_seconds > 120
+        for: 2m
+        labels: {severity: warning}
+        annotations:
+          summary: "Replay job has not heartbeated for over 2 minutes"
+          description: "Check replay-worker logs and Postgres heartbeat_at for the stuck job."
+      - alert: ReplayIsolationViolation
+        expr: increase(fade_replay_isolation_violations_total[5m]) > 0
+        labels: {severity: critical}
+        annotations:
+          summary: "Replay attempted a write outside its Redis namespace"
+          description: "This is a correctness incident: stop replay jobs and investigate immediately."
+      - alert: ReplayGateRefused
+        expr: increase(fade_gate_total{result="fail"}[1h]) > 0
+        labels: {severity: info}
+        annotations:
+          summary: "A replay promotion gate refused a candidate"
+          description: "Expected during evaluation; review the failing checks in gate.json."

@@ -1,0 +1,3076 @@
+{
+  "replay_report_version": "1",
+  "job_id": 9001,
+  "dataset": {
+    "name": "golden",
+    "hash": "2723a337181c3352dbce52a6e2b0f15c6202e857049e312863e57276239f7583",
+    "warmup_days": 0,
+    "events": 506,
+    "scored": 465,
+    "metric_from": "0001-01-01T00:00:00Z"
+  },
+  "mode": "full",
+  "state_policy": "ignore",
+  "seed": 11,
+  "engine_version": "0.7.0",
+  "configs": [
+    {
+      "label": "baseline",
+      "rules": "file:rules/prod.json",
+      "rules_hash": "2a2f50ad5786ec921b6e02be3d7b62d0cc872283151105460eb73276be89b3f8",
+      "model": "",
+      "model_hash": "",
+      "combiner": {
+        "StepUpThreshold": 40,
+        "HoldThreshold": 65,
+        "BlockThreshold": 85,
+        "StepUpFloor": 40,
+        "HoldFloor": 65,
+        "BlockFloor": 85,
+        "RuleWeight": 0.55,
+        "MLWeight": 0.45,
+        "AllowMLOnlyBlock": false
+      },
+      "config_hash": "ea4bcb4ca5855e0ab3a391c56feacee10922099cd5fa803ac521f2355aefa91d"
+    },
+    {
+      "label": "neutral",
+      "rules": "file:rules/prod.json",
+      "rules_hash": "2a2f50ad5786ec921b6e02be3d7b62d0cc872283151105460eb73276be89b3f8",
+      "model": "",
+      "model_hash": "",
+      "combiner": {
+        "StepUpThreshold": 40,
+        "HoldThreshold": 65,
+        "BlockThreshold": 85,
+        "StepUpFloor": 40,
+        "HoldFloor": 65,
+        "BlockFloor": 85,
+        "RuleWeight": 0.55,
+        "MLWeight": 0.45,
+        "AllowMLOnlyBlock": false
+      },
+      "config_hash": "ea4bcb4ca5855e0ab3a391c56feacee10922099cd5fa803ac521f2355aefa91d"
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "label": "baseline",
+      "scored": 465,
+      "fraud": 229,
+      "legit": 236,
+      "unlabelled": 0,
+      "ml_scored": 0,
+      "ml_degraded": 0,
+      "skipped_late": 7,
+      "skipped_duplicate": 34,
+      "skipped_invalid": 0,
+      "skipped_no_snapshot": 0,
+      "estimates": {
+        "customer_friction": {
+          "point": 0.42795698924731185,
+          "lo": 0.29309008823428434,
+          "hi": 0.5568815056886952,
+          "n": 465
+        },
+        "f2_alerted": {
+          "point": 0.8789237668161436,
+          "lo": 0.8176867933325561,
+          "hi": 0.921909956847845,
+          "n": 465
+        },
+        "false_positive_rate": {
+          "point": 0.012711864406779662,
+          "lo": 0,
+          "hi": 0.0321449733359668,
+          "n": 465
+        },
+        "fraud_blocked_rate": {
+          "point": 0.021834061135371178,
+          "lo": 0,
+          "hi": 0.05669172932330826,
+          "n": 465
+        },
+        "fraud_caught_rate": {
+          "point": 0.8558951965065502,
+          "lo": 0.7864583333333334,
+          "hi": 0.9083418949771689,
+          "n": 465
+        },
+        "fraud_intervened_rate": {
+          "point": 0.5982532751091703,
+          "lo": 0.5,
+          "hi": 0.69613999605367,
+          "n": 465
+        },
+        "legit_intervention_rate": {
+          "point": 0.00847457627118644,
+          "lo": 0,
+          "hi": 0.023438416960093897,
+          "n": 465
+        },
+        "precision_alerted": {
+          "point": 0.9849246231155779,
+          "lo": 0.9632942575603126,
+          "hi": 1,
+          "n": 465
+        },
+        "precision_intervened": {
+          "point": 0.9856115107913669,
+          "lo": 0.9622641509433962,
+          "hi": 1,
+          "n": 465
+        }
+      },
+      "decisions": {
+        "ALLOW": 266,
+        "BLOCK": 5,
+        "HOLD": 134,
+        "STEP_UP": 60
+      },
+      "amounts": {
+        "FRAUD:INTERVENED": 126735350,
+        "FRAUD:MISSED": 9811700,
+        "LEGIT:ALERTED": 184150,
+        "LEGIT:INTERVENED": 178150
+      },
+      "workload": {
+        "interventions": 139,
+        "per_day": 34.75,
+        "per_1000_events": 298.9247311827957
+      },
+      "time_to_detect": {
+        "runs": 19,
+        "detected": 17,
+        "detected_share": 0.8947368421052632,
+        "p50_minutes": 2.3585666666666665,
+        "p90_minutes": 11.42595,
+        "loss_before_detection": 1175550,
+        "total_fraud_amount": 136547050
+      },
+      "scenarios": [
+        {
+          "scenario": "AGENT_FRAUD",
+          "fraud": 14,
+          "recall_alerted": 0.07142857142857142,
+          "recall_intervened": 0.07142857142857142,
+          "caught_amount": 55550,
+          "runs": 0,
+          "detected": 1,
+          "low_power": true
+        },
+        {
+          "scenario": "ATO_SIMSWAP",
+          "fraud": 5,
+          "recall_alerted": 1,
+          "recall_intervened": 0.4,
+          "caught_amount": 137450,
+          "runs": 0,
+          "detected": 1,
+          "low_power": true
+        },
+        {
+          "scenario": "CIRCULAR",
+          "fraud": 10,
+          "recall_alerted": 0.5,
+          "recall_intervened": 0.5,
+          "caught_amount": 206500,
+          "runs": 0,
+          "detected": 1,
+          "low_power": true
+        },
+        {
+          "scenario": "MULE",
+          "fraud": 9,
+          "recall_alerted": 1,
+          "recall_intervened": 0,
+          "caught_amount": 0,
+          "runs": 0,
+          "detected": 0,
+          "low_power": true
+        },
+        {
+          "scenario": "SOCIAL_ENG",
+          "fraud": 14,
+          "recall_alerted": 1,
+          "recall_intervened": 0,
+          "caught_amount": 0,
+          "runs": 0,
+          "detected": 0,
+          "low_power": true
+        },
+        {
+          "scenario": "STRUCTURING",
+          "fraud": 72,
+          "recall_alerted": 0.9444444444444444,
+          "recall_intervened": 0.9444444444444444,
+          "caught_amount": 125308150,
+          "runs": 0,
+          "detected": 9,
+          "low_power": false
+        },
+        {
+          "scenario": "VELOCITY",
+          "fraud": 105,
+          "recall_alerted": 0.8952380952380953,
+          "recall_intervened": 0.580952380952381,
+          "caught_amount": 1027700,
+          "runs": 0,
+          "detected": 5,
+          "low_power": false
+        }
+      ],
+      "segments": [
+        {
+          "segment": "agent",
+          "scored": 2,
+          "legit": 2,
+          "fpr": 0,
+          "friction": 0
+        },
+        {
+          "segment": "rural_saver",
+          "scored": 55,
+          "legit": 29,
+          "fpr": 0,
+          "friction": 0.38181818181818183
+        },
+        {
+          "segment": "salaried",
+          "scored": 176,
+          "legit": 66,
+          "fpr": 0,
+          "friction": 0.3693181818181818
+        },
+        {
+          "segment": "small_trader",
+          "scored": 108,
+          "legit": 53,
+          "fpr": 0,
+          "friction": 0.23148148148148148
+        },
+        {
+          "segment": "student_parent",
+          "scored": 39,
+          "legit": 28,
+          "fpr": 0.03571428571428571,
+          "friction": 0.20512820512820512
+        },
+        {
+          "segment": "unknown",
+          "scored": 10,
+          "legit": 0,
+          "fpr": 0,
+          "friction": 0.5
+        },
+        {
+          "segment": "urban_youth",
+          "scored": 75,
+          "legit": 58,
+          "fpr": 0.034482758620689655,
+          "friction": 0.2
+        }
+      ],
+      "daily": [
+        {
+          "date": "2025-12-31",
+          "scored": 2,
+          "fraud": 0,
+          "recall": 0,
+          "fpr": 0,
+          "interventions": 0,
+          "workload_per_1000": 0
+        },
+        {
+          "date": "2026-01-01",
+          "scored": 131,
+          "fraud": 56,
+          "recall": 0.8571428571428571,
+          "fpr": 0,
+          "interventions": 48,
+          "workload_per_1000": 366.412213740458
+        },
+        {
+          "date": "2026-01-02",
+          "scored": 189,
+          "fraud": 106,
+          "recall": 0.8207547169811321,
+          "fpr": 0.012048192771084338,
+          "interventions": 88,
+          "workload_per_1000": 465.60846560846556
+        },
+        {
+          "date": "2026-01-03",
+          "scored": 143,
+          "fraud": 67,
+          "recall": 0.9104477611940298,
+          "fpr": 0.02631578947368421,
+          "interventions": 63,
+          "workload_per_1000": 440.5594405594406
+        }
+      ],
+      "rules": [
+        {
+          "rule_id": "R-VEL-002",
+          "shadow": false,
+          "fires": 89,
+          "tp": 89,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 30,
+          "weight_sum": 0,
+          "share": 0.1913978494623656
+        },
+        {
+          "rule_id": "R-STR-002",
+          "shadow": false,
+          "fires": 64,
+          "tp": 64,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 14,
+          "weight_sum": 0,
+          "share": 0.13763440860215054
+        },
+        {
+          "rule_id": "R-STR-001",
+          "shadow": false,
+          "fires": 61,
+          "tp": 61,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 7,
+          "weight_sum": 0,
+          "share": 0.13118279569892474
+        },
+        {
+          "rule_id": "R-VEL-001",
+          "shadow": false,
+          "fires": 60,
+          "tp": 60,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 2,
+          "weight_sum": 0,
+          "share": 0.12903225806451613
+        },
+        {
+          "rule_id": "R-ATO-001",
+          "shadow": false,
+          "fires": 16,
+          "tp": 15,
+          "fp": 1,
+          "precision": 0.9375,
+          "unique_catch": 9,
+          "weight_sum": 0,
+          "share": 0.034408602150537634
+        },
+        {
+          "rule_id": "R-CIR-001",
+          "shadow": false,
+          "fires": 10,
+          "tp": 10,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 5,
+          "weight_sum": 0,
+          "share": 0.021505376344086023
+        },
+        {
+          "rule_id": "R-MUL-003",
+          "shadow": false,
+          "fires": 8,
+          "tp": 8,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 2,
+          "weight_sum": 0,
+          "share": 0.017204301075268817
+        },
+        {
+          "rule_id": "R-RAW-001",
+          "shadow": false,
+          "fires": 5,
+          "tp": 5,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 0,
+          "weight_sum": 0,
+          "share": 0.010752688172043012
+        }
+      ],
+      "shadow": [
+        {
+          "rule_id": "R-EXP-001",
+          "shadow": true,
+          "fires": 2,
+          "tp": 2,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 0,
+          "weight_sum": 0,
+          "share": 0.004301075268817204
+        }
+      ],
+      "overlap": [
+        {
+          "pair": "R-VEL-001|R-VEL-002",
+          "count": 58
+        },
+        {
+          "pair": "R-STR-001|R-STR-002",
+          "count": 50
+        },
+        {
+          "pair": "R-ATO-001|R-MUL-003",
+          "count": 6
+        },
+        {
+          "pair": "R-CIR-001|R-VEL-002",
+          "count": 5
+        },
+        {
+          "pair": "R-RAW-001|R-STR-001",
+          "count": 5
+        },
+        {
+          "pair": "R-CIR-001|R-VEL-001",
+          "count": 4
+        },
+        {
+          "pair": "R-RAW-001|R-STR-002",
+          "count": 1
+        }
+      ],
+      "sweep": [
+        {
+          "threshold": 10,
+          "recall": 0.8558951965065502,
+          "precision": 0.9849246231155779,
+          "fpr": 0.012711864406779662,
+          "alerts": 199
+        },
+        {
+          "threshold": 15,
+          "recall": 0.8558951965065502,
+          "precision": 0.9849246231155779,
+          "fpr": 0.012711864406779662,
+          "alerts": 199
+        },
+        {
+          "threshold": 20,
+          "recall": 0.8558951965065502,
+          "precision": 0.9849246231155779,
+          "fpr": 0.012711864406779662,
+          "alerts": 199
+        },
+        {
+          "threshold": 25,
+          "recall": 0.8558951965065502,
+          "precision": 0.9849246231155779,
+          "fpr": 0.012711864406779662,
+          "alerts": 199
+        },
+        {
+          "threshold": 30,
+          "recall": 0.8558951965065502,
+          "precision": 0.9849246231155779,
+          "fpr": 0.012711864406779662,
+          "alerts": 199
+        },
+        {
+          "threshold": 35,
+          "recall": 0.8558951965065502,
+          "precision": 0.9849246231155779,
+          "fpr": 0.012711864406779662,
+          "alerts": 199
+        },
+        {
+          "threshold": 40,
+          "recall": 0.8558951965065502,
+          "precision": 0.9849246231155779,
+          "fpr": 0.012711864406779662,
+          "alerts": 199
+        },
+        {
+          "threshold": 45,
+          "recall": 0.6244541484716157,
+          "precision": 0.9862068965517241,
+          "fpr": 0.00847457627118644,
+          "alerts": 145
+        },
+        {
+          "threshold": 50,
+          "recall": 0.5982532751091703,
+          "precision": 0.9856115107913669,
+          "fpr": 0.00847457627118644,
+          "alerts": 139
+        },
+        {
+          "threshold": 55,
+          "recall": 0.5982532751091703,
+          "precision": 0.9856115107913669,
+          "fpr": 0.00847457627118644,
+          "alerts": 139
+        },
+        {
+          "threshold": 60,
+          "recall": 0.5982532751091703,
+          "precision": 0.9856115107913669,
+          "fpr": 0.00847457627118644,
+          "alerts": 139
+        },
+        {
+          "threshold": 65,
+          "recall": 0.5982532751091703,
+          "precision": 0.9856115107913669,
+          "fpr": 0.00847457627118644,
+          "alerts": 139
+        },
+        {
+          "threshold": 70,
+          "recall": 0.021834061135371178,
+          "precision": 1,
+          "fpr": 0,
+          "alerts": 5
+        },
+        {
+          "threshold": 75,
+          "recall": 0.021834061135371178,
+          "precision": 1,
+          "fpr": 0,
+          "alerts": 5
+        },
+        {
+          "threshold": 80,
+          "recall": 0.021834061135371178,
+          "precision": 1,
+          "fpr": 0,
+          "alerts": 5
+        },
+        {
+          "threshold": 85,
+          "recall": 0.021834061135371178,
+          "precision": 1,
+          "fpr": 0,
+          "alerts": 5
+        },
+        {
+          "threshold": 90,
+          "recall": 0,
+          "precision": 0,
+          "fpr": 0,
+          "alerts": 0
+        },
+        {
+          "threshold": 95,
+          "recall": 0,
+          "precision": 0,
+          "fpr": 0,
+          "alerts": 0
+        }
+      ],
+      "risk_histogram": [
+        [
+          33,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          53,
+          0,
+          0,
+          0,
+          0,
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          132,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          5,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          233,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "days": 4
+    },
+    "neutral": {
+      "label": "neutral",
+      "scored": 465,
+      "fraud": 229,
+      "legit": 236,
+      "unlabelled": 0,
+      "ml_scored": 0,
+      "ml_degraded": 0,
+      "skipped_late": 7,
+      "skipped_duplicate": 34,
+      "skipped_invalid": 0,
+      "skipped_no_snapshot": 0,
+      "estimates": {
+        "customer_friction": {
+          "point": 0.42795698924731185,
+          "lo": 0.29309008823428434,
+          "hi": 0.5568815056886952,
+          "n": 465
+        },
+        "f2_alerted": {
+          "point": 0.8789237668161436,
+          "lo": 0.8176867933325561,
+          "hi": 0.921909956847845,
+          "n": 465
+        },
+        "false_positive_rate": {
+          "point": 0.012711864406779662,
+          "lo": 0,
+          "hi": 0.0321449733359668,
+          "n": 465
+        },
+        "fraud_blocked_rate": {
+          "point": 0.021834061135371178,
+          "lo": 0,
+          "hi": 0.05669172932330826,
+          "n": 465
+        },
+        "fraud_caught_rate": {
+          "point": 0.8558951965065502,
+          "lo": 0.7864583333333334,
+          "hi": 0.9083418949771689,
+          "n": 465
+        },
+        "fraud_intervened_rate": {
+          "point": 0.5982532751091703,
+          "lo": 0.5,
+          "hi": 0.69613999605367,
+          "n": 465
+        },
+        "legit_intervention_rate": {
+          "point": 0.00847457627118644,
+          "lo": 0,
+          "hi": 0.023438416960093897,
+          "n": 465
+        },
+        "precision_alerted": {
+          "point": 0.9849246231155779,
+          "lo": 0.9632942575603126,
+          "hi": 1,
+          "n": 465
+        },
+        "precision_intervened": {
+          "point": 0.9856115107913669,
+          "lo": 0.9622641509433962,
+          "hi": 1,
+          "n": 465
+        }
+      },
+      "decisions": {
+        "ALLOW": 266,
+        "BLOCK": 5,
+        "HOLD": 134,
+        "STEP_UP": 60
+      },
+      "amounts": {
+        "FRAUD:INTERVENED": 126735350,
+        "FRAUD:MISSED": 9811700,
+        "LEGIT:ALERTED": 184150,
+        "LEGIT:INTERVENED": 178150
+      },
+      "workload": {
+        "interventions": 139,
+        "per_day": 34.75,
+        "per_1000_events": 298.9247311827957
+      },
+      "time_to_detect": {
+        "runs": 19,
+        "detected": 17,
+        "detected_share": 0.8947368421052632,
+        "p50_minutes": 2.3585666666666665,
+        "p90_minutes": 11.42595,
+        "loss_before_detection": 1175550,
+        "total_fraud_amount": 136547050
+      },
+      "scenarios": [
+        {
+          "scenario": "AGENT_FRAUD",
+          "fraud": 14,
+          "recall_alerted": 0.07142857142857142,
+          "recall_intervened": 0.07142857142857142,
+          "caught_amount": 55550,
+          "runs": 0,
+          "detected": 1,
+          "low_power": true
+        },
+        {
+          "scenario": "ATO_SIMSWAP",
+          "fraud": 5,
+          "recall_alerted": 1,
+          "recall_intervened": 0.4,
+          "caught_amount": 137450,
+          "runs": 0,
+          "detected": 1,
+          "low_power": true
+        },
+        {
+          "scenario": "CIRCULAR",
+          "fraud": 10,
+          "recall_alerted": 0.5,
+          "recall_intervened": 0.5,
+          "caught_amount": 206500,
+          "runs": 0,
+          "detected": 1,
+          "low_power": true
+        },
+        {
+          "scenario": "MULE",
+          "fraud": 9,
+          "recall_alerted": 1,
+          "recall_intervened": 0,
+          "caught_amount": 0,
+          "runs": 0,
+          "detected": 0,
+          "low_power": true
+        },
+        {
+          "scenario": "SOCIAL_ENG",
+          "fraud": 14,
+          "recall_alerted": 1,
+          "recall_intervened": 0,
+          "caught_amount": 0,
+          "runs": 0,
+          "detected": 0,
+          "low_power": true
+        },
+        {
+          "scenario": "STRUCTURING",
+          "fraud": 72,
+          "recall_alerted": 0.9444444444444444,
+          "recall_intervened": 0.9444444444444444,
+          "caught_amount": 125308150,
+          "runs": 0,
+          "detected": 9,
+          "low_power": false
+        },
+        {
+          "scenario": "VELOCITY",
+          "fraud": 105,
+          "recall_alerted": 0.8952380952380953,
+          "recall_intervened": 0.580952380952381,
+          "caught_amount": 1027700,
+          "runs": 0,
+          "detected": 5,
+          "low_power": false
+        }
+      ],
+      "segments": [
+        {
+          "segment": "agent",
+          "scored": 2,
+          "legit": 2,
+          "fpr": 0,
+          "friction": 0
+        },
+        {
+          "segment": "rural_saver",
+          "scored": 55,
+          "legit": 29,
+          "fpr": 0,
+          "friction": 0.38181818181818183
+        },
+        {
+          "segment": "salaried",
+          "scored": 176,
+          "legit": 66,
+          "fpr": 0,
+          "friction": 0.3693181818181818
+        },
+        {
+          "segment": "small_trader",
+          "scored": 108,
+          "legit": 53,
+          "fpr": 0,
+          "friction": 0.23148148148148148
+        },
+        {
+          "segment": "student_parent",
+          "scored": 39,
+          "legit": 28,
+          "fpr": 0.03571428571428571,
+          "friction": 0.20512820512820512
+        },
+        {
+          "segment": "unknown",
+          "scored": 10,
+          "legit": 0,
+          "fpr": 0,
+          "friction": 0.5
+        },
+        {
+          "segment": "urban_youth",
+          "scored": 75,
+          "legit": 58,
+          "fpr": 0.034482758620689655,
+          "friction": 0.2
+        }
+      ],
+      "daily": [
+        {
+          "date": "2025-12-31",
+          "scored": 2,
+          "fraud": 0,
+          "recall": 0,
+          "fpr": 0,
+          "interventions": 0,
+          "workload_per_1000": 0
+        },
+        {
+          "date": "2026-01-01",
+          "scored": 131,
+          "fraud": 56,
+          "recall": 0.8571428571428571,
+          "fpr": 0,
+          "interventions": 48,
+          "workload_per_1000": 366.412213740458
+        },
+        {
+          "date": "2026-01-02",
+          "scored": 189,
+          "fraud": 106,
+          "recall": 0.8207547169811321,
+          "fpr": 0.012048192771084338,
+          "interventions": 88,
+          "workload_per_1000": 465.60846560846556
+        },
+        {
+          "date": "2026-01-03",
+          "scored": 143,
+          "fraud": 67,
+          "recall": 0.9104477611940298,
+          "fpr": 0.02631578947368421,
+          "interventions": 63,
+          "workload_per_1000": 440.5594405594406
+        }
+      ],
+      "rules": [
+        {
+          "rule_id": "R-VEL-002",
+          "shadow": false,
+          "fires": 89,
+          "tp": 89,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 30,
+          "weight_sum": 0,
+          "share": 0.1913978494623656
+        },
+        {
+          "rule_id": "R-STR-002",
+          "shadow": false,
+          "fires": 64,
+          "tp": 64,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 14,
+          "weight_sum": 0,
+          "share": 0.13763440860215054
+        },
+        {
+          "rule_id": "R-STR-001",
+          "shadow": false,
+          "fires": 61,
+          "tp": 61,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 7,
+          "weight_sum": 0,
+          "share": 0.13118279569892474
+        },
+        {
+          "rule_id": "R-VEL-001",
+          "shadow": false,
+          "fires": 60,
+          "tp": 60,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 2,
+          "weight_sum": 0,
+          "share": 0.12903225806451613
+        },
+        {
+          "rule_id": "R-ATO-001",
+          "shadow": false,
+          "fires": 16,
+          "tp": 15,
+          "fp": 1,
+          "precision": 0.9375,
+          "unique_catch": 9,
+          "weight_sum": 0,
+          "share": 0.034408602150537634
+        },
+        {
+          "rule_id": "R-CIR-001",
+          "shadow": false,
+          "fires": 10,
+          "tp": 10,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 5,
+          "weight_sum": 0,
+          "share": 0.021505376344086023
+        },
+        {
+          "rule_id": "R-MUL-003",
+          "shadow": false,
+          "fires": 8,
+          "tp": 8,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 2,
+          "weight_sum": 0,
+          "share": 0.017204301075268817
+        },
+        {
+          "rule_id": "R-RAW-001",
+          "shadow": false,
+          "fires": 5,
+          "tp": 5,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 0,
+          "weight_sum": 0,
+          "share": 0.010752688172043012
+        }
+      ],
+      "shadow": [
+        {
+          "rule_id": "R-EXP-001",
+          "shadow": true,
+          "fires": 2,
+          "tp": 2,
+          "fp": 0,
+          "precision": 1,
+          "unique_catch": 0,
+          "weight_sum": 0,
+          "share": 0.004301075268817204
+        }
+      ],
+      "overlap": [
+        {
+          "pair": "R-VEL-001|R-VEL-002",
+          "count": 58
+        },
+        {
+          "pair": "R-STR-001|R-STR-002",
+          "count": 50
+        },
+        {
+          "pair": "R-ATO-001|R-MUL-003",
+          "count": 6
+        },
+        {
+          "pair": "R-CIR-001|R-VEL-002",
+          "count": 5
+        },
+        {
+          "pair": "R-RAW-001|R-STR-001",
+          "count": 5
+        },
+        {
+          "pair": "R-CIR-001|R-VEL-001",
+          "count": 4
+        },
+        {
+          "pair": "R-RAW-001|R-STR-002",
+          "count": 1
+        }
+      ],
+      "sweep": [
+        {
+          "threshold": 10,
+          "recall": 0.8558951965065502,
+          "precision": 0.9849246231155779,
+          "fpr": 0.012711864406779662,
+          "alerts": 199
+        },
+        {
+          "threshold": 15,
+          "recall": 0.8558951965065502,
+          "precision": 0.9849246231155779,
+          "fpr": 0.012711864406779662,
+          "alerts": 199
+        },
+        {
+          "threshold": 20,
+          "recall": 0.8558951965065502,
+          "precision": 0.9849246231155779,
+          "fpr": 0.012711864406779662,
+          "alerts": 199
+        },
+        {
+          "threshold": 25,
+          "recall": 0.8558951965065502,
+          "precision": 0.9849246231155779,
+          "fpr": 0.012711864406779662,
+          "alerts": 199
+        },
+        {
+          "threshold": 30,
+          "recall": 0.8558951965065502,
+          "precision": 0.9849246231155779,
+          "fpr": 0.012711864406779662,
+          "alerts": 199
+        },
+        {
+          "threshold": 35,
+          "recall": 0.8558951965065502,
+          "precision": 0.9849246231155779,
+          "fpr": 0.012711864406779662,
+          "alerts": 199
+        },
+        {
+          "threshold": 40,
+          "recall": 0.8558951965065502,
+          "precision": 0.9849246231155779,
+          "fpr": 0.012711864406779662,
+          "alerts": 199
+        },
+        {
+          "threshold": 45,
+          "recall": 0.6244541484716157,
+          "precision": 0.9862068965517241,
+          "fpr": 0.00847457627118644,
+          "alerts": 145
+        },
+        {
+          "threshold": 50,
+          "recall": 0.5982532751091703,
+          "precision": 0.9856115107913669,
+          "fpr": 0.00847457627118644,
+          "alerts": 139
+        },
+        {
+          "threshold": 55,
+          "recall": 0.5982532751091703,
+          "precision": 0.9856115107913669,
+          "fpr": 0.00847457627118644,
+          "alerts": 139
+        },
+        {
+          "threshold": 60,
+          "recall": 0.5982532751091703,
+          "precision": 0.9856115107913669,
+          "fpr": 0.00847457627118644,
+          "alerts": 139
+        },
+        {
+          "threshold": 65,
+          "recall": 0.5982532751091703,
+          "precision": 0.9856115107913669,
+          "fpr": 0.00847457627118644,
+          "alerts": 139
+        },
+        {
+          "threshold": 70,
+          "recall": 0.021834061135371178,
+          "precision": 1,
+          "fpr": 0,
+          "alerts": 5
+        },
+        {
+          "threshold": 75,
+          "recall": 0.021834061135371178,
+          "precision": 1,
+          "fpr": 0,
+          "alerts": 5
+        },
+        {
+          "threshold": 80,
+          "recall": 0.021834061135371178,
+          "precision": 1,
+          "fpr": 0,
+          "alerts": 5
+        },
+        {
+          "threshold": 85,
+          "recall": 0.021834061135371178,
+          "precision": 1,
+          "fpr": 0,
+          "alerts": 5
+        },
+        {
+          "threshold": 90,
+          "recall": 0,
+          "precision": 0,
+          "fpr": 0,
+          "alerts": 0
+        },
+        {
+          "threshold": 95,
+          "recall": 0,
+          "precision": 0,
+          "fpr": 0,
+          "alerts": 0
+        }
+      ],
+      "risk_histogram": [
+        [
+          33,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          53,
+          0,
+          0,
+          0,
+          0,
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          132,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          5,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          233,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "days": 4
+    }
+  },
+  "candidates": [
+    {
+      "label": "neutral",
+      "metrics": {
+        "label": "neutral",
+        "scored": 465,
+        "fraud": 229,
+        "legit": 236,
+        "unlabelled": 0,
+        "ml_scored": 0,
+        "ml_degraded": 0,
+        "skipped_late": 7,
+        "skipped_duplicate": 34,
+        "skipped_invalid": 0,
+        "skipped_no_snapshot": 0,
+        "estimates": {
+          "customer_friction": {
+            "point": 0.42795698924731185,
+            "lo": 0.29309008823428434,
+            "hi": 0.5568815056886952,
+            "n": 465
+          },
+          "f2_alerted": {
+            "point": 0.8789237668161436,
+            "lo": 0.8176867933325561,
+            "hi": 0.921909956847845,
+            "n": 465
+          },
+          "false_positive_rate": {
+            "point": 0.012711864406779662,
+            "lo": 0,
+            "hi": 0.0321449733359668,
+            "n": 465
+          },
+          "fraud_blocked_rate": {
+            "point": 0.021834061135371178,
+            "lo": 0,
+            "hi": 0.05669172932330826,
+            "n": 465
+          },
+          "fraud_caught_rate": {
+            "point": 0.8558951965065502,
+            "lo": 0.7864583333333334,
+            "hi": 0.9083418949771689,
+            "n": 465
+          },
+          "fraud_intervened_rate": {
+            "point": 0.5982532751091703,
+            "lo": 0.5,
+            "hi": 0.69613999605367,
+            "n": 465
+          },
+          "legit_intervention_rate": {
+            "point": 0.00847457627118644,
+            "lo": 0,
+            "hi": 0.023438416960093897,
+            "n": 465
+          },
+          "precision_alerted": {
+            "point": 0.9849246231155779,
+            "lo": 0.9632942575603126,
+            "hi": 1,
+            "n": 465
+          },
+          "precision_intervened": {
+            "point": 0.9856115107913669,
+            "lo": 0.9622641509433962,
+            "hi": 1,
+            "n": 465
+          }
+        },
+        "decisions": {
+          "ALLOW": 266,
+          "BLOCK": 5,
+          "HOLD": 134,
+          "STEP_UP": 60
+        },
+        "amounts": {
+          "FRAUD:INTERVENED": 126735350,
+          "FRAUD:MISSED": 9811700,
+          "LEGIT:ALERTED": 184150,
+          "LEGIT:INTERVENED": 178150
+        },
+        "workload": {
+          "interventions": 139,
+          "per_day": 34.75,
+          "per_1000_events": 298.9247311827957
+        },
+        "time_to_detect": {
+          "runs": 19,
+          "detected": 17,
+          "detected_share": 0.8947368421052632,
+          "p50_minutes": 2.3585666666666665,
+          "p90_minutes": 11.42595,
+          "loss_before_detection": 1175550,
+          "total_fraud_amount": 136547050
+        },
+        "scenarios": [
+          {
+            "scenario": "AGENT_FRAUD",
+            "fraud": 14,
+            "recall_alerted": 0.07142857142857142,
+            "recall_intervened": 0.07142857142857142,
+            "caught_amount": 55550,
+            "runs": 0,
+            "detected": 1,
+            "low_power": true
+          },
+          {
+            "scenario": "ATO_SIMSWAP",
+            "fraud": 5,
+            "recall_alerted": 1,
+            "recall_intervened": 0.4,
+            "caught_amount": 137450,
+            "runs": 0,
+            "detected": 1,
+            "low_power": true
+          },
+          {
+            "scenario": "CIRCULAR",
+            "fraud": 10,
+            "recall_alerted": 0.5,
+            "recall_intervened": 0.5,
+            "caught_amount": 206500,
+            "runs": 0,
+            "detected": 1,
+            "low_power": true
+          },
+          {
+            "scenario": "MULE",
+            "fraud": 9,
+            "recall_alerted": 1,
+            "recall_intervened": 0,
+            "caught_amount": 0,
+            "runs": 0,
+            "detected": 0,
+            "low_power": true
+          },
+          {
+            "scenario": "SOCIAL_ENG",
+            "fraud": 14,
+            "recall_alerted": 1,
+            "recall_intervened": 0,
+            "caught_amount": 0,
+            "runs": 0,
+            "detected": 0,
+            "low_power": true
+          },
+          {
+            "scenario": "STRUCTURING",
+            "fraud": 72,
+            "recall_alerted": 0.9444444444444444,
+            "recall_intervened": 0.9444444444444444,
+            "caught_amount": 125308150,
+            "runs": 0,
+            "detected": 9,
+            "low_power": false
+          },
+          {
+            "scenario": "VELOCITY",
+            "fraud": 105,
+            "recall_alerted": 0.8952380952380953,
+            "recall_intervened": 0.580952380952381,
+            "caught_amount": 1027700,
+            "runs": 0,
+            "detected": 5,
+            "low_power": false
+          }
+        ],
+        "segments": [
+          {
+            "segment": "agent",
+            "scored": 2,
+            "legit": 2,
+            "fpr": 0,
+            "friction": 0
+          },
+          {
+            "segment": "rural_saver",
+            "scored": 55,
+            "legit": 29,
+            "fpr": 0,
+            "friction": 0.38181818181818183
+          },
+          {
+            "segment": "salaried",
+            "scored": 176,
+            "legit": 66,
+            "fpr": 0,
+            "friction": 0.3693181818181818
+          },
+          {
+            "segment": "small_trader",
+            "scored": 108,
+            "legit": 53,
+            "fpr": 0,
+            "friction": 0.23148148148148148
+          },
+          {
+            "segment": "student_parent",
+            "scored": 39,
+            "legit": 28,
+            "fpr": 0.03571428571428571,
+            "friction": 0.20512820512820512
+          },
+          {
+            "segment": "unknown",
+            "scored": 10,
+            "legit": 0,
+            "fpr": 0,
+            "friction": 0.5
+          },
+          {
+            "segment": "urban_youth",
+            "scored": 75,
+            "legit": 58,
+            "fpr": 0.034482758620689655,
+            "friction": 0.2
+          }
+        ],
+        "daily": [
+          {
+            "date": "2025-12-31",
+            "scored": 2,
+            "fraud": 0,
+            "recall": 0,
+            "fpr": 0,
+            "interventions": 0,
+            "workload_per_1000": 0
+          },
+          {
+            "date": "2026-01-01",
+            "scored": 131,
+            "fraud": 56,
+            "recall": 0.8571428571428571,
+            "fpr": 0,
+            "interventions": 48,
+            "workload_per_1000": 366.412213740458
+          },
+          {
+            "date": "2026-01-02",
+            "scored": 189,
+            "fraud": 106,
+            "recall": 0.8207547169811321,
+            "fpr": 0.012048192771084338,
+            "interventions": 88,
+            "workload_per_1000": 465.60846560846556
+          },
+          {
+            "date": "2026-01-03",
+            "scored": 143,
+            "fraud": 67,
+            "recall": 0.9104477611940298,
+            "fpr": 0.02631578947368421,
+            "interventions": 63,
+            "workload_per_1000": 440.5594405594406
+          }
+        ],
+        "rules": [
+          {
+            "rule_id": "R-VEL-002",
+            "shadow": false,
+            "fires": 89,
+            "tp": 89,
+            "fp": 0,
+            "precision": 1,
+            "unique_catch": 30,
+            "weight_sum": 0,
+            "share": 0.1913978494623656
+          },
+          {
+            "rule_id": "R-STR-002",
+            "shadow": false,
+            "fires": 64,
+            "tp": 64,
+            "fp": 0,
+            "precision": 1,
+            "unique_catch": 14,
+            "weight_sum": 0,
+            "share": 0.13763440860215054
+          },
+          {
+            "rule_id": "R-STR-001",
+            "shadow": false,
+            "fires": 61,
+            "tp": 61,
+            "fp": 0,
+            "precision": 1,
+            "unique_catch": 7,
+            "weight_sum": 0,
+            "share": 0.13118279569892474
+          },
+          {
+            "rule_id": "R-VEL-001",
+            "shadow": false,
+            "fires": 60,
+            "tp": 60,
+            "fp": 0,
+            "precision": 1,
+            "unique_catch": 2,
+            "weight_sum": 0,
+            "share": 0.12903225806451613
+          },
+          {
+            "rule_id": "R-ATO-001",
+            "shadow": false,
+            "fires": 16,
+            "tp": 15,
+            "fp": 1,
+            "precision": 0.9375,
+            "unique_catch": 9,
+            "weight_sum": 0,
+            "share": 0.034408602150537634
+          },
+          {
+            "rule_id": "R-CIR-001",
+            "shadow": false,
+            "fires": 10,
+            "tp": 10,
+            "fp": 0,
+            "precision": 1,
+            "unique_catch": 5,
+            "weight_sum": 0,
+            "share": 0.021505376344086023
+          },
+          {
+            "rule_id": "R-MUL-003",
+            "shadow": false,
+            "fires": 8,
+            "tp": 8,
+            "fp": 0,
+            "precision": 1,
+            "unique_catch": 2,
+            "weight_sum": 0,
+            "share": 0.017204301075268817
+          },
+          {
+            "rule_id": "R-RAW-001",
+            "shadow": false,
+            "fires": 5,
+            "tp": 5,
+            "fp": 0,
+            "precision": 1,
+            "unique_catch": 0,
+            "weight_sum": 0,
+            "share": 0.010752688172043012
+          }
+        ],
+        "shadow": [
+          {
+            "rule_id": "R-EXP-001",
+            "shadow": true,
+            "fires": 2,
+            "tp": 2,
+            "fp": 0,
+            "precision": 1,
+            "unique_catch": 0,
+            "weight_sum": 0,
+            "share": 0.004301075268817204
+          }
+        ],
+        "overlap": [
+          {
+            "pair": "R-VEL-001|R-VEL-002",
+            "count": 58
+          },
+          {
+            "pair": "R-STR-001|R-STR-002",
+            "count": 50
+          },
+          {
+            "pair": "R-ATO-001|R-MUL-003",
+            "count": 6
+          },
+          {
+            "pair": "R-CIR-001|R-VEL-002",
+            "count": 5
+          },
+          {
+            "pair": "R-RAW-001|R-STR-001",
+            "count": 5
+          },
+          {
+            "pair": "R-CIR-001|R-VEL-001",
+            "count": 4
+          },
+          {
+            "pair": "R-RAW-001|R-STR-002",
+            "count": 1
+          }
+        ],
+        "sweep": [
+          {
+            "threshold": 10,
+            "recall": 0.8558951965065502,
+            "precision": 0.9849246231155779,
+            "fpr": 0.012711864406779662,
+            "alerts": 199
+          },
+          {
+            "threshold": 15,
+            "recall": 0.8558951965065502,
+            "precision": 0.9849246231155779,
+            "fpr": 0.012711864406779662,
+            "alerts": 199
+          },
+          {
+            "threshold": 20,
+            "recall": 0.8558951965065502,
+            "precision": 0.9849246231155779,
+            "fpr": 0.012711864406779662,
+            "alerts": 199
+          },
+          {
+            "threshold": 25,
+            "recall": 0.8558951965065502,
+            "precision": 0.9849246231155779,
+            "fpr": 0.012711864406779662,
+            "alerts": 199
+          },
+          {
+            "threshold": 30,
+            "recall": 0.8558951965065502,
+            "precision": 0.9849246231155779,
+            "fpr": 0.012711864406779662,
+            "alerts": 199
+          },
+          {
+            "threshold": 35,
+            "recall": 0.8558951965065502,
+            "precision": 0.9849246231155779,
+            "fpr": 0.012711864406779662,
+            "alerts": 199
+          },
+          {
+            "threshold": 40,
+            "recall": 0.8558951965065502,
+            "precision": 0.9849246231155779,
+            "fpr": 0.012711864406779662,
+            "alerts": 199
+          },
+          {
+            "threshold": 45,
+            "recall": 0.6244541484716157,
+            "precision": 0.9862068965517241,
+            "fpr": 0.00847457627118644,
+            "alerts": 145
+          },
+          {
+            "threshold": 50,
+            "recall": 0.5982532751091703,
+            "precision": 0.9856115107913669,
+            "fpr": 0.00847457627118644,
+            "alerts": 139
+          },
+          {
+            "threshold": 55,
+            "recall": 0.5982532751091703,
+            "precision": 0.9856115107913669,
+            "fpr": 0.00847457627118644,
+            "alerts": 139
+          },
+          {
+            "threshold": 60,
+            "recall": 0.5982532751091703,
+            "precision": 0.9856115107913669,
+            "fpr": 0.00847457627118644,
+            "alerts": 139
+          },
+          {
+            "threshold": 65,
+            "recall": 0.5982532751091703,
+            "precision": 0.9856115107913669,
+            "fpr": 0.00847457627118644,
+            "alerts": 139
+          },
+          {
+            "threshold": 70,
+            "recall": 0.021834061135371178,
+            "precision": 1,
+            "fpr": 0,
+            "alerts": 5
+          },
+          {
+            "threshold": 75,
+            "recall": 0.021834061135371178,
+            "precision": 1,
+            "fpr": 0,
+            "alerts": 5
+          },
+          {
+            "threshold": 80,
+            "recall": 0.021834061135371178,
+            "precision": 1,
+            "fpr": 0,
+            "alerts": 5
+          },
+          {
+            "threshold": 85,
+            "recall": 0.021834061135371178,
+            "precision": 1,
+            "fpr": 0,
+            "alerts": 5
+          },
+          {
+            "threshold": 90,
+            "recall": 0,
+            "precision": 0,
+            "fpr": 0,
+            "alerts": 0
+          },
+          {
+            "threshold": 95,
+            "recall": 0,
+            "precision": 0,
+            "fpr": 0,
+            "alerts": 0
+          }
+        ],
+        "risk_histogram": [
+          [
+            33,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            53,
+            0,
+            0,
+            0,
+            0,
+            6,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            132,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            233,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "days": 4
+      },
+      "delta": {
+        "transition": null,
+        "mcnemar_fraud": {
+          "baseline_only": 0,
+          "candidate_only": 0,
+          "statistic": 0,
+          "p_value": 1
+        },
+        "mcnemar_legit": {
+          "baseline_only": 0,
+          "candidate_only": 0,
+          "statistic": 0,
+          "p_value": 1
+        },
+        "recall_diff": {
+          "point": 0,
+          "lo": 0,
+          "hi": 0,
+          "n": 229
+        },
+        "fpr_diff": {
+          "point": 0,
+          "lo": 0,
+          "hi": 0,
+          "n": 236
+        }
+      },
+      "newly_intervened": null,
+      "newly_allowed": null,
+      "newly_blocked": null,
+      "top_fraud_changes": null,
+      "top_legit_changes": null
+    }
+  ],
+  "scenarios": {
+    "baseline": [
+      {
+        "scenario": "AGENT_FRAUD",
+        "fraud": 14,
+        "recall_alerted": 0.07142857142857142,
+        "recall_intervened": 0.07142857142857142,
+        "caught_amount": 55550,
+        "runs": 0,
+        "detected": 1,
+        "low_power": true
+      },
+      {
+        "scenario": "ATO_SIMSWAP",
+        "fraud": 5,
+        "recall_alerted": 1,
+        "recall_intervened": 0.4,
+        "caught_amount": 137450,
+        "runs": 0,
+        "detected": 1,
+        "low_power": true
+      },
+      {
+        "scenario": "CIRCULAR",
+        "fraud": 10,
+        "recall_alerted": 0.5,
+        "recall_intervened": 0.5,
+        "caught_amount": 206500,
+        "runs": 0,
+        "detected": 1,
+        "low_power": true
+      },
+      {
+        "scenario": "MULE",
+        "fraud": 9,
+        "recall_alerted": 1,
+        "recall_intervened": 0,
+        "caught_amount": 0,
+        "runs": 0,
+        "detected": 0,
+        "low_power": true
+      },
+      {
+        "scenario": "SOCIAL_ENG",
+        "fraud": 14,
+        "recall_alerted": 1,
+        "recall_intervened": 0,
+        "caught_amount": 0,
+        "runs": 0,
+        "detected": 0,
+        "low_power": true
+      },
+      {
+        "scenario": "STRUCTURING",
+        "fraud": 72,
+        "recall_alerted": 0.9444444444444444,
+        "recall_intervened": 0.9444444444444444,
+        "caught_amount": 125308150,
+        "runs": 0,
+        "detected": 9,
+        "low_power": false
+      },
+      {
+        "scenario": "VELOCITY",
+        "fraud": 105,
+        "recall_alerted": 0.8952380952380953,
+        "recall_intervened": 0.580952380952381,
+        "caught_amount": 1027700,
+        "runs": 0,
+        "detected": 5,
+        "low_power": false
+      }
+    ],
+    "neutral": [
+      {
+        "scenario": "AGENT_FRAUD",
+        "fraud": 14,
+        "recall_alerted": 0.07142857142857142,
+        "recall_intervened": 0.07142857142857142,
+        "caught_amount": 55550,
+        "runs": 0,
+        "detected": 1,
+        "low_power": true
+      },
+      {
+        "scenario": "ATO_SIMSWAP",
+        "fraud": 5,
+        "recall_alerted": 1,
+        "recall_intervened": 0.4,
+        "caught_amount": 137450,
+        "runs": 0,
+        "detected": 1,
+        "low_power": true
+      },
+      {
+        "scenario": "CIRCULAR",
+        "fraud": 10,
+        "recall_alerted": 0.5,
+        "recall_intervened": 0.5,
+        "caught_amount": 206500,
+        "runs": 0,
+        "detected": 1,
+        "low_power": true
+      },
+      {
+        "scenario": "MULE",
+        "fraud": 9,
+        "recall_alerted": 1,
+        "recall_intervened": 0,
+        "caught_amount": 0,
+        "runs": 0,
+        "detected": 0,
+        "low_power": true
+      },
+      {
+        "scenario": "SOCIAL_ENG",
+        "fraud": 14,
+        "recall_alerted": 1,
+        "recall_intervened": 0,
+        "caught_amount": 0,
+        "runs": 0,
+        "detected": 0,
+        "low_power": true
+      },
+      {
+        "scenario": "STRUCTURING",
+        "fraud": 72,
+        "recall_alerted": 0.9444444444444444,
+        "recall_intervened": 0.9444444444444444,
+        "caught_amount": 125308150,
+        "runs": 0,
+        "detected": 9,
+        "low_power": false
+      },
+      {
+        "scenario": "VELOCITY",
+        "fraud": 105,
+        "recall_alerted": 0.8952380952380953,
+        "recall_intervened": 0.580952380952381,
+        "caught_amount": 1027700,
+        "runs": 0,
+        "detected": 5,
+        "low_power": false
+      }
+    ]
+  },
+  "rules": {
+    "baseline": [
+      {
+        "rule_id": "R-VEL-002",
+        "shadow": false,
+        "fires": 89,
+        "tp": 89,
+        "fp": 0,
+        "precision": 1,
+        "unique_catch": 30,
+        "weight_sum": 0,
+        "share": 0.1913978494623656
+      },
+      {
+        "rule_id": "R-STR-002",
+        "shadow": false,
+        "fires": 64,
+        "tp": 64,
+        "fp": 0,
+        "precision": 1,
+        "unique_catch": 14,
+        "weight_sum": 0,
+        "share": 0.13763440860215054
+      },
+      {
+        "rule_id": "R-STR-001",
+        "shadow": false,
+        "fires": 61,
+        "tp": 61,
+        "fp": 0,
+        "precision": 1,
+        "unique_catch": 7,
+        "weight_sum": 0,
+        "share": 0.13118279569892474
+      },
+      {
+        "rule_id": "R-VEL-001",
+        "shadow": false,
+        "fires": 60,
+        "tp": 60,
+        "fp": 0,
+        "precision": 1,
+        "unique_catch": 2,
+        "weight_sum": 0,
+        "share": 0.12903225806451613
+      },
+      {
+        "rule_id": "R-ATO-001",
+        "shadow": false,
+        "fires": 16,
+        "tp": 15,
+        "fp": 1,
+        "precision": 0.9375,
+        "unique_catch": 9,
+        "weight_sum": 0,
+        "share": 0.034408602150537634
+      },
+      {
+        "rule_id": "R-CIR-001",
+        "shadow": false,
+        "fires": 10,
+        "tp": 10,
+        "fp": 0,
+        "precision": 1,
+        "unique_catch": 5,
+        "weight_sum": 0,
+        "share": 0.021505376344086023
+      },
+      {
+        "rule_id": "R-MUL-003",
+        "shadow": false,
+        "fires": 8,
+        "tp": 8,
+        "fp": 0,
+        "precision": 1,
+        "unique_catch": 2,
+        "weight_sum": 0,
+        "share": 0.017204301075268817
+      },
+      {
+        "rule_id": "R-RAW-001",
+        "shadow": false,
+        "fires": 5,
+        "tp": 5,
+        "fp": 0,
+        "precision": 1,
+        "unique_catch": 0,
+        "weight_sum": 0,
+        "share": 0.010752688172043012
+      }
+    ],
+    "neutral": [
+      {
+        "rule_id": "R-VEL-002",
+        "shadow": false,
+        "fires": 89,
+        "tp": 89,
+        "fp": 0,
+        "precision": 1,
+        "unique_catch": 30,
+        "weight_sum": 0,
+        "share": 0.1913978494623656
+      },
+      {
+        "rule_id": "R-STR-002",
+        "shadow": false,
+        "fires": 64,
+        "tp": 64,
+        "fp": 0,
+        "precision": 1,
+        "unique_catch": 14,
+        "weight_sum": 0,
+        "share": 0.13763440860215054
+      },
+      {
+        "rule_id": "R-STR-001",
+        "shadow": false,
+        "fires": 61,
+        "tp": 61,
+        "fp": 0,
+        "precision": 1,
+        "unique_catch": 7,
+        "weight_sum": 0,
+        "share": 0.13118279569892474
+      },
+      {
+        "rule_id": "R-VEL-001",
+        "shadow": false,
+        "fires": 60,
+        "tp": 60,
+        "fp": 0,
+        "precision": 1,
+        "unique_catch": 2,
+        "weight_sum": 0,
+        "share": 0.12903225806451613
+      },
+      {
+        "rule_id": "R-ATO-001",
+        "shadow": false,
+        "fires": 16,
+        "tp": 15,
+        "fp": 1,
+        "precision": 0.9375,
+        "unique_catch": 9,
+        "weight_sum": 0,
+        "share": 0.034408602150537634
+      },
+      {
+        "rule_id": "R-CIR-001",
+        "shadow": false,
+        "fires": 10,
+        "tp": 10,
+        "fp": 0,
+        "precision": 1,
+        "unique_catch": 5,
+        "weight_sum": 0,
+        "share": 0.021505376344086023
+      },
+      {
+        "rule_id": "R-MUL-003",
+        "shadow": false,
+        "fires": 8,
+        "tp": 8,
+        "fp": 0,
+        "precision": 1,
+        "unique_catch": 2,
+        "weight_sum": 0,
+        "share": 0.017204301075268817
+      },
+      {
+        "rule_id": "R-RAW-001",
+        "shadow": false,
+        "fires": 5,
+        "tp": 5,
+        "fp": 0,
+        "precision": 1,
+        "unique_catch": 0,
+        "weight_sum": 0,
+        "share": 0.010752688172043012
+      }
+    ]
+  },
+  "daily": {
+    "baseline": [
+      {
+        "date": "2025-12-31",
+        "scored": 2,
+        "fraud": 0,
+        "recall": 0,
+        "fpr": 0,
+        "interventions": 0,
+        "workload_per_1000": 0
+      },
+      {
+        "date": "2026-01-01",
+        "scored": 131,
+        "fraud": 56,
+        "recall": 0.8571428571428571,
+        "fpr": 0,
+        "interventions": 48,
+        "workload_per_1000": 366.412213740458
+      },
+      {
+        "date": "2026-01-02",
+        "scored": 189,
+        "fraud": 106,
+        "recall": 0.8207547169811321,
+        "fpr": 0.012048192771084338,
+        "interventions": 88,
+        "workload_per_1000": 465.60846560846556
+      },
+      {
+        "date": "2026-01-03",
+        "scored": 143,
+        "fraud": 67,
+        "recall": 0.9104477611940298,
+        "fpr": 0.02631578947368421,
+        "interventions": 63,
+        "workload_per_1000": 440.5594405594406
+      }
+    ],
+    "neutral": [
+      {
+        "date": "2025-12-31",
+        "scored": 2,
+        "fraud": 0,
+        "recall": 0,
+        "fpr": 0,
+        "interventions": 0,
+        "workload_per_1000": 0
+      },
+      {
+        "date": "2026-01-01",
+        "scored": 131,
+        "fraud": 56,
+        "recall": 0.8571428571428571,
+        "fpr": 0,
+        "interventions": 48,
+        "workload_per_1000": 366.412213740458
+      },
+      {
+        "date": "2026-01-02",
+        "scored": 189,
+        "fraud": 106,
+        "recall": 0.8207547169811321,
+        "fpr": 0.012048192771084338,
+        "interventions": 88,
+        "workload_per_1000": 465.60846560846556
+      },
+      {
+        "date": "2026-01-03",
+        "scored": 143,
+        "fraud": 67,
+        "recall": 0.9104477611940298,
+        "fpr": 0.02631578947368421,
+        "interventions": 63,
+        "workload_per_1000": 440.5594405594406
+      }
+    ]
+  },
+  "segments": {
+    "baseline": [
+      {
+        "segment": "agent",
+        "scored": 2,
+        "legit": 2,
+        "fpr": 0,
+        "friction": 0
+      },
+      {
+        "segment": "rural_saver",
+        "scored": 55,
+        "legit": 29,
+        "fpr": 0,
+        "friction": 0.38181818181818183
+      },
+      {
+        "segment": "salaried",
+        "scored": 176,
+        "legit": 66,
+        "fpr": 0,
+        "friction": 0.3693181818181818
+      },
+      {
+        "segment": "small_trader",
+        "scored": 108,
+        "legit": 53,
+        "fpr": 0,
+        "friction": 0.23148148148148148
+      },
+      {
+        "segment": "student_parent",
+        "scored": 39,
+        "legit": 28,
+        "fpr": 0.03571428571428571,
+        "friction": 0.20512820512820512
+      },
+      {
+        "segment": "unknown",
+        "scored": 10,
+        "legit": 0,
+        "fpr": 0,
+        "friction": 0.5
+      },
+      {
+        "segment": "urban_youth",
+        "scored": 75,
+        "legit": 58,
+        "fpr": 0.034482758620689655,
+        "friction": 0.2
+      }
+    ],
+    "neutral": [
+      {
+        "segment": "agent",
+        "scored": 2,
+        "legit": 2,
+        "fpr": 0,
+        "friction": 0
+      },
+      {
+        "segment": "rural_saver",
+        "scored": 55,
+        "legit": 29,
+        "fpr": 0,
+        "friction": 0.38181818181818183
+      },
+      {
+        "segment": "salaried",
+        "scored": 176,
+        "legit": 66,
+        "fpr": 0,
+        "friction": 0.3693181818181818
+      },
+      {
+        "segment": "small_trader",
+        "scored": 108,
+        "legit": 53,
+        "fpr": 0,
+        "friction": 0.23148148148148148
+      },
+      {
+        "segment": "student_parent",
+        "scored": 39,
+        "legit": 28,
+        "fpr": 0.03571428571428571,
+        "friction": 0.20512820512820512
+      },
+      {
+        "segment": "unknown",
+        "scored": 10,
+        "legit": 0,
+        "fpr": 0,
+        "friction": 0.5
+      },
+      {
+        "segment": "urban_youth",
+        "scored": 75,
+        "legit": 58,
+        "fpr": 0.034482758620689655,
+        "friction": 0.2
+      }
+    ]
+  },
+  "sweep": {
+    "baseline": [
+      {
+        "threshold": 10,
+        "recall": 0.8558951965065502,
+        "precision": 0.9849246231155779,
+        "fpr": 0.012711864406779662,
+        "alerts": 199
+      },
+      {
+        "threshold": 15,
+        "recall": 0.8558951965065502,
+        "precision": 0.9849246231155779,
+        "fpr": 0.012711864406779662,
+        "alerts": 199
+      },
+      {
+        "threshold": 20,
+        "recall": 0.8558951965065502,
+        "precision": 0.9849246231155779,
+        "fpr": 0.012711864406779662,
+        "alerts": 199
+      },
+      {
+        "threshold": 25,
+        "recall": 0.8558951965065502,
+        "precision": 0.9849246231155779,
+        "fpr": 0.012711864406779662,
+        "alerts": 199
+      },
+      {
+        "threshold": 30,
+        "recall": 0.8558951965065502,
+        "precision": 0.9849246231155779,
+        "fpr": 0.012711864406779662,
+        "alerts": 199
+      },
+      {
+        "threshold": 35,
+        "recall": 0.8558951965065502,
+        "precision": 0.9849246231155779,
+        "fpr": 0.012711864406779662,
+        "alerts": 199
+      },
+      {
+        "threshold": 40,
+        "recall": 0.8558951965065502,
+        "precision": 0.9849246231155779,
+        "fpr": 0.012711864406779662,
+        "alerts": 199
+      },
+      {
+        "threshold": 45,
+        "recall": 0.6244541484716157,
+        "precision": 0.9862068965517241,
+        "fpr": 0.00847457627118644,
+        "alerts": 145
+      },
+      {
+        "threshold": 50,
+        "recall": 0.5982532751091703,
+        "precision": 0.9856115107913669,
+        "fpr": 0.00847457627118644,
+        "alerts": 139
+      },
+      {
+        "threshold": 55,
+        "recall": 0.5982532751091703,
+        "precision": 0.9856115107913669,
+        "fpr": 0.00847457627118644,
+        "alerts": 139
+      },
+      {
+        "threshold": 60,
+        "recall": 0.5982532751091703,
+        "precision": 0.9856115107913669,
+        "fpr": 0.00847457627118644,
+        "alerts": 139
+      },
+      {
+        "threshold": 65,
+        "recall": 0.5982532751091703,
+        "precision": 0.9856115107913669,
+        "fpr": 0.00847457627118644,
+        "alerts": 139
+      },
+      {
+        "threshold": 70,
+        "recall": 0.021834061135371178,
+        "precision": 1,
+        "fpr": 0,
+        "alerts": 5
+      },
+      {
+        "threshold": 75,
+        "recall": 0.021834061135371178,
+        "precision": 1,
+        "fpr": 0,
+        "alerts": 5
+      },
+      {
+        "threshold": 80,
+        "recall": 0.021834061135371178,
+        "precision": 1,
+        "fpr": 0,
+        "alerts": 5
+      },
+      {
+        "threshold": 85,
+        "recall": 0.021834061135371178,
+        "precision": 1,
+        "fpr": 0,
+        "alerts": 5
+      },
+      {
+        "threshold": 90,
+        "recall": 0,
+        "precision": 0,
+        "fpr": 0,
+        "alerts": 0
+      },
+      {
+        "threshold": 95,
+        "recall": 0,
+        "precision": 0,
+        "fpr": 0,
+        "alerts": 0
+      }
+    ],
+    "neutral": [
+      {
+        "threshold": 10,
+        "recall": 0.8558951965065502,
+        "precision": 0.9849246231155779,
+        "fpr": 0.012711864406779662,
+        "alerts": 199
+      },
+      {
+        "threshold": 15,
+        "recall": 0.8558951965065502,
+        "precision": 0.9849246231155779,
+        "fpr": 0.012711864406779662,
+        "alerts": 199
+      },
+      {
+        "threshold": 20,
+        "recall": 0.8558951965065502,
+        "precision": 0.9849246231155779,
+        "fpr": 0.012711864406779662,
+        "alerts": 199
+      },
+      {
+        "threshold": 25,
+        "recall": 0.8558951965065502,
+        "precision": 0.9849246231155779,
+        "fpr": 0.012711864406779662,
+        "alerts": 199
+      },
+      {
+        "threshold": 30,
+        "recall": 0.8558951965065502,
+        "precision": 0.9849246231155779,
+        "fpr": 0.012711864406779662,
+        "alerts": 199
+      },
+      {
+        "threshold": 35,
+        "recall": 0.8558951965065502,
+        "precision": 0.9849246231155779,
+        "fpr": 0.012711864406779662,
+        "alerts": 199
+      },
+      {
+        "threshold": 40,
+        "recall": 0.8558951965065502,
+        "precision": 0.9849246231155779,
+        "fpr": 0.012711864406779662,
+        "alerts": 199
+      },
+      {
+        "threshold": 45,
+        "recall": 0.6244541484716157,
+        "precision": 0.9862068965517241,
+        "fpr": 0.00847457627118644,
+        "alerts": 145
+      },
+      {
+        "threshold": 50,
+        "recall": 0.5982532751091703,
+        "precision": 0.9856115107913669,
+        "fpr": 0.00847457627118644,
+        "alerts": 139
+      },
+      {
+        "threshold": 55,
+        "recall": 0.5982532751091703,
+        "precision": 0.9856115107913669,
+        "fpr": 0.00847457627118644,
+        "alerts": 139
+      },
+      {
+        "threshold": 60,
+        "recall": 0.5982532751091703,
+        "precision": 0.9856115107913669,
+        "fpr": 0.00847457627118644,
+        "alerts": 139
+      },
+      {
+        "threshold": 65,
+        "recall": 0.5982532751091703,
+        "precision": 0.9856115107913669,
+        "fpr": 0.00847457627118644,
+        "alerts": 139
+      },
+      {
+        "threshold": 70,
+        "recall": 0.021834061135371178,
+        "precision": 1,
+        "fpr": 0,
+        "alerts": 5
+      },
+      {
+        "threshold": 75,
+        "recall": 0.021834061135371178,
+        "precision": 1,
+        "fpr": 0,
+        "alerts": 5
+      },
+      {
+        "threshold": 80,
+        "recall": 0.021834061135371178,
+        "precision": 1,
+        "fpr": 0,
+        "alerts": 5
+      },
+      {
+        "threshold": 85,
+        "recall": 0.021834061135371178,
+        "precision": 1,
+        "fpr": 0,
+        "alerts": 5
+      },
+      {
+        "threshold": 90,
+        "recall": 0,
+        "precision": 0,
+        "fpr": 0,
+        "alerts": 0
+      },
+      {
+        "threshold": 95,
+        "recall": 0,
+        "precision": 0,
+        "fpr": 0,
+        "alerts": 0
+      }
+    ]
+  },
+  "time_to_detect": {
+    "baseline": {
+      "runs": 19,
+      "detected": 17,
+      "detected_share": 0.8947368421052632,
+      "p50_minutes": 2.3585666666666665,
+      "p90_minutes": 11.42595,
+      "loss_before_detection": 1175550,
+      "total_fraud_amount": 136547050
+    },
+    "neutral": {
+      "runs": 19,
+      "detected": 17,
+      "detected_share": 0.8947368421052632,
+      "p50_minutes": 2.3585666666666665,
+      "p90_minutes": 11.42595,
+      "loss_before_detection": 1175550,
+      "total_fraud_amount": 136547050
+    }
+  },
+  "cost_model": {
+    "currency": "RWF",
+    "analyst_cost_per_case": 1200,
+    "step_up_dropoff_probability": 0.08,
+    "average_fee": 250,
+    "fraud_recovery_factor": 0.35,
+    "net_benefit_baseline": 44189372.5,
+    "net_benefit_candidates": {
+      "neutral": 44189372.5
+    }
+  },
+  "caveats": [
+    "Labels are the dataset's ground truth; label noise propagates to every rate.",
+    "Confidence intervals resample accounts, not events, to respect within-account correlation."
+  ]
+}

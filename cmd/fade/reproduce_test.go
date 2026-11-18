@@ -28,9 +28,9 @@ func loadProd(t *testing.T) *rules.RuleSet {
 func makeFixture(t *testing.T, rs *rules.RuleSet, i int) fixture {
 	t.Helper()
 	vector := features.FeatureVector{
-		EventID:   "evt",
-		Velocity1m:  int64(i % 7),
-		Velocity10m: int64(i%13 + 1),
+		EventID:      "evt",
+		Velocity1m:   int64(i % 7),
+		Velocity10m:  int64(i%13 + 1),
 		AmountSum10m: int64(1000 + i*37),
 	}
 	ctx := rules.EvalContextFor(&vector, int64(5000+i), 0, "P2P", "APP", int64(1+i%3), 100000)

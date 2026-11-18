@@ -37,6 +37,7 @@ ALTER TABLE decisions ADD COLUMN IF NOT EXISTS shadow_hits JSONB NOT NULL DEFAUL
 ALTER TABLE decisions ADD COLUMN IF NOT EXISTS snapshot_id TEXT;
 ALTER TABLE decisions ADD COLUMN IF NOT EXISTS provenance JSONB NOT NULL DEFAULT '{}'::jsonb;
 ALTER TABLE decisions ADD COLUMN IF NOT EXISTS explain_schema_version INT NOT NULL DEFAULT 1;
+ALTER TABLE decisions ADD COLUMN IF NOT EXISTS input_event JSONB;
 CREATE INDEX IF NOT EXISTS decisions_account_decided_idx ON decisions (account_id, decided_at DESC);
 CREATE INDEX IF NOT EXISTS decisions_decision_decided_idx ON decisions (decision, decided_at DESC);
 CREATE INDEX IF NOT EXISTS decisions_event_idx ON decisions (event_id);
@@ -61,8 +62,8 @@ func (s *PostgresStore) WriteDecisions(ctx context.Context, batch []*StoredDecis
 	  (id, event_id, account_id, recipient_id, amount, txn_type, decision,
 	   risk_score, rule_score, ml_score, ml_status, rule_set_version, model_version,
 	   reasons, features, shadow_hits, snapshot_id, provenance, explain_schema_version,
-	   latency_us, event_time, decided_at)
-	  VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
+	   latency_us, event_time, decided_at, input_event)
+	  VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
 	  ON CONFLICT DO NOTHING`
 	for _, rec := range batch {
 		d := rec.Decision
@@ -95,7 +96,7 @@ func (s *PostgresStore) WriteDecisions(ctx context.Context, batch []*StoredDecis
 			rec.Amount, rec.TxnType, string(d.Decision), d.RiskScore, d.RuleScore,
 			d.MLScore, d.MLStatus, d.RuleSetVersion, d.ModelVersion,
 			reasons, feat, shadow, snap, prov, esv,
-			rec.LatencyUS, rec.EventTime, d.DecidedAt)
+			rec.LatencyUS, rec.EventTime, d.DecidedAt, d.InputEvent)
 	}
 	br := tx.SendBatch(ctx, pgBatch)
 	for range batch {
@@ -120,7 +121,7 @@ func nullString(s string) *string {
 const decisionColumns = `id, event_id, account_id, recipient_id, amount, txn_type,
  decision, risk_score, rule_score, ml_score, ml_status, rule_set_version, model_version,
  reasons, features, shadow_hits, snapshot_id, provenance, explain_schema_version,
- latency_us, event_time, decided_at`
+ latency_us, event_time, decided_at, input_event`
 
 func scanDecision(row pgx.Row) (*StoredDecision, error) {
 	var rec StoredDecision
@@ -131,10 +132,11 @@ func scanDecision(row pgx.Row) (*StoredDecision, error) {
 	var decisionText string
 	var snapshotID *string
 	var explainSchema int
+	var inputEvent []byte
 	err := row.Scan(&d.DecisionID, &d.EventID, &rec.AccountID, &recipient, &rec.Amount,
 		&rec.TxnType, &decisionText, &d.RiskScore, &d.RuleScore, &mlScore, &d.MLStatus,
 		&d.RuleSetVersion, &modelVersion, &reasons, &feats, &shadow, &snapshotID, &prov,
-		&explainSchema, &rec.LatencyUS, &rec.EventTime, &d.DecidedAt)
+		&explainSchema, &rec.LatencyUS, &rec.EventTime, &d.DecidedAt, &inputEvent)
 	if err != nil {
 		return nil, err
 	}
@@ -168,6 +170,9 @@ func scanDecision(row pgx.Row) (*StoredDecision, error) {
 	d.ExplainSchemaVersion = explainSchema
 	if d.ExplainSchemaVersion == 0 {
 		d.ExplainSchemaVersion = 1
+	}
+	if len(inputEvent) > 0 && string(inputEvent) != "null" {
+		d.InputEvent = append([]byte(nil), inputEvent...)
 	}
 	d.AccountID = rec.AccountID
 	d.RecipientID = rec.RecipientID

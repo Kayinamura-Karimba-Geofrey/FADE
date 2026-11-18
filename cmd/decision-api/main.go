@@ -18,6 +18,7 @@ import (
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/features"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/obs"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/pipeline"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/replay/gate"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/scoring"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/store"
@@ -99,6 +100,18 @@ func run() error {
 		},
 		OnVersion: func(v int) { metrics.RuleSetVersion.Set(float64(v)) },
 	})
+	// Promotion gate on rule activation is opt-in via REQUIRE_GATE.
+	breakGlassEnabled := os.Getenv("ALLOW_GATE_BREAK_GLASS") == "1"
+	var guard *gate.Guard
+	if os.Getenv("REQUIRE_GATE") == "1" && pool != nil {
+		guard = &gate.Guard{
+			Store:           gate.NewPostgresVerdictStore(pool),
+			Required:        true,
+			AllowBreakGlass: breakGlassEnabled,
+		}
+		manager.SetActivationGuard(guard.Check)
+		logger.Info("promotion gate enforcement enabled")
+	}
 	if err := manager.LoadStartup(ctx); err != nil {
 		logger.Warn("starting with degraded rule state", "error", err)
 	}
@@ -160,9 +173,10 @@ func run() error {
 	router := api.NewRouter(api.Deps{
 		Logger: logger, Metrics: metrics, Pipeline: p, Rules: manager,
 		Auth: auth, Limiter: api.NewRateLimiter(cfg.RateLimits),
-		Auditor: auditor, Audit: auditStore, Checks: checks,
+		Auditor: auditor, Audit: auditStore, DB: pool, Checks: checks,
 		AuditHMACKey: []byte(cfg.AuditHMACKey), AuditCheckpointDir: cfg.AuditCheckpointDir,
 		Version: version, CORSOrigin: cfg.CORSOrigin,
+		BreakGlassEnabled: breakGlassEnabled, Gate: guard,
 	})
 
 	srv := &http.Server{

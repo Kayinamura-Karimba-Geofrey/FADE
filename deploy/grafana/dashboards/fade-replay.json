@@ -1,0 +1,15 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0}, "id": 1, "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"}, "targets": [{"expr": "fade_replay_queue_depth", "legendFormat": "queued", "refId": "A"}], "title": "Queue depth", "type": "stat"},
+    {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0}, "id": 2, "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"}, "targets": [{"expr": "fade_replay_throughput_events_per_second", "legendFormat": "events/s", "refId": "A"}], "title": "Throughput", "type": "stat"},
+    {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 12, "y": 0}, "id": 3, "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}}, "targets": [{"expr": "histogram_quantile(0.5, sum by (le) (rate(fade_replay_duration_seconds_bucket[1h])))", "legendFormat": "p50", "refId": "A"}, {"expr": "histogram_quantile(0.9, sum by (le) (rate(fade_replay_duration_seconds_bucket[1h])))", "legendFormat": "p90", "refId": "B"}], "title": "Job duration", "type": "timeseries"},
+    {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 0, "y": 6}, "id": 4, "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}}, "targets": [{"expr": "sum by (status) (increase(fade_replay_jobs_total[24h]))", "legendFormat": "{{status}}", "refId": "A"}], "title": "Jobs (24h)", "type": "timeseries"},
+    {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 12, "y": 6}, "id": 5, "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}}, "targets": [{"expr": "sum by (result) (increase(fade_gate_total[24h]))", "legendFormat": "{{result}}", "refId": "A"}], "title": "Promotion gates", "type": "timeseries"}
+  ],
+  "refresh": "30s", "schemaVersion": 39, "tags": ["fade", "replay", "simulation"],
+  "templating": {"list": [{"current": {}, "hide": 0, "includeAll": false, "label": "Prometheus", "multi": false, "name": "DS_PROMETHEUS", "options": [], "query": "prometheus", "refresh": 1, "regex": "", "skipUrlSync": false, "type": "datasource"}]},
+  "time": {"from": "now-24h", "to": "now"}, "timezone": "utc", "title": "FADE Replay", "uid": "fade-replay", "version": 1
+}

@@ -1,0 +1,28 @@
+{
+  "datasets": {
+    "golden": {
+      "accounts": 40,
+      "events": 506,
+      "hash": "2723a337181c3352dbce52a6e2b0f15c6202e857049e312863e57276239f7583",
+      "name": "golden",
+      "path": "data/golden",
+      "verified_at": "2026-11-16T22:12:09Z"
+    },
+    "run42": {
+      "accounts": 50000,
+      "events": 5704059,
+      "hash": "af23d8d17b06cf42377ae9d18c2c68be5477f034e9e36337bd9494d8786e42a7",
+      "name": "run42",
+      "path": "data/run42",
+      "verified_at": "2026-11-16T22:12:19Z"
+    },
+    "small": {
+      "accounts": 2000,
+      "events": 38584,
+      "hash": "9d86a9053c38f8aa7c2ad0faf3700dcabb8c583c90065a773d879fc84754a6d9",
+      "name": "small",
+      "path": "data/small",
+      "verified_at": "2026-11-16T22:12:10Z"
+    }
+  }
+}

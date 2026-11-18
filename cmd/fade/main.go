@@ -25,7 +25,7 @@ import (
 )
 
 // version is the Phase 5 tool version.
-const version = "0.6.0"
+const version = "0.7.0"
 
 const usage = `fade - FADE explainability and audit tools
 
@@ -36,6 +36,8 @@ Commands:
   reproduce   re-run a decision from its stored facts and compare
   audit       verify or checkpoint the audit hash chain
   retention   plan or apply partition retention
+  replay      run, show, compare, list or tune a replay
+  gate        evaluate a replay candidate against the promotion gate
   version     print the version
 
 Run "fade <command> -h" for command flags.
@@ -62,6 +64,10 @@ func run(args []string) error {
 		return cmdAudit(args[1:])
 	case "retention":
 		return cmdRetention(args[1:])
+	case "replay":
+		return cmdReplay(args[1:])
+	case "gate":
+		return cmdGate(args[1:])
 	case "version", "-version", "--version":
 		fmt.Fprintln(os.Stdout, version)
 		return nil

@@ -69,6 +69,9 @@ const (
 	ActionAuthFailureBurst     Action = "AUTH_FAILURE_BURST"
 	ActionConfigChange         Action = "CONFIG_CHANGE"
 	ActionAuditCheckpoint      Action = "AUDIT_CHECKPOINT"
+	ActionReplayStart          Action = "REPLAY_START"
+	ActionReplayFinish         Action = "REPLAY_FINISH"
+	ActionReplayPromotionGate  Action = "REPLAY_PROMOTION_GATE"
 )
 
 // Catalog is the closed set of action codes accepted by the writer.
@@ -79,6 +82,7 @@ var Catalog = map[Action]bool{
 	ActionCaseResolve: true, ActionLabelWrite: true, ActionUserRoleChange: true,
 	ActionDecisionOverride: true, ActionRetentionPurge: true, ActionAuditVerify: true,
 	ActionAuthFailureBurst: true, ActionConfigChange: true, ActionAuditCheckpoint: true,
+	ActionReplayStart: true, ActionReplayFinish: true, ActionReplayPromotionGate: true,
 }
 
 // Row is one audit entry. The field set is the hash pre-image contract: do not

@@ -47,6 +47,17 @@ type MemoryListSource struct {
 // NewMemoryListSource returns an empty source.
 func NewMemoryListSource() *MemoryListSource { return &MemoryListSource{nextID: 1} }
 
+// NewMemoryListSourceFrom seeds a source with a frozen snapshot.
+func NewMemoryListSourceFrom(items []ListEntry) *MemoryListSource {
+	m := &MemoryListSource{nextID: 1, items: append([]ListEntry(nil), items...)}
+	for _, e := range items {
+		if e.ID >= m.nextID {
+			m.nextID = e.ID + 1
+		}
+	}
+	return m
+}
+
 // LoadLists implements ListSource.
 func (m *MemoryListSource) LoadLists(context.Context) ([]ListEntry, error) {
 	m.mu.Lock()

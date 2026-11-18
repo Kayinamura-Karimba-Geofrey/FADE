@@ -33,15 +33,21 @@ type Hooks struct {
 	OnVersion  func(version int)
 }
 
+// ActivationGuard may refuse a rule activation before it is installed. It
+// receives the compiled candidate and returns an error to reject it. Rollback
+// and startup loading never invoke the guard.
+type ActivationGuard func(ctx context.Context, rs *RuleSet) error
+
 const historyLimit = 20
 
 // Manager owns the active rule set. Readers never lock: the pointer is swapped
 // atomically after a full compile, so in-flight requests finish on the old set.
 type Manager struct {
-	dir     string
-	logger  *slog.Logger
-	persist Persister
-	hooks   Hooks
+	dir             string
+	logger          *slog.Logger
+	persist         Persister
+	hooks           Hooks
+	activationGuard ActivationGuard
 
 	current atomic.Pointer[RuleSet]
 	source  atomic.Value // string
@@ -86,6 +92,26 @@ func NewManager(dir string, logger *slog.Logger, persist Persister, hooks Hooks)
 		m.persist = nil
 	}
 	return m
+}
+
+// NewStatic returns a manager pinned to one compiled rule set. Replay uses it
+// to evaluate a config without activating anything.
+func NewStatic(rs *RuleSet) *Manager {
+	m := NewManager("", slog.Default(), nil, Hooks{})
+	if rs == nil {
+		rs = EmptyRuleSet()
+	}
+	m.current.Store(rs)
+	m.source.Store("static")
+	return m
+}
+
+// SetActivationGuard installs a guard consulted before every activation
+// triggered by Reload/Activate/PutRule. Pass nil to disable.
+func (m *Manager) SetActivationGuard(g ActivationGuard) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.activationGuard = g
 }
 
 // Path returns the rules directory.
@@ -146,7 +172,7 @@ func (m *Manager) LoadStartup(ctx context.Context) error {
 			m.logger.Warn("postgres rule set unavailable; falling back to file", "error", err)
 		}
 	}
-	if _, err := m.Reload(ctx, "startup"); err != nil {
+	if _, err := m.reload(ctx, "startup", false); err != nil {
 		m.setError(err)
 		if m.current.Load() == nil {
 			m.install(EmptyRuleSet(), "empty")
@@ -182,8 +208,12 @@ type candidate struct {
 
 // Reload scans rules/*.json, validates every file, activates the highest
 // version, and only then swaps. Any invalid file rejects the whole reload and
-// leaves the previous set serving.
+// leaves the previous set serving. The promotion guard is consulted.
 func (m *Manager) Reload(ctx context.Context, actor string) (*RuleSet, error) {
+	return m.reload(ctx, actor, true)
+}
+
+func (m *Manager) reload(ctx context.Context, actor string, enforce bool) (*RuleSet, error) {
 	start := time.Now()
 	files, err := m.ListFiles()
 	if err != nil {
@@ -266,6 +296,12 @@ func (m *Manager) Reload(ctx context.Context, actor string) (*RuleSet, error) {
 		}
 	}
 
+	if enforce && m.activationGuard != nil {
+		if err := m.activationGuard(ctx, rs); err != nil {
+			m.rejected(err)
+			return nil, err
+		}
+	}
 	m.install(rs, "file")
 	if m.persist != nil {
 		if err := m.persist.SaveActivation(ctx, rs, actor); err != nil {
@@ -280,6 +316,11 @@ func (m *Manager) Reload(ctx context.Context, actor string) (*RuleSet, error) {
 
 // Activate installs an already compiled rule set, enforcing monotonic versions.
 func (m *Manager) Activate(ctx context.Context, rs *RuleSet, actor string) error {
+	if m.activationGuard != nil {
+		if err := m.activationGuard(ctx, rs); err != nil {
+			return err
+		}
+	}
 	cur := m.current.Load()
 	if cur != nil && !cur.Empty && cur.RuleSet == rs.RuleSet && cur.Hash != rs.Hash &&
 		rs.Version <= m.lastVersion(rs.RuleSet) {

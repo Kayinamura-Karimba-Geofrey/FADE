@@ -45,7 +45,7 @@ func testPostgres(t *testing.T) (*PostgresStore, *pgxpool.Pool) {
 		t.Fatal(err)
 	}
 	t.Cleanup(pool.Close)
-	for _, name := range []string{"0001_init.up.sql", "0002_phase3.up.sql"} {
+	for _, name := range []string{"0001_init.up.sql", "0002_phase3.up.sql", "0003_explain_audit.up.sql", "0004_replay.up.sql"} {
 		sql, err := os.ReadFile(filepath.Join("..", "..", "migrations", name))
 		if err != nil {
 			t.Fatal(err)

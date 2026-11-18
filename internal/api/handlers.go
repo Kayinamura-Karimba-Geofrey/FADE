@@ -18,6 +18,7 @@ import (
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/api/oapi"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/events"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/pipeline"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/replay/gate"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules"
 )
 
@@ -312,12 +313,29 @@ func parseOptionalTime(v string) (time.Time, error) {
 // ------------------------------------------------------------------- rules
 
 func (s *Server) reloadRules(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	breakGlass := strings.TrimSpace(r.Header.Get("X-Break-Glass"))
+	if breakGlass != "" {
+		if !s.deps.BreakGlassEnabled {
+			writeProblem(w, r, http.StatusForbidden, "BREAK_GLASS_DISABLED", "Break-glass disabled", "break-glass is not enabled")
+			return
+		}
+		ctx = gate.WithBreakGlass(ctx, breakGlass)
+	}
 	previous := s.deps.Rules.Current().Version
 	start := time.Now()
-	rs, err := s.deps.Rules.Reload(r.Context(), actorFrom(r))
+	rs, err := s.deps.Rules.Reload(ctx, actorFrom(r))
 	if err != nil {
+		if errors.Is(err, gate.ErrGateRequired) {
+			writeProblem(w, r, http.StatusConflict, "GATE_REQUIRED", "Promotion gate required",
+				"no passing replay promotion gate for this configuration; run /v1/replay/{id}/gate first")
+			return
+		}
 		s.writeCompileError(w, r, err)
 		return
+	}
+	if breakGlass != "" {
+		s.audit(r, "rules.break_glass", "rule_set", rs.RuleSet, nil, map[string]any{"reason": breakGlass, "version": rs.Version})
 	}
 	writeJSON(w, http.StatusOK, map[string]any{
 		"active": true, "version": rs.Version, "hash": rs.Hash,
@@ -347,11 +365,28 @@ func (s *Server) putRule(w http.ResponseWriter, r *http.Request) {
 	if !decodeStrict(w, r, body, &in) {
 		return
 	}
+	ctx := r.Context()
+	breakGlass := strings.TrimSpace(r.Header.Get("X-Break-Glass"))
+	if breakGlass != "" {
+		if !s.deps.BreakGlassEnabled {
+			writeProblem(w, r, http.StatusForbidden, "BREAK_GLASS_DISABLED", "Break-glass disabled", "break-glass is not enabled")
+			return
+		}
+		ctx = gate.WithBreakGlass(ctx, breakGlass)
+	}
 	id := chi.URLParam(r, "id")
-	rs, err := s.deps.Rules.PutRule(r.Context(), id, toRule(in), actorFrom(r))
+	rs, err := s.deps.Rules.PutRule(ctx, id, toRule(in), actorFrom(r))
 	if err != nil {
+		if errors.Is(err, gate.ErrGateRequired) {
+			writeProblem(w, r, http.StatusConflict, "GATE_REQUIRED", "Promotion gate required",
+				"no passing replay promotion gate for this configuration; run /v1/replay/{id}/gate first")
+			return
+		}
 		s.writeCompileError(w, r, err)
 		return
+	}
+	if breakGlass != "" {
+		s.audit(r, "rules.break_glass", "rule", id, nil, map[string]any{"reason": breakGlass, "version": rs.Version})
 	}
 	s.audit(r, "rules.put", "rule", id, nil, in)
 	writeJSON(w, http.StatusOK, map[string]any{

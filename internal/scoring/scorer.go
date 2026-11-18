@@ -76,25 +76,25 @@ type Client struct {
 	expectedModelVersion string
 	now                  func() time.Time
 
-	mu          sync.Mutex
-	consecutive int
-	threshold   int
-	openUntil   time.Time
-	openFor     time.Duration
-	halfOpen    bool
+	mu            sync.Mutex
+	consecutive   int
+	threshold     int
+	openUntil     time.Time
+	openFor       time.Duration
+	halfOpen      bool
 	probeInFlight bool
 
 	// rolling samples over 10s
-	samples     []sample
+	samples      []sample
 	sampleWindow time.Duration
 
 	metrics *obs.Metrics
 }
 
 type sample struct {
-	at     time.Time
+	at      time.Time
 	latency time.Duration
-	ok     bool
+	ok      bool
 }
 
 // New creates a client.

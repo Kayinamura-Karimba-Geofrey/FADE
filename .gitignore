@@ -56,3 +56,6 @@ ml/models/**
 Thumbs.db
 *.swp
 *~
+
+# Replay artifacts
+replay/jobs/

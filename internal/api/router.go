@@ -10,10 +10,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/audit"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/obs"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/pipeline"
+	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/replay/gate"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/rules"
 )
 
@@ -52,9 +54,15 @@ type Deps struct {
 	// unavailable rather than writing an unsigned checkpoint.
 	AuditHMACKey       []byte
 	AuditCheckpointDir string
-	Checks             []Check
-	Version            string
-	CORSOrigin         string
+	// DB backs replay jobs. It is optional so read-only deployments and unit
+	// tests can omit it; replay endpoints then return 503.
+	DB *pgxpool.Pool
+	// Gate backs promotion-gate enforcement on rule activation.
+	Gate              *gate.Guard
+	BreakGlassEnabled bool
+	Checks            []Check
+	Version           string
+	CORSOrigin        string
 }
 
 // Server holds the handler dependencies.
@@ -114,6 +122,18 @@ func NewRouter(d Deps) http.Handler {
 		r.With(s.deps.Auth.Require("audit:read")).Get("/v1/audit", s.ListAudit)
 		r.With(s.deps.Auth.Require("audit:read")).Get("/v1/audit/verify", s.VerifyAudit)
 		r.With(s.deps.Auth.Require("audit:write")).Post("/v1/audit/checkpoint", s.CheckpointAudit)
+
+		r.With(s.deps.Auth.Require("replay:read")).Get("/v1/replay", s.listReplay)
+		r.With(s.deps.Auth.Require("replay:read")).Get("/v1/replay/{id}", s.getReplay)
+		r.With(s.deps.Auth.Require("replay:read")).Get("/v1/replay/{id}/report", s.replayReport)
+		r.With(s.deps.Auth.Require("replay:read")).Get("/v1/replay/{id}/report.md", s.replayReportMD)
+		r.With(s.deps.Auth.Require("replay:read")).Get("/v1/replay/{id}/deltas", s.replayDeltas)
+		r.With(s.deps.Auth.Require("replay:read")).Get("/v1/replay/{id}/rules", s.replayRules)
+		r.With(s.deps.Auth.Require("replay:read")).Get("/v1/replay/{id}/sweep", s.replaySweep)
+		r.With(s.deps.Auth.Require("replay:read")).Get("/v1/datasets", s.listDatasets)
+		r.With(s.deps.Auth.Require("replay:write")).Post("/v1/replay", s.createReplay)
+		r.With(s.deps.Auth.Require("replay:write")).Post("/v1/replay/{id}/cancel", s.cancelReplay)
+		r.With(s.deps.Auth.Require("replay:write")).Post("/v1/replay/{id}/gate", s.gateReplay)
 
 		r.With(s.deps.Auth.Require("rules:write")).Post("/v1/rules/reload", s.reloadRules)
 		r.With(s.deps.Auth.Require("rules:read")).Get("/v1/rules/active", s.activeRules)

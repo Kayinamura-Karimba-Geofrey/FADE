@@ -51,26 +51,28 @@ local windowRetentionMS = a.window_retention_ms
 local deviceRetentionMS = a.device_retention_ms
 local edgeRetentionMS = a.edge_retention_ms
 local recipSendersRetentionMS = a.recip_senders_retention_ms
+local ns = a.namespace or ''
 
 -- Keys are built inside the script. Phase 2 runs on a single Redis primary
 -- (documented in docs/features.md), so no cluster slot constraints apply.
-local dedupe = 'dedupe:' .. eventID
-local stateKey = 's:acc:' .. senderID
-local histKey = 'w:acc:' .. senderID .. ':hist'
-local sendKey = 'w:acc:' .. senderID .. ':send'
-local inKey = 'w:acc:' .. senderID .. ':in'
-local recipKey = 'w:acc:' .. senderID .. ':recip'
-local dailyKey = 's:acc:' .. senderID .. ':daily'
-local devKey = 'w:dev:' .. deviceID
-local recipSendersKey = 'w:recip:' .. recipientID .. ':senders'
-local edgeKey = 'g:edge:' .. senderID .. ':' .. recipientID
-local outKey = 'g:out:' .. senderID
-local agentKey = 'a:agent:' .. agentID
-local agentHrKey = 'a:agent:' .. agentID .. ':hr'
-local recipStateKey = 's:acc:' .. recipientID
-local recipHistKey = 'w:acc:' .. recipientID .. ':hist'
-local recipSendKey = 'w:recip:' .. recipientID .. ':send'
-local recipInKey = 'w:recip:' .. recipientID .. ':in'
+-- Replay passes a per-job namespace so every key is isolated.
+local dedupe = ns .. 'dedupe:' .. eventID
+local stateKey = ns .. 's:acc:' .. senderID
+local histKey = ns .. 'w:acc:' .. senderID .. ':hist'
+local sendKey = ns .. 'w:acc:' .. senderID .. ':send'
+local inKey = ns .. 'w:acc:' .. senderID .. ':in'
+local recipKey = ns .. 'w:acc:' .. senderID .. ':recip'
+local dailyKey = ns .. 's:acc:' .. senderID .. ':daily'
+local devKey = ns .. 'w:dev:' .. deviceID
+local recipSendersKey = ns .. 'w:recip:' .. recipientID .. ':senders'
+local edgeKey = ns .. 'g:edge:' .. senderID .. ':' .. recipientID
+local outKey = ns .. 'g:out:' .. senderID
+local agentKey = ns .. 'a:agent:' .. agentID
+local agentHrKey = ns .. 'a:agent:' .. agentID .. ':hr'
+local recipStateKey = ns .. 's:acc:' .. recipientID
+local recipHistKey = ns .. 'w:acc:' .. recipientID .. ':hist'
+local recipSendKey = ns .. 'w:recip:' .. recipientID .. ':send'
+local recipInKey = ns .. 'w:recip:' .. recipientID .. ':in'
 
 local function n(v) return tonumber(v) or 0 end
 

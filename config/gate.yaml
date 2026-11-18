@@ -1,0 +1,18 @@
+# Phase 6 promotion gate. Values are absolute changes unless marked relative.
+rules_only:
+  # A regression is declared only when the paired 95% CI excludes the slack.
+  min_recall_delta: -0.010
+  max_fpr_increase: 0.0010
+  max_friction_relative: 0.10
+  min_scenario_recall_delta: -0.050
+  min_scenario_fraud: 30
+  min_amount_saved_relative: -0.02
+  max_workload_relative: 0.20
+with_model:
+  max_psi: 0.25
+  max_ece: 0.10
+  max_degraded_rate: 0.001
+improvement:
+  # Optional strict improvement: at least one of recall, amount_saved or
+  # time-to-detect p50, while all guardrails still pass.
+  required: false

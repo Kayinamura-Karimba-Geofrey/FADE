@@ -14,8 +14,11 @@ from starlette.responses import Response
 from ml.serve.model import ModelBundle, ScoreRequest
 
 MODEL_DIR = os.environ.get("MODEL_DIR", "ml/models/lgbm-2026.11.1")
+MODEL_ROOT = Path(os.environ.get("MODEL_ROOT", str(Path(MODEL_DIR).parent)))
 _model_lock = Lock()
 _model: ModelBundle | None = None
+_model_cache: dict[str, ModelBundle] = {}
+_model_cache_order: list[str] = []
 _unknown_extra_total = 0
 
 app = FastAPI(title="FADE ML Scorer")
@@ -27,6 +30,32 @@ LATENCY = Histogram("fade_ml_scorer_latency_seconds", "Score latency")
 
 def load_model(path: str | Path) -> ModelBundle:
     return ModelBundle(Path(path))
+
+
+def get_model(version: str | None) -> ModelBundle:
+    """Return the active model or a pinned version from MODEL_ROOT.
+
+    Replay pins versions and the cache holds at most three bundles. An unknown
+    version is a hard error: a replay must never score with a different model.
+    """
+    global _model, _model_cache_order
+    if not version:
+        if _model is None:
+            raise HTTPException(status_code=503, detail="model not loaded")
+        return _model
+    with _model_lock:
+        if version in _model_cache:
+            return _model_cache[version]
+        path = MODEL_ROOT / version
+        if not (path / "manifest.json").is_file():
+            raise HTTPException(status_code=422, detail=f"model version not available: {version}")
+        bundle = load_model(path)
+        _model_cache[version] = bundle
+        _model_cache_order.append(version)
+        while len(_model_cache_order) > 3:
+            evicted = _model_cache_order.pop(0)
+            _model_cache.pop(evicted, None)
+        return bundle
 
 
 @app.on_event("startup")
@@ -52,9 +81,7 @@ def readyz() -> dict[str, str]:
 
 @app.post("/score/batch")
 def score_batch(payload: dict) -> dict:
-    global _model, _unknown_extra_total
-    if _model is None:
-        raise HTTPException(status_code=503, detail="model not loaded")
+    global _unknown_extra_total
     items = payload.get("items") or payload.get("requests") or []
     if not isinstance(items, list):
         raise HTTPException(status_code=422, detail="items must be a list")
@@ -62,18 +89,20 @@ def score_batch(payload: dict) -> dict:
     for item in items:
         features = item.get("features", item) if isinstance(item, dict) else {}
         explain = bool(item.get("explain", False)) if isinstance(item, dict) else False
-        missing = _model.validate_features(features)
+        version = item.get("model_version") if isinstance(item, dict) else None
+        model = get_model(version)
+        missing = model.validate_features(features)
         if missing:
             raise HTTPException(status_code=422, detail={"missing": missing})
         try:
-            _model._assemble(features, strict=True)
+            model._assemble(features, strict=True)
         except ValueError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         REQUESTS.inc()
         start = time.perf_counter()
         with _model_lock:
-            resp = _model.predict(features, explain=explain)
-            _unknown_extra_total += getattr(_model, "last_unknown_extra", 0)
+            resp = model.predict(features, explain=explain)
+            _unknown_extra_total += getattr(model, "last_unknown_extra", 0)
         resp.latency_ms = (time.perf_counter() - start) * 1000.0
         out.append(resp.model_dump())
     return {"results": out}

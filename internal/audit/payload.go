@@ -66,6 +66,15 @@ var payloadAllowlist = map[string][]string{
 	"partition": {
 		"partition", "table", "from", "to", "rows", "reason",
 	},
+	"replay_job": {
+		"job_id", "name", "dataset", "dataset_hash", "mode", "state_policy",
+		"seed", "status", "baseline", "candidates", "config_hashes",
+		"engine_version", "report_hash", "events", "scored", "reason",
+	},
+	"replay_gate": {
+		"job_id", "candidate", "passed", "rules_hash", "model_version",
+		"config_hash", "checks", "reason", "break_glass",
+	},
 }
 
 // KnownObjectType reports whether an object type has a redaction allowlist.

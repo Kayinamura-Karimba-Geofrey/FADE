@@ -462,6 +462,138 @@ paths:
           content:
             text/plain:
               schema: {type: string}
+  /v1/replay:
+    get:
+      summary: List replay jobs
+      parameters:
+        - {in: query, name: status, schema: {type: string}}
+        - {in: query, name: dataset, schema: {type: string}}
+        - {in: query, name: limit, schema: {type: integer, minimum: 1, maximum: 200}}
+      responses:
+        '200':
+          description: Jobs
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReplayJobList'}
+        '401': {$ref: '#/components/responses/Problem'}
+    post:
+      summary: Enqueue a replay job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ReplayCreate'}
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReplayAccepted'}
+        '400': {$ref: '#/components/responses/Problem'}
+  /v1/replay/{id}:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: integer}}
+    get:
+      summary: Replay job status and results
+      responses:
+        '200':
+          description: Job
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReplayJob'}
+        '404': {$ref: '#/components/responses/Problem'}
+  /v1/replay/{id}/report:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: integer}}
+    get:
+      summary: Replay report JSON
+      responses:
+        '200':
+          description: Report
+          content:
+            application/json:
+              schema: {type: object, additionalProperties: true}
+        '404': {$ref: '#/components/responses/Problem'}
+  /v1/replay/{id}/report.md:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: integer}}
+    get:
+      summary: Replay report Markdown
+      responses:
+        '200':
+          description: Report
+          content:
+            text/markdown:
+              schema: {type: string}
+  /v1/replay/{id}/deltas:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: integer}}
+      - {in: query, name: candidate, schema: {type: string}}
+      - {in: query, name: class_from, schema: {type: string}}
+      - {in: query, name: class_to, schema: {type: string}}
+      - {in: query, name: cursor, schema: {type: string}}
+      - {in: query, name: limit, schema: {type: integer, minimum: 1, maximum: 500}}
+    get:
+      summary: Changed decisions (keyset pagination)
+      responses:
+        '200':
+          description: Deltas
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deltas]
+                properties:
+                  deltas:
+                    type: array
+                    items: {$ref: '#/components/schemas/ReplayDelta'}
+                  next_cursor: {type: string, nullable: true}
+  /v1/replay/{id}/rules:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: integer}}
+      - {in: query, name: candidate, schema: {type: string}}
+    get:
+      summary: Per-rule statistics
+      responses:
+        '200': {description: Rules, content: {application/json: {schema: {type: object, additionalProperties: true}}}}
+  /v1/replay/{id}/sweep:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: integer}}
+      - {in: query, name: candidate, schema: {type: string}}
+    get:
+      summary: Threshold sweep
+      responses:
+        '200': {description: Sweep, content: {application/json: {schema: {type: object, additionalProperties: true}}}}
+  /v1/replay/{id}/cancel:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: integer}}
+    post:
+      summary: Cancel a queued or running job
+      responses:
+        '200': {description: Cancelled, content: {application/json: {schema: {type: object, additionalProperties: true}}}}
+        '409': {$ref: '#/components/responses/Problem'}
+  /v1/replay/{id}/gate:
+    parameters:
+      - {in: path, name: id, required: true, schema: {type: integer}}
+    post:
+      summary: Evaluate the promotion gate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [candidate], properties: {candidate: {type: string}}}
+      responses:
+        '200':
+          description: Gate result
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/GateResult'}
+  /v1/datasets:
+    get:
+      summary: Registered replay datasets
+      responses:
+        '200': {description: Datasets, content: {application/json: {schema: {type: object, additionalProperties: true}}}}
+
 components:
   securitySchemes:
     bearerAuth:
@@ -474,6 +606,11 @@ components:
       in: header
       schema: {type: string, maxLength: 128}
   responses:
+    Problem:
+      description: Problem details
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
     BadRequest:
       description: Malformed request
       content:
@@ -1019,3 +1156,89 @@ components:
           items: {$ref: '#/components/schemas/AuditCheckpointCheck'}
         seconds: {type: number}
         rows_per_sec: {type: number}
+    ReplayCreate:
+      type: object
+      required: [dataset, baseline, candidates]
+      properties:
+        name: {type: string}
+        dataset: {type: string}
+        mode: {type: string, enum: [full, snapshot, stored-ml]}
+        from: {type: string, format: date-time}
+        to: {type: string, format: date-time}
+        warmup_days: {type: integer, minimum: 0}
+        state_policy: {type: string, enum: [ignore]}
+        seed: {type: integer}
+        baseline: {$ref: '#/components/schemas/ReplayConfigRef'}
+        candidates:
+          type: array
+          minItems: 1
+          maxItems: 5
+          items: {$ref: '#/components/schemas/ReplayConfigRef'}
+        options:
+          type: object
+          properties:
+            ablate: {type: boolean}
+            with_explain: {type: boolean}
+            allow_ml_degraded: {type: boolean}
+            sample: {type: number, minimum: 0, maximum: 100}
+    ReplayConfigRef:
+      type: object
+      required: [label]
+      properties:
+        label: {type: string}
+        rules: {type: string}
+        model: {type: string}
+        combiner: {type: object, additionalProperties: true}
+    ReplayAccepted:
+      type: object
+      required: [job_id, status]
+      properties: {job_id: {type: integer}, status: {type: string}}
+    ReplayJobList:
+      type: object
+      required: [jobs]
+      properties:
+        jobs: {type: array, items: {$ref: '#/components/schemas/ReplayJob'}}
+    ReplayJob:
+      type: object
+      required: [job_id, dataset, status]
+      properties:
+        job_id: {type: integer}
+        name: {type: string}
+        dataset: {type: string}
+        status: {type: string, enum: [QUEUED, RUNNING, DONE, FAILED, CANCELLED]}
+        mode: {type: string}
+        progress: {type: number}
+        error: {type: string}
+        results: {type: array, items: {type: object, additionalProperties: true}}
+    ReplayDelta:
+      type: object
+      required: [event_id, label, amount, from, to]
+      properties:
+        event_id: {type: string}
+        label: {type: string}
+        scenario: {type: string}
+        amount: {type: integer}
+        from: {type: string}
+        to: {type: string}
+        baseline_reason: {type: string}
+        candidate_reason: {type: string}
+    GateCheck:
+      type: object
+      required: [name, passed, measured, threshold]
+      properties:
+        name: {type: string}
+        passed: {type: boolean}
+        measured: {type: number}
+        threshold: {type: number}
+        detail: {type: string}
+    GateResult:
+      type: object
+      required: [job_id, candidate, passed, checks]
+      properties:
+        job_id: {type: integer}
+        candidate: {type: string}
+        passed: {type: boolean}
+        config_hash: {type: string}
+        rules_hash: {type: string}
+        model_version: {type: string}
+        checks: {type: array, items: {$ref: '#/components/schemas/GateCheck'}}

@@ -16,8 +16,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
-
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/cases"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/obs"
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/outbox"
@@ -25,7 +23,7 @@ import (
 )
 
 // version is the build version; overridden at link time via -ldflags.
-var version = "0.7.0"
+var version = "1.0.0"
 
 type config struct {
 	DSN        string
@@ -156,8 +154,3 @@ func split(raw string) []string {
 	}
 	return out
 }
-
-// poolPinger adapts the pool to the readiness interface used by tests.
-type poolPinger struct{ pool *pgxpool.Pool }
-
-func (p poolPinger) Ping(ctx context.Context) error { return p.pool.Ping(ctx) }

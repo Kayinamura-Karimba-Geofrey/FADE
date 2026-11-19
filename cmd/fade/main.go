@@ -25,7 +25,7 @@ import (
 )
 
 // version is the Phase 5 tool version.
-const version = "0.7.0"
+const version = "1.0.0"
 
 const usage = `fade - FADE explainability and audit tools
 
@@ -64,6 +64,8 @@ func run(args []string) error {
 		return cmdAudit(args[1:])
 	case "retention":
 		return cmdRetention(args[1:])
+	case "features":
+		return cmdFeatures(args[1:])
 	case "replay":
 		return cmdReplay(args[1:])
 	case "gate":

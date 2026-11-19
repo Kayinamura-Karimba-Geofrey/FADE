@@ -1,6 +1,11 @@
-# Runtime dependencies for the ml-scorer image (Phase 0 skeleton).
-# Kept in sync with the [dependency-groups].ml pins in the root pyproject.toml.
 fastapi==0.115.6
 uvicorn==0.34.0
 pydantic==2.10.6
 prometheus-client==0.21.1
+numpy==2.2.6
+pandas==2.2.3
+pyarrow==18.1.0
+scikit-learn==1.6.1
+lightgbm==4.6.0
+shap==0.47.2
+joblib==1.4.2

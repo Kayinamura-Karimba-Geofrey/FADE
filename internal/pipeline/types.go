@@ -108,7 +108,7 @@ func DefaultConfig() Config {
 		IdempotencyTTL: 24 * time.Hour,
 		MaxConcurrency: 2000,
 		TierLimits:     map[int]int64{1: 50_000, 2: 500_000, 3: 5_000_000},
-		Version:        "0.6.0",
+		Version:        "1.0.0",
 	}
 }
 

@@ -60,7 +60,6 @@ type Manager struct {
 	loadedAt     time.Time
 	swapAt       time.Time
 	rollbackDone bool
-	lastActor    string
 
 	evalOK   atomic.Int64
 	evalFail atomic.Int64

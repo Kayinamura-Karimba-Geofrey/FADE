@@ -24,7 +24,12 @@ RUN apk add --no-cache ca-certificates \
     && adduser -D -u 10001 fade
 
 COPY --from=builder /out/decision-api /usr/local/bin/decision-api
-COPY --from=builder /src/config/cases.yaml /etc/fade/cases.yaml
+COPY --from=builder /src/config /etc/fade/config
+COPY --from=builder /src/rules /etc/fade/rules
+
+ENV FEATURE_CONFIG=/etc/fade/config/features.yaml \
+    RULES_DIR=/etc/fade/rules \
+    CASES_CONFIG=/etc/fade/config/cases.yaml
 
 USER fade
 EXPOSE 8080

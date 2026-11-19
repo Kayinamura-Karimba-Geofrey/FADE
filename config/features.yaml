@@ -45,9 +45,9 @@ geo:
 
 cycle:
   max_hops: 3
-  max_neighbors: 50
-  max_visited: 200
-  time_budget_ms: 3
+  max_neighbors: 10
+  max_visited: 30
+  time_budget_ms: 1
   cache_ttl_s: 60
 
 agent:

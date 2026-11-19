@@ -36,11 +36,9 @@ def main() -> int:
         fraud = sub[sub.label == "FRAUD"]
         legit = sub[sub.label == "LEGIT"]
         alerted = sub.decision.isin(["STEP_UP", "HOLD", "BLOCK"])
-        intervened = sub.decision.isin(["HOLD", "BLOCK"])
         fraud_alerted = fraud.decision.isin(["STEP_UP", "HOLD", "BLOCK"])
         fraud_intervened = fraud.decision.isin(["HOLD", "BLOCK"])
         legit_alerted = legit.decision.isin(["STEP_UP", "HOLD", "BLOCK"])
-        legit_intervened = legit.decision.isin(["HOLD", "BLOCK"])
 
         if len(sub) != m["scored"]:
             failures.append(f"{label} scored: go={m['scored']} py={len(sub)}")
@@ -82,7 +80,7 @@ def main() -> int:
                   scen["recall_alerted"])
 
         for rule in report["rules"][label]:
-            fired = sub.fired_rules.str.split(",").apply(lambda xs: rule["rule_id"] in xs)
+            fired = sub.fired_rules.str.split(",").apply(lambda xs, rid=rule["rule_id"]: rid in xs)
             if int(fired.sum()) != rule["fires"]:
                 failures.append(f"{label} rule {rule['rule_id']} fires differ")
 

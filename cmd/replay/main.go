@@ -8,7 +8,7 @@ import (
 )
 
 // version is the build version; overridden at link time via -ldflags.
-var version = "0.1.0"
+var version = "1.0.0"
 
 func main() {
 	logger := obs.NewLogger("info")

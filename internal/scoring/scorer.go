@@ -64,8 +64,12 @@ type Config struct {
 	BreakerThreshold     int
 	BreakerOpenFor       time.Duration
 	ExpectedModelVersion string
-	Metrics              *obs.Metrics
-	Now                  func() time.Time
+	// BatchSize > 1 enables micro-batching of concurrent single-row calls; the
+	// window bounds the added latency.
+	BatchSize   int
+	BatchWindow time.Duration
+	Metrics     *obs.Metrics
+	Now         func() time.Time
 }
 
 // Client is an HTTP scorer with a circuit breaker.
@@ -89,6 +93,8 @@ type Client struct {
 	sampleWindow time.Duration
 
 	metrics *obs.Metrics
+
+	batch microBatcherClient
 }
 
 type sample struct {
@@ -130,6 +136,9 @@ func New(cfg Config) *Client {
 	}
 	if c.metrics != nil {
 		c.metrics.MLBreakerState.Set(0)
+	}
+	if cfg.BatchSize > 1 {
+		c.batch = newMicroBatcher(c, cfg.BatchSize, cfg.BatchWindow, NewBatchClient(cfg.BaseURL, cfg.Timeout))
 	}
 	return c
 }
@@ -332,14 +341,19 @@ func (c *Client) call(ctx context.Context, fv *features.FeatureVector, explain b
 }
 
 func (c *Client) ScoreResult(ctx context.Context, fv *features.FeatureVector) (rules.MLResult, error) {
+	if c.batch != nil {
+		return c.batch.score(ctx, fv)
+	}
 	resp, err := c.call(ctx, fv, false)
 	if err != nil {
-		status := rules.MLDegraded
-		if errors.Is(err, context.DeadlineExceeded) {
-			status = rules.MLDegraded
-		}
-		return rules.MLResult{Status: status}, err
+		return rules.MLResult{Status: rules.MLDegraded}, err
 	}
+	return c.resultFromResponse(resp), nil
+}
+
+// resultFromResponse converts a successful scorer response into the rules layer
+// result, applying model-version pinning.
+func (c *Client) resultFromResponse(resp ScoreResponse) rules.MLResult {
 	score := resp.MLScore
 	st := resp.Status
 	if st == "" {
@@ -359,7 +373,7 @@ func (c *Client) ScoreResult(ctx context.Context, fv *features.FeatureVector) (r
 		TopContributions: toContributions(resp.TopContributions),
 		ExplainSkipped:   resp.ExplainSkipped,
 		LatencyMS:        resp.LatencyMS,
-	}, nil
+	}
 }
 
 func toContributions(in []Contribution) []rules.Contribution {

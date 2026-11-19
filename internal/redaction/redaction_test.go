@@ -68,8 +68,7 @@ func TestRedactMasksEveryFinding(t *testing.T) {
 }
 
 func TestCheckJSONFindsLeakingPath(t *testing.T) {
-	var payload map[string]any
-	payload = map[string]any{
+	payload := map[string]any{
 		"decision_id": "dec_1",
 		"reasons":     []any{map[string]any{"text": "transfer from 0788123456"}},
 	}

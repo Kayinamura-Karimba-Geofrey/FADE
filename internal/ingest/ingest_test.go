@@ -263,7 +263,8 @@ func TestConsumerRetryAndPing(t *testing.T) {
 	if testutil.ToFloat64(metrics.Retries) == 0 {
 		t.Fatal("retry metric not incremented")
 	}
-	if keyShard(nil, 1) != 0 || keyShard([]byte("x"), 3) != keyShard([]byte("x"), 3) {
+	shard := keyShard([]byte("x"), 3)
+	if keyShard(nil, 1) != 0 || keyShard([]byte("x"), 3) != shard {
 		t.Fatal("shard")
 	}
 }

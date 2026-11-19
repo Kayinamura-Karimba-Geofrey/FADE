@@ -299,14 +299,10 @@ func Compile(f RuleSetFile) (*RuleSet, error) {
 
 		nodes := 0
 		match, cost, condErrs := compileCondition(path+".when", &r.When, 1, &nodes, r.Stateless)
-		for _, ce := range condErrs {
-			errs = append(errs, ce)
-		}
+		errs = append(errs, condErrs...)
 
 		tmpl, reasonErrs := compileReason(path+".reason", r.Reason)
-		for _, re := range reasonErrs {
-			errs = append(errs, re)
-		}
+		errs = append(errs, reasonErrs...)
 
 		if r.Enabled != nil && *r.Enabled && match != nil {
 			weight := 0

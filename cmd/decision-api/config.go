@@ -107,7 +107,7 @@ func loadConfig() (appConfig, error) {
 		FeaturePath:        featurePath,
 		MLScorerURL:        env("ML_SCORER_URL", ""),
 		OTLPEndpoint:       env("OTEL_EXPORTER_OTLP_ENDPOINT", ""),
-		Version:            env("FADE_VERSION", "0.7.0"),
+		Version:            env("FADE_VERSION", "1.0.0"),
 		Features:           featuresCfg,
 		CasesConfig:        env("CASES_CONFIG", "config/cases.yaml"),
 		PseudonymKey:       env("FADE_PSEUDONYM_KEY", ""),

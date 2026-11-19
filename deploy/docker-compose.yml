@@ -26,7 +26,7 @@ volumes:
 services:
   # ---------------------------------------------------------------- redpanda
   redpanda:
-    image: redpandadata/redpanda:v24.3.4
+    image: redpandadata/redpanda:v24.3.4@sha256:0590e03f7122aa88caf57506fd45b148bcd3fc09b74f5789eb81f926affa28ef
     restart: unless-stopped
     profiles: [infra]
     command:
@@ -60,7 +60,7 @@ services:
       start_period: 20s
 
   redpanda-init:
-    image: redpandadata/redpanda:v24.3.4
+    image: redpandadata/redpanda:v24.3.4@sha256:0590e03f7122aa88caf57506fd45b148bcd3fc09b74f5789eb81f926affa28ef
     restart: "no"
     profiles: [infra]
     depends_on:
@@ -80,7 +80,7 @@ services:
 
   # ------------------------------------------------------------------ redis
   redis:
-    image: redis:7.4.1-alpine3.20
+    image: redis:7.4.1-alpine3.20@sha256:c1e88455c85225310bbea54816e9c3f4b5295815e6dbf80c34d40afc6df28275
     restart: unless-stopped
     profiles: [infra]
     command:
@@ -106,7 +106,7 @@ services:
 
   # --------------------------------------------------------------- postgres
   postgres:
-    image: postgres:16.6-alpine3.20
+    image: postgres:16.6-alpine3.20@sha256:1e59919c179e296eaf3cc701f4d50bab5c393d7ed9746c188c9d519489c998dc
     restart: unless-stopped
     profiles: [infra]
     environment:
@@ -128,7 +128,7 @@ services:
   # One-shot: applies ./migrations when postgres is healthy. `up` is
   # idempotent (golang-migrate tracks applied versions).
   migrate:
-    image: migrate/migrate:v4.18.1
+    image: migrate/migrate:v4.18.1@sha256:f21c436af23c282f4516b00ba3e93bccf5c5fe5cd52530fd5c319a936998f539
     restart: "no"
     profiles: [app]
     depends_on:
@@ -145,7 +145,7 @@ services:
 
   # ------------------------------------------------------------ decision-api
   decision-api:
-    image: fade-decision-api:0.1.0
+    image: fade-decision-api:1.0.0
     build:
       context: ..
       dockerfile: deploy/Dockerfile.decision-api
@@ -164,7 +164,7 @@ services:
       - path: ../.env
         required: false
     environment:
-      CASES_CONFIG: /etc/fade/cases.yaml
+      CASES_CONFIG: /etc/fade/config/cases.yaml
     ports:
       - "8080:8080"
     healthcheck:
@@ -176,7 +176,7 @@ services:
 
   # --------------------------------------------------------- feature-worker
   feature-worker:
-    image: fade-feature-worker:0.3.0
+    image: fade-feature-worker:1.0.0
     build:
       context: ..
       dockerfile: deploy/Dockerfile.feature-worker
@@ -215,7 +215,7 @@ services:
 
   # ------------------------------------------------------------ case-worker
   case-worker:
-    image: fade-case-worker:0.7.0
+    image: fade-case-worker:1.0.0
     build:
       context: ..
       dockerfile: deploy/Dockerfile.case-worker
@@ -240,7 +240,7 @@ services:
 
   # ------------------------------------------------------------- ml-scorer
   ml-scorer:
-    image: fade-ml-scorer:0.1.0
+    image: fade-ml-scorer:1.0.0
     build:
       context: ..
       dockerfile: ml/serve/Dockerfile
@@ -263,7 +263,7 @@ services:
 
   # -------------------------------------------------------------- dashboard
   dashboard:
-    image: fade-dashboard:0.1.0
+    image: fade-dashboard:1.0.0
     build:
       context: ..
       dockerfile: dashboard/Dockerfile
@@ -280,7 +280,7 @@ services:
 
   # ------------------------------------------------------------- prometheus
   prometheus:
-    image: prom/prometheus:v3.1.0
+    image: prom/prometheus:v3.1.0@sha256:6559acbd5d770b15bb3c954629ce190ac3cbbdb2b7f1c30f0385c4e05104e218
     restart: unless-stopped
     profiles: [infra]
     command:
@@ -303,7 +303,7 @@ services:
 
   # ---------------------------------------------------------------- grafana
   grafana:
-    image: grafana/grafana:11.5.2
+    image: grafana/grafana:11.5.2@sha256:8b37a2f028f164ce7b9889e1765b9d6ee23fec80f871d156fbf436d6198d32b7
     restart: unless-stopped
     profiles: [infra]
     environment:

@@ -11,7 +11,6 @@ reference implementation, so the Go test needs no Python at run time.
 from __future__ import annotations
 
 import json
-import math
 import random
 import struct
 import sys

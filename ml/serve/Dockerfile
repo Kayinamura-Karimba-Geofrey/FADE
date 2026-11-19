@@ -7,16 +7,25 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
 
 WORKDIR /build
 COPY ml/serve/requirements.txt ./
-RUN pip install --prefix=/install -r requirements.txt
+RUN pip install --timeout 120 --retries 5 --prefix=/install -r requirements.txt
 
 FROM python:3.12.8-slim-bookworm AS runtime
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
+
 RUN useradd --create-home --uid 10001 fade
 COPY --from=builder /install /usr/local
+COPY ml /app/ml
 COPY ml/serve/app.py /app/app.py
+
+ENV PYTHONPATH=/app \
+    OMP_NUM_THREADS=1 \
+    MKL_NUM_THREADS=1 \
+    OPENBLAS_NUM_THREADS=1 \
+    NUMEXPR_NUM_THREADS=1
 
 USER fade
 WORKDIR /app

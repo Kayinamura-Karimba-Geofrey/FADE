@@ -29,7 +29,7 @@ import (
 )
 
 // version is overridden at link time.
-var version = "0.6.0"
+var version = "1.0.0"
 
 const shutdownTimeout = 15 * time.Second
 

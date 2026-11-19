@@ -20,6 +20,8 @@ import (
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/scoring"
 )
 
+var noopCancel context.CancelFunc = func() {}
+
 // Deps are the pipeline collaborators.
 type Deps struct {
 	Rules    *rules.Manager
@@ -168,7 +170,12 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 	redisDown := false
 	idem := p.idem
 	if idem != nil {
-		stored, isOwner, ierr := idem.Begin(ctx, key, hash)
+		idemCtx, idemCancel := ctx, noopCancel
+		if _, ok := ctx.Deadline(); !ok {
+			idemCtx, idemCancel = context.WithTimeout(ctx, 1*time.Second)
+		}
+		stored, isOwner, ierr := idem.Begin(idemCtx, key, hash)
+		idemCancel()
 		switch {
 		case ierr == nil && !isOwner:
 			p.replayCount()
@@ -186,9 +193,15 @@ func (p *Pipeline) Decide(ctx context.Context, ev *events.Event, opts Options) (
 			p.metrics.ObserveStage("idem", p.now().Sub(stage).Seconds())
 			return nil, ErrIdempotencyInFlight
 		case ierr != nil:
+			p.logger.Warn("primary idempotency failed", "error", ierr)
 			redisDown = true
 			idem = p.fallback
-			stored, isOwner, ierr := idem.Begin(ctx, key, hash)
+			idemCtx2, idemCancel2 := ctx, noopCancel
+			if _, ok := ctx.Deadline(); !ok {
+				idemCtx2, idemCancel2 = context.WithTimeout(ctx, 1*time.Second)
+			}
+			stored, isOwner, ierr := idem.Begin(idemCtx2, key, hash)
+			idemCancel2()
 			if ierr != nil {
 				p.logger.Warn("fallback idempotency failed", "error", ierr)
 			} else if !isOwner {

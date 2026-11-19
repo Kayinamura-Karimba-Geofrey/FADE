@@ -27,7 +27,7 @@ import (
 
 const shutdownTimeout = 15 * time.Second
 
-var version = "0.7.0"
+var version = "1.0.0"
 
 func main() {
 	if err := run(); err != nil {
@@ -53,6 +53,11 @@ func run() error {
 	metrics := obs.NewMetrics("decision-api")
 	rdb := redis.NewClient(&redis.Options{
 		Addr: cfg.RedisAddr, Password: cfg.RedisPassword, DB: cfg.RedisDB,
+		DialTimeout:  200 * time.Millisecond,
+		PoolSize:     256,
+		MinIdleConns: 64,
+		ReadTimeout:  200 * time.Millisecond,
+		WriteTimeout: 200 * time.Millisecond,
 	})
 	defer func() { _ = rdb.Close() }()
 
@@ -145,7 +150,13 @@ func run() error {
 
 	var mlScorer rules.Scorer = rules.NoopScorer{}
 	if cfg.MLScorerURL != "" {
-		mlScorer = scoring.New(scoring.Config{BaseURL: cfg.MLScorerURL, Timeout: 15 * time.Millisecond, Metrics: metrics})
+		mlScorer = scoring.New(scoring.Config{
+			BaseURL:     cfg.MLScorerURL,
+			Timeout:     50 * time.Millisecond,
+			BatchSize:   32,
+			BatchWindow: 2 * time.Millisecond,
+			Metrics:     metrics,
+		})
 	}
 	p := pipeline.New(pipeline.Deps{
 		Rules: manager, Features: featureStore, Scorer: mlScorer, Idem: pipeline.NewRedisIdempotency(rdb),

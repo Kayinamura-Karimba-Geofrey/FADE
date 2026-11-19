@@ -189,5 +189,5 @@ actual throughput at a requested rate.
   outbox. Use `FEATURE_OUTPUT_TOPIC=""` unless downstream can tolerate this.
 - Liveness does not prove broker health; use `/readyz`.
 - The local single-primary Lua path is CPU-bound in Redis. See
-  [phase-2.md](phase-2.md) for measured throughput on the development host;
+  [features.md](features.md) for measured throughput on the development host;
   the 5,000 events/s target is not reached there.

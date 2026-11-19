@@ -29,6 +29,9 @@ LATENCY = Histogram("fade_ml_scorer_latency_seconds", "Score latency")
 
 
 def load_model(path: str | Path) -> ModelBundle:
+    os.environ.setdefault("OMP_NUM_THREADS", "1")
+    os.environ.setdefault("MKL_NUM_THREADS", "1")
+    os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
     return ModelBundle(Path(path))
 
 
@@ -72,6 +75,12 @@ def healthz() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/version")
+def version() -> dict[str, str]:
+    return {"service": "ml-scorer", "version": os.environ.get("FADE_VERSION", "1.0.0"), "api": "v1"}
+
+
+
 @app.get("/readyz")
 def readyz() -> dict[str, str]:
     if _model is None:
@@ -85,26 +94,42 @@ def score_batch(payload: dict) -> dict:
     items = payload.get("items") or payload.get("requests") or []
     if not isinstance(items, list):
         raise HTTPException(status_code=422, detail="items must be a list")
-    out = []
-    for item in items:
-        features = item.get("features", item) if isinstance(item, dict) else {}
-        explain = bool(item.get("explain", False)) if isinstance(item, dict) else False
+    # Group consecutive items by model version so each version is scored in
+    # one vectorized pass; order of the response matches the request.
+    out: list[dict] = [{} for _ in items]
+    start = time.perf_counter()
+    index = 0
+    while index < len(items):
+        item = items[index]
         version = item.get("model_version") if isinstance(item, dict) else None
         model = get_model(version)
-        missing = model.validate_features(features)
-        if missing:
-            raise HTTPException(status_code=422, detail={"missing": missing})
-        try:
-            model._assemble(features, strict=True)
-        except ValueError as exc:
-            raise HTTPException(status_code=422, detail=str(exc)) from exc
-        REQUESTS.inc()
-        start = time.perf_counter()
+        explain = bool(item.get("explain", False)) if isinstance(item, dict) else False
+        group_features = []
+        group_idx = []
+        while index < len(items):
+            it = items[index]
+            v = it.get("model_version") if isinstance(it, dict) else None
+            if v != version:
+                break
+            features = it.get("features", it) if isinstance(it, dict) else {}
+            missing = model.validate_features(features)
+            if missing:
+                raise HTTPException(status_code=422, detail={"missing": missing})
+            try:
+                model._assemble(features, strict=True)
+            except ValueError as exc:
+                raise HTTPException(status_code=422, detail=str(exc)) from exc
+            group_features.append(features)
+            group_idx.append(index)
+            index += 1
+        REQUESTS.inc(len(group_features))
         with _model_lock:
-            resp = model.predict(features, explain=explain)
-            _unknown_extra_total += getattr(model, "last_unknown_extra", 0)
-        resp.latency_ms = (time.perf_counter() - start) * 1000.0
-        out.append(resp.model_dump())
+            responses = model.predict_batch(group_features, explain=explain)
+            _unknown_extra_total += getattr(model, "last_unknown_extra", 0) * len(group_features)
+        elapsed_ms = (time.perf_counter() - start) * 1000.0
+        for pos, resp in zip(group_idx, responses, strict=False):
+            resp.latency_ms = elapsed_ms
+            out[pos] = resp.model_dump()
     return {"results": out}
 
 

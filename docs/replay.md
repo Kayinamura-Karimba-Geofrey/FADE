@@ -8,7 +8,7 @@ second implementation of decisioning.
 - Owner: risk platform / data science
 - Status: `replay_report_version` **1**
 - Related: [features.md](features.md), [rules.md](rules.md), [ml.md](ml.md),
-  [explainability.md](explainability.md), [phase-6.md](phase-6.md)
+  [explainability.md](explainability.md), [cases.md](cases.md)
 
 ## 1. Terms
 

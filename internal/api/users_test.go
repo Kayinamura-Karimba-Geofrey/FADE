@@ -110,7 +110,8 @@ func TestReadVersionFromIfMatch(t *testing.T) {
 }
 
 func TestShortHashIsStable(t *testing.T) {
-	if shortHash("a") != shortHash("a") {
+	h := shortHash("a")
+	if shortHash("a") != h {
 		t.Fatal("hash must be stable")
 	}
 	if shortHash("a") == shortHash("b") {

@@ -30,7 +30,7 @@ import (
 	"github.com/Kayinamura-Karimba-Geofrey/FADE/internal/replay/metrics"
 )
 
-var version = "0.7.0"
+var version = "1.0.0"
 
 const workerID = "replay-worker"
 

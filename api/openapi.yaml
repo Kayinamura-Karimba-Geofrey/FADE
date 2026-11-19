@@ -5,7 +5,7 @@ info:
     Synchronous, rules-only fraud decisions for mobile money transactions.
     Phase 5 contract: decisions, explanations, hash-chained audit. Every error is
     RFC 7807 `application/problem+json` with a stable `type` URI.
-  version: 0.7.0
+  version: 1.0.0
 servers:
   - url: http://localhost:8080
 security:

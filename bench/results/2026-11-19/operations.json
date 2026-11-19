@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-11-19T13:34:19.827294+00:00",
+  "backup_dir": "backups/20261119T132831Z/",
+  "passed": true,
+  "rto_seconds": 44,
+  "rto_minutes": 0.73,
+  "rpo_minutes": 4,
+  "restored_rows": {
+    "decisions": 570687,
+    "cases": 780,
+    "audit_log": 1
+  },
+  "upgrade": {
+    "passed": false,
+    "note": "not run: no v0.8.0 dataset in this environment"
+  },
+  "rolling_upgrade": {
+    "passed": false,
+    "note": "not run: single-host Compose deployment"
+  },
+  "scaling": {
+    "summary": "not exercised: single decision-api replica"
+  },
+  "live_rows": {
+    "decisions": 570687,
+    "cases": 780,
+    "audit_log": 1
+  }
+}

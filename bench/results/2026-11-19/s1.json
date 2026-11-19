@@ -1,0 +1,192 @@
+{
+  "command_line": "scripts/bench_run.py --scenario S1 --script bench/k6/s1-steady.js --rate 1000 --duration 60s --runs 3 --date 2026-11-19 --dataset eval",
+  "config_hashes": {
+    "VERSION": "59854984853104df5c353e2f681a15fc7924742f9a2e468c29af248dce45ce03",
+    "config/features.yaml": "90fac7fe85749f24fea15a37f43b64f3a89a74d83388cf824454fbd1aeccdd03",
+    "config/gate.yaml": "894236b4c441abdc478ca34d63f7f217301801fe486fd379f9ff12d4730c8e3d",
+    "model.active": "lgbm-2026.11.1:3b9caa3ddb36976cd84816a5cf9986d4b2f82a6824779d1d2eded78adbecf9a7",
+    "rules/prod.json": "8c4d8d0328dfcb43078f5b37c60448ab9270a6a11f36eb4ee6e3a59820abffeb"
+  },
+  "dataset": {
+    "manifest_sha256": "39c99434f3d24b5c38b487773d538cb33ccf5a983447d9dee33b67fb5db629c1",
+    "name": "eval"
+  },
+  "engine_version": "1.0.0",
+  "environment": {
+    "compose": "Docker Compose version 2.40.3-3",
+    "cpu_cores": 12,
+    "cpu_model": "13th Gen Intel(R) Core(TM) i7-1355U",
+    "docker": "Docker version 28.5.2+dfsg4, build 9cc6dea35e9a963f281434761c656fba4ac43aed",
+    "go": "go version go1.23.4 linux/amd64",
+    "k6": "k6 v0.54.0 (commit/baba871c8a, go1.23.1, linux/amd64)",
+    "kernel": "7.1.5+kali-amd64",
+    "machine": "x86_64",
+    "node": "v24.20.0",
+    "python": "Python 3.13.5",
+    "ram_kb": 16003624,
+    "shared_host": true,
+    "system": "Linux"
+  },
+  "generated_at": "2026-11-19T12:38:52.529450+00:00",
+  "git_dirty": true,
+  "git_sha": "ea6e14edd5cc4dbf4404813286d8433f876837d7",
+  "median": {
+    "error_rate": 0,
+    "p99_ms": 90.08029779999997,
+    "p99_range_ms": [
+      85.22283595999998,
+      98.36705832
+    ]
+  },
+  "metric_targets": {
+    "degraded_rate": 0.0,
+    "errors": 0.0,
+    "p99_ms": 50.0
+  },
+  "runs": [
+    {
+      "command": "k6 run --summary-trend-stats avg,min,med,max,p(90),p(95),p(99),p(99.9) --summary-export /run/media/kayi/New Volume1/FADE/bench/results/2026-11-19/s1-run1.k6.json /run/media/kayi/New Volume1/FADE/bench/k6/s1-steady.js",
+      "elapsed_s": 60.82,
+      "exit_code": 99,
+      "k6": {
+        "error_rate": 0,
+        "max_ms": 180.494409,
+        "p50_ms": 41.863937,
+        "p95_ms": 63.653420499999996,
+        "p999_ms": 129.01754355000025,
+        "p99_ms": 90.08029779999997,
+        "requests": 59816,
+        "thresholds": {
+          "http_req_duration": {
+            "p(99)<50": true
+          },
+          "http_req_failed": {
+            "rate<0.001": false
+          }
+        },
+        "throughput_rps": 996.186
+      },
+      "k6_vs_server_p99_delta_pct": null,
+      "run": 1,
+      "server": {
+        "decisions": {
+          "fade_decisions_total{decision=\"ALLOW\",degraded=\"false\"}": 31311.0,
+          "fade_decisions_total{decision=\"STEP_UP\",degraded=\"false\"}": 1664.0,
+          "fade_decisions_total{decision=\"STEP_UP\",degraded=\"true\"}": 26841.0
+        },
+        "http": {
+          "count": 59816,
+          "p50_0": 50.0,
+          "p95_0": 100.0,
+          "p99_0": 100.0,
+          "p99_9": 200.0
+        },
+        "requests": {
+          "fade_http_requests_total{route=\"/healthz\",status=\"200\"}": 11.0,
+          "fade_http_requests_total{route=\"/metrics\",status=\"200\"}": 13.0,
+          "fade_http_requests_total{route=\"/v1/decide\",status=\"200\"}": 59816.0
+        },
+        "shed": {},
+        "stages_ms": {}
+      },
+      "started_at": "2026-11-19T12:35:50.224786+00:00"
+    },
+    {
+      "command": "k6 run --summary-trend-stats avg,min,med,max,p(90),p(95),p(99),p(99.9) --summary-export /run/media/kayi/New Volume1/FADE/bench/results/2026-11-19/s1-run2.k6.json /run/media/kayi/New Volume1/FADE/bench/k6/s1-steady.js",
+      "elapsed_s": 60.7,
+      "exit_code": 99,
+      "k6": {
+        "error_rate": 0,
+        "max_ms": 168.670681,
+        "p50_ms": 43.398541,
+        "p95_ms": 68.6067942,
+        "p999_ms": 113.32658159800384,
+        "p99_ms": 85.22283595999998,
+        "requests": 59859,
+        "thresholds": {
+          "http_req_duration": {
+            "p(99)<50": true
+          },
+          "http_req_failed": {
+            "rate<0.001": false
+          }
+        },
+        "throughput_rps": 996.932
+      },
+      "k6_vs_server_p99_delta_pct": null,
+      "run": 2,
+      "server": {
+        "decisions": {
+          "fade_decisions_total{decision=\"ALLOW\",degraded=\"false\"}": 19982.0,
+          "fade_decisions_total{decision=\"STEP_UP\",degraded=\"false\"}": 2575.0,
+          "fade_decisions_total{decision=\"STEP_UP\",degraded=\"true\"}": 37302.0
+        },
+        "http": {
+          "count": 59859,
+          "p50_0": 50.0,
+          "p95_0": 100.0,
+          "p99_0": 100.0,
+          "p99_9": 200.0
+        },
+        "requests": {
+          "fade_http_requests_total{route=\"/healthz\",status=\"200\"}": 12.0,
+          "fade_http_requests_total{route=\"/metrics\",status=\"200\"}": 13.0,
+          "fade_http_requests_total{route=\"/v1/decide\",status=\"200\"}": 59859.0
+        },
+        "shed": {},
+        "stages_ms": {}
+      },
+      "started_at": "2026-11-19T12:36:51.055233+00:00"
+    },
+    {
+      "command": "k6 run --summary-trend-stats avg,min,med,max,p(90),p(95),p(99),p(99.9) --summary-export /run/media/kayi/New Volume1/FADE/bench/results/2026-11-19/s1-run3.k6.json /run/media/kayi/New Volume1/FADE/bench/k6/s1-steady.js",
+      "elapsed_s": 60.75,
+      "exit_code": 99,
+      "k6": {
+        "error_rate": 0,
+        "max_ms": 189.831192,
+        "p50_ms": 47.685489,
+        "p95_ms": 76.92518959999997,
+        "p999_ms": 137.61327281400062,
+        "p99_ms": 98.36705832,
+        "requests": 59819,
+        "thresholds": {
+          "http_req_duration": {
+            "p(99)<50": true
+          },
+          "http_req_failed": {
+            "rate<0.001": false
+          }
+        },
+        "throughput_rps": 995.932
+      },
+      "k6_vs_server_p99_delta_pct": null,
+      "run": 3,
+      "server": {
+        "decisions": {
+          "fade_decisions_total{decision=\"ALLOW\",degraded=\"false\"}": 9413.0,
+          "fade_decisions_total{decision=\"STEP_UP\",degraded=\"false\"}": 1639.0,
+          "fade_decisions_total{decision=\"STEP_UP\",degraded=\"true\"}": 48767.0
+        },
+        "http": {
+          "count": 59819,
+          "p50_0": 50.0,
+          "p95_0": 100.0,
+          "p99_0": 100.0,
+          "p99_9": 200.0
+        },
+        "requests": {
+          "fade_http_requests_total{route=\"/healthz\",status=\"200\"}": 12.0,
+          "fade_http_requests_total{route=\"/metrics\",status=\"200\"}": 13.0,
+          "fade_http_requests_total{route=\"/v1/decide\",status=\"200\"}": 59819.0
+        },
+        "shed": {},
+        "stages_ms": {}
+      },
+      "started_at": "2026-11-19T12:37:51.770927+00:00"
+    }
+  ],
+  "scenario": "S1",
+  "seed": "11",
+  "tag": ""
+}

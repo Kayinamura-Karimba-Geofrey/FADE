@@ -59,3 +59,6 @@ Thumbs.db
 
 # Replay artifacts
 replay/jobs/
+
+# Local backup bundles
+backups/

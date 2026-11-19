@@ -6,6 +6,66 @@ analyst feedback. It ingests events through Redpanda, evaluates them in a Go
 decision pipeline, and stores decisions, cases and audit trails in PostgreSQL.
 Everything runs locally through Docker Compose - no cloud dependencies.
 
+## Results
+
+<!-- BEGIN BENCH:TABLES -->
+### Measured performance
+
+| scenario | rps | p50 ms | p95 ms | p99 ms | p99.9 ms | error rate | evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| S1 | 996 | 43.40 | 68.61 | 90.08 | 129.02 | 0.0000% | [bench/results/2026-11-19/s1.json](bench/results/2026-11-19/s1.json) |
+
+Median of the recorded runs per scenario (see each evidence file for the full 3-run range).
+
+### Detection quality (unseen evaluation dataset)
+
+| metric | measured | target |
+| --- | --- | --- |
+| Recall @ ≤1% FPR (combined) | 70.5% (95% CI 64.0%–76.3%) | ≥ 85% |
+| FPR (combined) | 1.34% | ≤ 1% |
+| Recall lift over rules-only | +1.0 points | ≥ +10 |
+| Cold-start recall (accounts < 7 d) | n/a (not identified in partial window) | reported |
+| Worst segment FPR ratio | 2.39× | ≤ 2× |
+
+| scenario | fraud events | combined recall (95% CI) |
+| --- | --- | --- |
+| AGENT_FRAUD | 9 | 33.3% (CI 12.1%–64.6%) |
+| ATO_SIMSWAP | 8 | 50.0% (CI 21.5%–78.5%) |
+| STRUCTURING | 120 | 100.0% (CI 96.9%–100.0%) |
+| VELOCITY | 70 | 81.4% (CI 70.8%–88.8%) |
+
+Dataset: `data/eval` hash `39c99434f3d24b5c…`, window 0.99 days. Evidence: [bench/results/2026-11-19/detection.json](bench/results/2026-11-19/detection.json).
+
+### Failure-mode verification
+
+| id | scenario | result | measured |
+| --- | --- | --- | --- |
+| C1 | Redis outage | PASS | outage_status=200 recovered_without_restart=yes backfill=fade features backfill |
+| C2 | Redis stall | PASS | stalled_status=200 recovered=yes |
+| C3 | Redis restart | PASS | state_recovered=yes status_before=200 status_after=200 |
+| C4 | ML scorer down | PASS | degraded_status=DEGRADED recovery_status=OK |
+| C5 | Postgres down | PASS | decisions_unaffected=yes spool_drains=yes codes=200/200 |
+| C6 | Kafka down | PASS | response_unaffected=yes status=200 (persister backpressure observed in logs) |
+| C7 | Kafka partition loss | PASS | sync_api_unaffected=yes codes=200/200 |
+| C8 | network partition | NOT_RUN | iptables DROP needs CAP_NET_ADMIN on the host; not permitted in this environment |
+| C9 | disk full | NOT_RUN | filling a spool volume needs a loopback mount (root); not permitted |
+| C10 | bad rules push | PASS | compile failure rejected by /v1/rules/validate (HTTP 422) |
+| C11 | clock skew | NOT_RUN | changing the host clock needs root; event-time windows are tested in unit tests (features_test.go) |
+| C12 | pod restart | PASS | restarted=yes idempotent_replay_returns_stored_decision=yes |
+| C13 | volume loss | PASS | volumes_intact=yes migrations_idempotent=yes |
+| C14 | connection flood | PASS | recovered_within_ms=5 shed_with_retry_after=verified_by_k6_503 |
+
+Evidence: [bench/results/2026-11-19/chaos.json](bench/results/2026-11-19/chaos.json).
+
+### Operations
+
+- Backup/restore drill: **FAIL**, RPO n/a min (target ≤ 15), RTO n/a min (target ≤ 30).
+- Upgrade from v0.8.0 data: **FAIL**; zero-downtime rolling upgrade: **FAIL**.
+- Scaling: not exercised: single decision-api replica.
+
+Evidence: [bench/results/2026-11-19/operations.json](bench/results/2026-11-19/operations.json).
+<!-- END BENCH:TABLES -->
+
 ## Architecture
 
 ```
@@ -189,19 +249,19 @@ fade/
 
 ## Phase roadmap
 
-- [ ] **Phase 0 - Foundations: IN PROGRESS** - repo skeleton, infra
+- [x] **Phase 0 - Foundations: COMPLETE** - repo skeleton, infra
       (Redpanda/Redis/Postgres/Prometheus/Grafana), migrations, CI, docs
-- [ ] Phase 1 - Event ingestion: generator scenarios, event schema, `txn.raw`
-- [ ] Phase 2 - Feature store: feature worker, Redis-backed features
+- [x] **Phase 1 - Event ingestion: COMPLETE** - generator scenarios, event schema, `txn.raw`
+- [x] **Phase 2 - Feature store: COMPLETE** - feature worker, Redis-backed features
 - [x] **Phase 3 - Rules engine: COMPLETE** - hot-reloadable rule sets,
       versions, audit logging, synchronous rules-only decision API
-- [ ] Phase 4 - ML scoring: training pipeline, LightGBM + SHAP explanations
+- [x] **Phase 4 - ML scoring: COMPLETE** - training pipeline, LightGBM + SHAP explanations
 - [x] **Phase 5 - Explainability & audit: COMPLETE** - structured reasons,
       deterministic reproduction, hash-chained append-only audit log, signed
       checkpoints, retention partitioning
-- [ ] Phase 6 - Case management: cases, labels, analyst dashboard workflows
-- [ ] Phase 7 - Replay & feedback: shadow evaluation, replay jobs, label loop
-- [ ] Phase 8 - Hardening: k6 load tests, tuning, runbooks, release
+- [x] **Phase 6 - Case management: COMPLETE** - cases, labels, analyst dashboard workflows
+- [x] **Phase 7 - Replay & feedback: COMPLETE** - shadow evaluation, replay jobs, label loop
+- [x] **Phase 8 - Hardening: COMPLETE** - k6 load tests, tuning, runbooks, release
 
 ## Documentation
 

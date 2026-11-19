@@ -282,3 +282,61 @@ replay-worker: ## Run the replay worker
 
 replay-clean: ## Delete replay artifacts older than DAYS (default 30)
 	find replay/jobs -mindepth 1 -maxdepth 1 -type d -mtime +$${DAYS:-30} -exec rm -rf {} +
+
+# ---------------------------------------------------------------- Phase 8 release
+.PHONY: env-report bench-preflight bench-reset readme-tables docs-test backup restore-drill train-demo demo
+
+env-report: ## Capture reference environment into bench/results/<date>/environment.json
+	python3 scripts/env_report.py
+
+bench-preflight: ## Pre-flight checks before benchmarking
+	python3 scripts/bench_preflight.py
+
+bench-reset: ## Clean state: wipe volumes, migrate, load rules/model, warm up
+	bash scripts/bench_reset.sh
+
+readme-tables: ## Regenerate README tables from bench JSON
+	python3 scripts/readme_tables.py
+
+docs-test: ## Validate docs commands, links, make targets, env vars
+	python3 scripts/docs_test.py
+
+backup: ## Create a backup bundle
+	bash scripts/backup.sh
+
+restore-drill: ## Restore backup into scratch env and verify
+	bash scripts/restore_drill.sh
+
+train-demo: ## Train a small model on data/small and promote it (< 10 min)
+	$(PY) -m ml.train build-table --data-dir data/small
+	$(PY) -m ml.train train --data-dir data/small --time-budget 300
+	$(PY) -m ml.registry promote --version $$(ls ml/models | sort | tail -1) || true
+
+demo: ## Seed data, publish through stack, create demo users, print URLs
+	bash scripts/demo.sh
+
+
+# ---------------------------------------------------------------- Phase 8 benchmarks
+.PHONY: bench-s1 bench-s2 bench-s3 bench-s4 bench-s5 bench-s6 bench-s7 bench-s8 bench-s9 bench-all bench-report
+bench-s1: ## S1 steady load
+	BASE_URL=$(BASE_URL) TOKEN=$$($(GO) run ./cmd/dev-token) RATE=1000 DURATION=10m $(K6) run bench/k6/s1-steady.js
+bench-s2: ## S2 ramp
+	BASE_URL=$(BASE_URL) TOKEN=$$($(GO) run ./cmd/dev-token) $(K6) run bench/k6/s2-ramp.js
+bench-s3: ## S3 spike
+	BASE_URL=$(BASE_URL) TOKEN=$$($(GO) run ./cmd/dev-token) $(K6) run bench/k6/s3-spike.js
+bench-s4: ## S4 soak
+	BASE_URL=$(BASE_URL) TOKEN=$$($(GO) run ./cmd/dev-token) DURATION=4h $(K6) run bench/k6/s4-soak.js
+bench-s5: ## S5 duplicate storm
+	BASE_URL=$(BASE_URL) TOKEN=$$($(GO) run ./cmd/dev-token) $(K6) run bench/k6/s5-dup-storm.js
+bench-s6: ## S6 mixed API
+	BASE_URL=$(BASE_URL) TOKEN=$$($(GO) run ./cmd/dev-token) $(K6) run bench/k6/s6-mixed.js
+bench-s7: ## S7 hot-account skew
+	BASE_URL=$(BASE_URL) TOKEN=$$($(GO) run ./cmd/dev-token) $(K6) run bench/k6/s7-hot-skew.js
+bench-s8: ## S8 ML down chaos-style
+	bash scripts/chaos/s8-ml-down.sh
+bench-s9: ## S9 cold start
+	bash scripts/chaos/s9-cold-start.sh
+bench-all: ## Run all benchmark scenarios 3 times
+	bash scripts/bench_all.sh
+bench-report: ## Aggregate bench results into Markdown
+	python3 scripts/bench_report.py

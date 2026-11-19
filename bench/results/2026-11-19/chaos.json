@@ -1,0 +1,83 @@
+{
+  "generated_at": "2026-11-19T12:23:51.876333+00:00",
+  "git_sha": "ea6e14edd5cc4dbf4404813286d8433f876837d7",
+  "engine_version": "1.0.0",
+  "scenarios": [
+    {
+      "id": "C1",
+      "result": "PASS",
+      "detail": "outage_status=200 recovered_without_restart=yes backfill=fade features backfill"
+    },
+    {
+      "id": "C2",
+      "result": "PASS",
+      "detail": "stalled_status=200 recovered=yes"
+    },
+    {
+      "id": "C3",
+      "result": "PASS",
+      "detail": "state_recovered=yes status_before=200 status_after=200"
+    },
+    {
+      "id": "C4",
+      "result": "PASS",
+      "detail": "degraded_status=DEGRADED recovery_status=OK"
+    },
+    {
+      "id": "C5",
+      "result": "PASS",
+      "detail": "decisions_unaffected=yes spool_drains=yes codes=200/200"
+    },
+    {
+      "id": "C6",
+      "result": "PASS",
+      "detail": "response_unaffected=yes status=200 (persister backpressure observed in logs)"
+    },
+    {
+      "id": "C7",
+      "result": "PASS",
+      "detail": "sync_api_unaffected=yes codes=200/200"
+    },
+    {
+      "id": "C8",
+      "result": "NOT_RUN",
+      "detail": "iptables DROP needs CAP_NET_ADMIN on the host; not permitted in this environment"
+    },
+    {
+      "id": "C9",
+      "result": "NOT_RUN",
+      "detail": "filling a spool volume needs a loopback mount (root); not permitted"
+    },
+    {
+      "id": "C10",
+      "result": "PASS",
+      "detail": "compile failure rejected by /v1/rules/validate (HTTP 422)"
+    },
+    {
+      "id": "C11",
+      "result": "NOT_RUN",
+      "detail": "changing the host clock needs root; event-time windows are tested in unit tests (features_test.go)"
+    },
+    {
+      "id": "C12",
+      "result": "PASS",
+      "detail": "restarted=yes idempotent_replay_returns_stored_decision=yes"
+    },
+    {
+      "id": "C13",
+      "result": "PASS",
+      "detail": "volumes_intact=yes migrations_idempotent=yes"
+    },
+    {
+      "id": "C14",
+      "result": "PASS",
+      "detail": "recovered_within_ms=5 shed_with_retry_after=verified_by_k6_503"
+    }
+  ],
+  "summary": {
+    "pass": 11,
+    "fail": 0,
+    "not_run": 3,
+    "total": 14
+  }
+}
